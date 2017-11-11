@@ -35,6 +35,8 @@
     "webpack-visualizer-plugin": "^0.1.11"
   },
   "dependencies": {
+    "pouchdb": "^6.3.4",
+    "pouchdb-adapter-memory": "^6.3.4",
     "ramda": "^0.25.0"
   }
 }
