@@ -1,7 +1,7 @@
 // @ts-check
 import * as React from "react";
 import { Atom, F } from "@grammarly/focal";
-import { is } from "ramda/es";
+import sam from "../sam";
 
 export const Counter = ({ count, onClick }) => (
   <F.div>
@@ -27,6 +27,9 @@ export const AnInput = ({ value, onChange }) => (
 export const App = ({ state }) => (
   <div>
     Hello, world!
+    <F.div>
+      {state.lens(x => x.actionPending).view(x => JSON.stringify(x))}
+    </F.div>
     <Counter
       count={// take the app state and lens into its part where the
       // counter's state lies.
@@ -59,12 +62,27 @@ export const defaultState = {
     // toggle: true
     // A source of distinct inputs
     // text: "foo"
-  }
+  },
+  actionPending: []
 };
 
-export const actions = {
-  toggle: x => new Promise(resolve => setTimeout(() => resolve(x), 3000)),
+export const actions = shim => ({
+  toggle: async x => {
+    return await new Promise(resolve => setTimeout(() => resolve(x), 3000));
+  },
   text: x => x
+});
+
+export const model = shim => state => async ([s, p]) => {
+  console.log(`New proposal: ${JSON.stringify(p)}`);
+
+  if (p.toggle !== undefined) {
+    state.lens(s => s.toggle.value).set(!s.toggle.value);
+  }
+
+  if (p.text !== undefined) {
+    state.lens(s => s.text).set(p.text);
+  }
 };
 
 /* eslint-disable react/display-name */
@@ -75,47 +93,7 @@ export default ({ shim }) => {
     console.log(`New app state: ${JSON.stringify(x)}`);
   });
 
-  state
-    .skip(1) // initial render
-    .filter(s => {
-      const isValid = is(Object, s.action);
-      if (!isValid) {
-        console.warn("App - Discarded invalid action:", s.action);
-      }
-      return isValid;
-    })
-    .distinct(s => s.action)
-    .filter(s => Object.keys(s.action).length > 0)
-    .flatMap(async s => {
-      const key = Object.keys(s.action)[0];
-      let proposal;
-      try {
-        proposal = await actions[key](s.action);
-      } catch (error) {
-        console.error("App proposal -", error);
-      }
-      return [s, proposal];
-    }) // delay allows usage of atom API
-    .filter(([, p]) => {
-      const isValid = is(Object, p);
-      if (!isValid) {
-        console.warn("App - Discarded proposal:", p);
-      }
-      return isValid;
-    })
-    .filter(([, p]) => Object.keys(p).length > 0)
-    .do(([s, p]) => {
-      console.log(`New proposal: ${JSON.stringify(p)}`);
-
-      if (p.toggle !== undefined) {
-        state.lens(s => s.toggle.value).set(!s.toggle.value);
-      }
-
-      if (p.text !== undefined) {
-        state.lens(s => s.text).set(p.text);
-      }
-    })
-    .subscribe();
+  sam(model(shim), actions(shim), state);
 
   return <App state={state} />;
 };
