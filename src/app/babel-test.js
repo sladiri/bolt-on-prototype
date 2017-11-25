@@ -1,5 +1,5 @@
 // @ts-check
-import pipe from "ramda/es/pipe";
+import { pipe } from "ramda/es";
 import { wait, toArray, asyncEach, asyncFilter, asyncMap } from "./async-util";
 
 const o = { a: 42 };
