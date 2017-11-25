@@ -2,7 +2,7 @@
 import * as ReactDOM from "react-dom";
 import getDb from "./pouch";
 import { getLocalStore, getShim } from "./bolton";
-import getApp from "./root";
+import getApp, { getActions, getModel } from "./app-shell";
 
 const setupShim = async ({ dbOpts }) => {
   const db = await getDb(dbOpts);
@@ -19,7 +19,7 @@ const renderApp = ({ shim }) => {
 
   document.body.appendChild(rootEl);
 
-  const app = getApp({ shim });
+  const app = getApp({ shim, getModel, getActions });
 
   ReactDOM.render(app, rootEl);
 };
