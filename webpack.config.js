@@ -11,6 +11,7 @@ const PATHS = (() => {
   const src = path.join(__dirname, "src");
   const polyfill = path.join(src, "polyfill");
   const app = path.join(src, "app");
+  const components = path.join(src, "components");
 
   return {
     build,
@@ -18,7 +19,8 @@ const PATHS = (() => {
     favicon,
     src,
     polyfill,
-    app
+    app,
+    components
   };
 })();
 
@@ -33,20 +35,21 @@ const commonConfig = ({ modules, debug = false }) => ({
   },
   resolve: {
     alias: {
-      assets: PATHS.assets
+      assets: PATHS.assets,
+      components: PATHS.components
     }
   },
   module: {
     rules: [
       {
         test: /\.svg$/,
+        include: PATHS.assets,
         use: [
           "svg-sprite-loader"
           // "svgo-loader" // Currently broken?
           // { loader: 'file-loader' },
           // { loader: 'react-svg-loader', options: { jsx: true } },
-        ],
-        include: PATHS.assets
+        ]
       },
       {
         test: /\.js$/,
@@ -116,11 +119,26 @@ const productionConfig = () => {
         ...baseConfig.module.rules,
         {
           test: /\.css$/,
+          include: PATHS.src,
           use: ExtractTextPlugin.extract({
             fallback: "style-loader",
             use: [
-              { loader: "css-loader", options: { importLoaders: 1 } },
-              { loader: "postcss-loader" }
+              {
+                loader: "css-loader",
+                options: { importLoaders: 1 }
+              },
+              {
+                loader: "postcss-loader",
+                options: {
+                  plugins: () => [
+                    require("postcss-import")({
+                      path: ["src"]
+                    }),
+                    require("postcss-cssnext"),
+                    require("cssnano")
+                  ]
+                }
+              }
             ]
           })
         }
@@ -169,10 +187,24 @@ const developmentConfig = ({ host = "localhost", port = "3000" }) => {
         ...baseConfig.module.rules,
         {
           test: /\.css$/,
+          include: PATHS.src,
           use: [
             "style-loader",
-            { loader: "css-loader", options: { importLoaders: 1 } },
-            { loader: "postcss-loader" }
+            {
+              loader: "css-loader",
+              options: { importLoaders: 1 }
+            },
+            {
+              loader: "postcss-loader",
+              options: {
+                plugins: () => [
+                  require("postcss-import")({
+                    path: ["src"]
+                  }),
+                  require("postcss-cssnext")
+                ]
+              }
+            }
           ]
         }
       ]

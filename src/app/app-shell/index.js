@@ -3,14 +3,28 @@ import * as React from "react";
 import { Atom, F } from "@grammarly/focal";
 import { append, reject, equals } from "ramda/es";
 import danger3 from "assets/danger-3.svg";
-import { Icon } from "../components/icon";
+import { Icon } from "components/icon";
+import "./style.css";
 
-export const Counter = ({ count, onClick }) => (
-  <F.div>
-    You have clicked this button {count} time(s).&nbsp;
-    <button onClick={onClick}>Click</button>
-  </F.div>
-);
+import { Form, TextInput, PasswordInput } from "a-plus-forms";
+
+const sendToServer = ({ username, password }) => {
+  console.log("servr", username, password);
+};
+
+export const Counter = ({ count, onClick, text }) => {
+  return (
+    <F.div>
+      You have clicked this button {count} time(s).&nbsp;
+      <button onClick={onClick}>Click</button>
+      <Form onSubmit={sendToServer}>
+        <TextInput name="username" label={"Username"} />
+        <PasswordInput name="password" label="Password" />
+        <button type="submit">Sign In</button>
+      </Form>
+    </F.div>
+  );
+};
 
 export const Toggle = ({ value, onClick }) => (
   <F.div>
@@ -29,9 +43,13 @@ export const AnInput = ({ value, onChange }) => (
 export const App = ({ state, propose }) => {
   return (
     <div>
-      <Icon {...danger3} />&nbsp;Hello, world!
+      <h1>
+        <Icon {...danger3} />&nbsp;Hello, world!
+      </h1>
       <F.div>
-        {state.lens(x => x.actionPending).view(x => JSON.stringify(x))}
+        {state
+          .lens(x => x.actionPending)
+          .view(x => (x.length ? JSON.stringify(x) : "[ ]"))}
       </F.div>
       <Counter
         count={
@@ -43,6 +61,7 @@ export const App = ({ state, propose }) => {
           // and in a type safe way. how is it type safe? see below.
           state.lens(x => x.count)
         }
+        text={state.lens(x => x.text)}
         onClick={() => state.lens(x => x.count).modify(x => x + 1)}
       />
       <Toggle

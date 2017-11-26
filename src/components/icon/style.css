@@ -1,6 +1,4 @@
-:root {
-  --iconGrey: #333;
-}
+@import "global.css";
 
 .icon {
   width: 1em;
