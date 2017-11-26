@@ -12,7 +12,7 @@ const sendToServer = ({ username, password }) => {
   console.log("servr", username, password);
 };
 
-export const Counter = ({ count, onClick, text }) => {
+export const Counter = ({ count, onClick }) => {
   return (
     <F.div>
       You have clicked this button {count} time(s).&nbsp;
@@ -61,7 +61,6 @@ export const App = ({ state, propose }) => {
           // and in a type safe way. how is it type safe? see below.
           state.lens(x => x.count)
         }
-        text={state.lens(x => x.text)}
         onClick={() => state.lens(x => x.count).modify(x => x + 1)}
       />
       <Toggle
