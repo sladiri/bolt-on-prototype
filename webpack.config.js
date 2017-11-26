@@ -72,7 +72,8 @@ const commonConfig = ({ modules, debug = false }) => ({
               "transform-async-generator-functions",
               "transform-do-expressions",
               "transform-function-bind",
-              "transform-react-jsx"
+              "transform-react-jsx",
+              "syntax-dynamic-import"
             ],
             presets: [
               [
@@ -169,6 +170,10 @@ const productionConfig = () => {
       ...baseConfig.plugins,
       new ExtractTextPlugin({
         filename: "[name].css"
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: "vendor",
+        minChunks: ({ resource }) => /node_modules/.test(resource)
       }),
       new CompressionPlugin({
         algorithm: "gzip",

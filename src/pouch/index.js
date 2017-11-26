@@ -1,13 +1,7 @@
 // @ts-check
-import PouchDB from "pouchdb";
-import pouchMemory from "pouchdb-adapter-memory";
-
-PouchDB.plugin(pouchMemory);
-// PouchDB.debug.enable("*");
-
 const logPrefix = "pouch -";
 
-const connectRemote = ({ host, name }) => {
+const connectRemote = ({ PouchDB, host, name }) => {
   if (!host || !name) {
     return;
   }
@@ -24,7 +18,7 @@ const connectRemote = ({ host, name }) => {
   return db;
 };
 
-const connectLocal = ({ name }) => {
+const connectLocal = ({ PouchDB, name }) => {
   if (!name) {
     throw new Error("[pouch.connectLocal] - No local DB name given.");
   }
@@ -43,7 +37,7 @@ const connectLocal = ({ name }) => {
   return [db, cache];
 };
 
-const syncDb = async ({ source, target }) => {
+const syncDb = async ({ PouchDB, source, target }) => {
   if (!source || !target) {
     return;
   }
@@ -62,31 +56,47 @@ const syncDb = async ({ source, target }) => {
 };
 
 const connectDb = async ({ remoteOpts, localOpts }) => {
+  const [{ default: PouchDB }, { default: pouchMemory }] = await Promise.all([
+    import("pouchdb"),
+    import("pouchdb-adapter-memory")
+  ]);
+
+  PouchDB.plugin(pouchMemory);
+  // PouchDB.debug.enable("*");
+
   let remote;
   let local;
   let cache;
 
   if (remoteOpts) {
-    remote = connectRemote(remoteOpts);
+    remote = connectRemote({ ...remoteOpts, PouchDB });
   }
 
   if (localOpts) {
-    [local, cache] = connectLocal(localOpts);
+    [local, cache] = connectLocal({ ...localOpts, PouchDB });
   }
 
-  await syncDb({ source: remote, target: local });
-  await syncDb({ source: local, target: cache });
+  await syncDb({ PouchDB, source: remote, target: local });
+  await syncDb({ PouchDB, source: local, target: cache });
 
   return cache;
 };
 
-const getProxy = ({ db }) => {
-  if (!db) {
-    return;
+export const getDb = dbOptions => {
+  if (!dbOptions) {
+    throw new Error("[getPouch] - No options given.");
   }
 
+  let db;
+
+  const ensureDb = async () => {
+    if (!db) {
+      db = await connectDb(dbOptions);
+    }
+  };
+
   return {
-    get: options => {
+    async get(options) {
       if (!options) {
         throw new Error("[pouch.getProxy] - Missing options");
       }
@@ -97,9 +107,11 @@ const getProxy = ({ db }) => {
         throw new Error("[pouch.getProxy] - Missing key");
       }
 
+      await ensureDb();
+
       throw new Error("Not implemented.");
     },
-    put: options => {
+    async put(options) {
       if (!options) {
         throw new Error("[pouch.getProxy] - Missing options");
       }
@@ -114,27 +126,9 @@ const getProxy = ({ db }) => {
         throw new Error("[pouch.getProxy] - Missing val");
       }
 
+      await ensureDb();
+
       throw new Error("Not implemented.");
     }
   };
-};
-
-export const getDb = async options => {
-  if (!options) {
-    return;
-  }
-
-  if (!options) {
-    throw new Error("[getPouch] - No options given.");
-  }
-
-  const { localOpts } = options;
-
-  if (!localOpts) {
-    throw new Error("[getPouch] - Invalid options given.");
-  }
-
-  const db = await connectDb(options);
-
-  return getProxy({ db });
 };
