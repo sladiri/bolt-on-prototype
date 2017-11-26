@@ -29,7 +29,7 @@ export const AnInput = ({ value, onChange }) => (
 export const App = ({ state, propose }) => {
   return (
     <div>
-      <Icon id={danger3.id} />&nbsp;Hello, world!
+      <Icon {...danger3} />&nbsp;Hello, world!
       <F.div>
         {state.lens(x => x.actionPending).view(x => JSON.stringify(x))}
       </F.div>

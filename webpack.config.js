@@ -5,15 +5,19 @@ const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 // const HtmlWebpackInlineSVGPlugin = require("html-webpack-inline-svg-plugin");
 
 const PATHS = (() => {
+  const build = path.join(__dirname, "build");
   const assets = path.join(__dirname, "assets");
+  const favicon = path.join(assets, "icons8-socks.png");
   const src = path.join(__dirname, "src");
+  const polyfill = path.join(src, "polyfill");
   const app = path.join(src, "app");
+
   return {
+    build,
     assets,
-    favicon: path.join(assets, "icons8-socks.png"),
-    build: path.join(__dirname, "build"),
-    polyfill: path.join(app, "polyfill"),
+    favicon,
     src,
+    polyfill,
     app
   };
 })();
@@ -32,23 +36,6 @@ const commonConfig = ({ modules, debug = false }) => ({
       assets: PATHS.assets
     }
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "Bolt-on Prototype",
-      minify: { maxLineLength: 80 }
-    }),
-    new FaviconsWebpackPlugin({
-      logo: PATHS.favicon,
-      icons: {
-        android: false,
-        appleIcon: false,
-        appleStartup: false,
-        favicons: true,
-        firefox: false
-      }
-    })
-    // new HtmlWebpackInlineSVGPlugin(),
-  ],
   module: {
     rules: [
       {
@@ -92,12 +79,30 @@ const commonConfig = ({ modules, debug = false }) => ({
         }
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: "Browser Boiler",
+      minify: { maxLineLength: 80 }
+    }),
+    new FaviconsWebpackPlugin({
+      logo: PATHS.favicon,
+      icons: {
+        android: false,
+        appleIcon: false,
+        appleStartup: false,
+        favicons: true,
+        firefox: false
+      }
+    })
+    // new HtmlWebpackInlineSVGPlugin(),
+  ]
 });
 
 const productionConfig = () => {
   const webpack = require("webpack");
   const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+  const ExtractTextPlugin = require("extract-text-webpack-plugin");
   const Visualizer = require("webpack-visualizer-plugin");
   const CompressionPlugin = require("compression-webpack-plugin");
 
@@ -105,6 +110,22 @@ const productionConfig = () => {
 
   return Object.assign({}, baseConfig, {
     devtool: "source-map",
+    module: {
+      ...baseConfig.module,
+      rules: [
+        ...baseConfig.module.rules,
+        {
+          test: /\.css$/,
+          use: ExtractTextPlugin.extract({
+            fallback: "style-loader",
+            use: [
+              { loader: "css-loader", options: { importLoaders: 1 } },
+              { loader: "postcss-loader" }
+            ]
+          })
+        }
+      ]
+    },
     plugins: [
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify("production")
@@ -119,6 +140,9 @@ const productionConfig = () => {
         }
       }),
       ...baseConfig.plugins,
+      new ExtractTextPlugin({
+        filename: "[name].css"
+      }),
       new CompressionPlugin({
         algorithm: "gzip",
         test: /\.js$|\.css$|\.html$|\.eot?.+$|\.ttf?.+$|\.woff?.+$|\.svg?.+$/,
@@ -134,10 +158,25 @@ const productionConfig = () => {
 
 const developmentConfig = ({ host = "localhost", port = "3000" }) => {
   const fs = require("fs");
+  const baseConfig = commonConfig({ modules: "commonjs" });
 
-  return Object.assign({}, commonConfig({ modules: "commonjs" }), {
+  return Object.assign({}, baseConfig, {
     // devtool: "eval-source-map",
-    devtool: "cheap-module-eval-source-map", // line-only
+    devtool: "cheap-module-eval-source-map", // line-only,
+    module: {
+      ...baseConfig.module,
+      rules: [
+        ...baseConfig.module.rules,
+        {
+          test: /\.css$/,
+          use: [
+            "style-loader",
+            { loader: "css-loader", options: { importLoaders: 1 } },
+            { loader: "postcss-loader" }
+          ]
+        }
+      ]
+    },
     devServer: {
       historyApiFallback: true,
       stats: "errors-only",

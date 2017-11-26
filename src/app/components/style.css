@@ -1,0 +1,10 @@
+:root {
+  --iconGrey: #333;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: var(--iconGrey);
+}
