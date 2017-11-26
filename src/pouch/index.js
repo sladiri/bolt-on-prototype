@@ -61,7 +61,7 @@ const syncDb = async ({ source, target }) => {
   }
 };
 
-const getDb = async ({ remoteOpts, localOpts }) => {
+const connectDb = async ({ remoteOpts, localOpts }) => {
   let remote;
   let local;
   let cache;
@@ -119,7 +119,7 @@ const getProxy = ({ db }) => {
   };
 };
 
-export default async options => {
+export const getDb = async options => {
   if (!options) {
     return;
   }
@@ -134,7 +134,7 @@ export default async options => {
     throw new Error("[getPouch] - Invalid options given.");
   }
 
-  const db = await getDb(options);
+  const db = await connectDb(options);
 
   return getProxy({ db });
 };

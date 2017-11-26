@@ -1,55 +1,22 @@
 // @ts-check
 import * as React from "react";
-import { Atom, F } from "@grammarly/focal";
-import { append, reject, equals } from "ramda/es";
+import { F } from "@grammarly/focal";
+import { identity } from "ramda/es";
 import danger3 from "assets/danger-3.svg";
 import { Icon } from "components/icon";
+import { Counter } from "components/counter";
+import { Toggle } from "components/toggle";
+import { AnInput } from "components/an-input";
 import "./style.css";
 
-import { Form, TextInput, PasswordInput } from "a-plus-forms";
-
-const sendToServer = ({ username, password }) => {
-  console.log("servr", username, password);
-};
-
-export const Counter = ({ count, onClick }) => {
-  return (
-    <F.div>
-      You have clicked this button {count} time(s).&nbsp;
-      <button onClick={onClick}>Click</button>
-      <Form onSubmit={sendToServer}>
-        <TextInput name="username" label={"Username"} />
-        <PasswordInput name="password" label="Password" />
-        <button type="submit">Sign In</button>
-      </Form>
-    </F.div>
-  );
-};
-
-export const Toggle = ({ value, onClick }) => (
-  <F.div>
-    clickValue: {value}&nbsp;
-    <button onClick={onClick}>Toggle</button>
-  </F.div>
-);
-
-export const AnInput = ({ value, onChange }) => (
-  <F.div>
-    textValue: {value}&nbsp;
-    <F.input value={value} onChange={onChange} />
-  </F.div>
-);
-
-export const App = ({ state, propose }) => {
+export const App = ({ state, views, propose }) => {
   return (
     <div>
       <h1>
         <Icon {...danger3} />&nbsp;Hello, world!
       </h1>
       <F.div>
-        {state
-          .lens(x => x.actionPending)
-          .view(x => (x.length ? JSON.stringify(x) : "[ ]"))}
+        {views.actionPending.view(x => (x.length ? JSON.stringify(x) : "[ ]"))}
       </F.div>
       <Counter
         count={
@@ -64,71 +31,40 @@ export const App = ({ state, propose }) => {
         onClick={() => state.lens(x => x.count).modify(x => x + 1)}
       />
       <Toggle
-        value={state.lens(x => x.toggle.value).view(x => (x ? "Foo" : "Bar"))}
+        value={views.toggle.view(x => (x ? "Foo" : "Bar"))}
         onClick={() => propose("toggle", {})}
       />
       <AnInput
-        value={state.lens(x => x.text)}
+        value={views.text}
         onChange={e => propose("text", { text: e.target.value })}
       />
     </div>
   );
 };
 
-export const defaultState = {
-  count: 0,
-  toggle: { value: true },
-  text: "Change Me",
+export const defaultViewState = {
+  count: -1,
+  toggle: false,
+  text: "",
   actionPending: []
 };
 
-export const getActions = ({ shim }) => ({
-  toggle: async () => ({
-    toggle: await new Promise(res => setTimeout(() => res(true), 3000))
-  }),
-  text: ({ text }) =>
-    (text || text === "") && {
-      text: text.toUpperCase()
-    }
-});
+export const getStateRepresentation = ({ viewState }) => {
+  const toggle = viewState.lens(x => x.toggle);
+  const text = viewState.lens(x => x.text);
 
-const isDefined = (key, obj) => obj[key] !== undefined;
+  function stateRepresentation({ state }) {
+    toggle.set(state.toggle);
+    text.set(state.text);
 
-export const getModel = ({ shim, state }) =>
-  async function model({ proposal }) {
-    if (isDefined("toggle", proposal)) {
-      // discards input
-      state.lens(s => s.toggle.value).modify(x => !x);
-    }
+    return; // Should return array of allowed actions?
+  }
 
-    if (isDefined("text", proposal)) {
-      state.lens(s => s.text).set(proposal.text);
+  return {
+    stateRepresentation,
+    views: {
+      toggle: toggle.view(identity),
+      text: text.view(identity)
     }
   };
-
-export default ({ shim, getModel, getActions }) => {
-  const state = Atom.create(defaultState);
-
-  state.subscribe(x => {
-    console.log(`New app state: ${JSON.stringify(x)}`);
-  });
-
-  const model = getModel({ shim, state });
-  const actions = getActions({ shim });
-
-  const propose = async (actionName, input) => {
-    const actionId = `actionName-${Date.now()}`;
-
-    state.lens(s => s.actionPending).modify(append(actionId));
-
-    const proposal = actions[actionName] && (await actions[actionName](input));
-
-    if (proposal) {
-      await model({ proposal });
-    }
-
-    state.lens(s => s.actionPending).modify(reject(equals(actionId)));
-  };
-
-  return <App state={state} propose={propose} />;
 };

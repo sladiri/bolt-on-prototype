@@ -12,6 +12,9 @@ const PATHS = (() => {
   const polyfill = path.join(src, "polyfill");
   const app = path.join(src, "app");
   const components = path.join(src, "components");
+  const boltOn = path.join(src, "bolt-on");
+  const pouch = path.join(src, "pouch");
+  const sam = path.join(src, "sam");
 
   return {
     build,
@@ -20,7 +23,10 @@ const PATHS = (() => {
     src,
     polyfill,
     app,
-    components
+    components,
+    boltOn,
+    pouch,
+    sam
   };
 })();
 
@@ -36,7 +42,10 @@ const commonConfig = ({ modules, debug = false }) => ({
   resolve: {
     alias: {
       assets: PATHS.assets,
-      components: PATHS.components
+      components: PATHS.components,
+      boltOn: PATHS.boltOn,
+      pouch: PATHS.pouch,
+      sam: PATHS.sam
     }
   },
   module: {
