@@ -1,0 +1,52 @@
+{
+  "name": "boltonprototype",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Slađan Ristić",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf ./build",
+    "start": "webpack-dev-server --env development",
+    "build:sprites": "mkdirp ./build && svg-sprite-generate -d ./assets/**/*.svg -o ./build/sprites.svg",
+    "build": "npm run clean && webpack --env.target production",
+    "prettier:check": "prettier -l src/**/*.js",
+    "prettier:write": "prettier --write src/**/*.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-async-generator-functions": "^6.24.1",
+    "babel-plugin-transform-do-expressions": "^6.22.0",
+    "babel-plugin-transform-function-bind": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "compression-webpack-plugin": "^1.0.1",
+    "core-js": "^2.5.1",
+    "eslint": "^4.11.0",
+    "eslint-config-prettier": "^2.8.0",
+    "eslint-plugin-react": "^7.5.1",
+    "favicons-webpack-plugin": "0.0.7",
+    "html-webpack-inline-svg-plugin": "^0.2.2",
+    "html-webpack-plugin": "^2.30.1",
+    "mkdirp": "^0.5.1",
+    "prettier": "^1.8.2",
+    "rimraf": "^2.6.2",
+    "svg-sprite-generator": "0.0.7",
+    "svg-sprite-loader": "^3.4.1",
+    "uglifyjs-webpack-plugin": "^1.1.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4",
+    "webpack-visualizer-plugin": "^0.1.11"
+  },
+  "dependencies": {
+    "@grammarly/focal": "^0.6.434",
+    "pouchdb": "^6.3.4",
+    "pouchdb-adapter-memory": "^6.3.4",
+    "ramda": "^0.25.0",
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "rxjs": "^5.5.2"
+  }
+}
