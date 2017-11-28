@@ -1,5 +1,5 @@
 // @ts-check
-import { append, reject, equals, is, identity } from "ramda/es";
+import { append, reject, equals, is, identity, curry } from "ramda/es";
 
 export const getSam = ({
   state,
@@ -39,7 +39,7 @@ export const getSam = ({
   }
 
   return {
-    propose: samStep,
+    propose: curry(samStep),
     actionPending: pending_.view(identity)
   };
 };

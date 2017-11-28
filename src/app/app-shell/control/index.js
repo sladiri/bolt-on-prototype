@@ -13,5 +13,15 @@ export const getActions = ({ shim }) => ({
     return {
       text: text.toUpperCase()
     };
+  },
+  async login({ userName, password }) {
+    if (!userName || !password) {
+      return;
+    }
+
+    return { userName };
+  },
+  async logout() {
+    return { userName: "" };
   }
 });
