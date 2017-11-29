@@ -4,6 +4,6 @@ import "./style.css";
 
 export const Icon = ({ id }) => (
   <svg className="icon">
-    <use href={`#${id}`} />
+    <use xlinkHref={`#${id}`} />
   </svg>
 );
