@@ -1,3 +1,13 @@
 :root {
   --iconGrey: #333;
 }
+
+.sock-btn {
+  width: 48px;
+  height: 48px;
+  /* background: url(/favicon-32x32.png) 0 -85px no-repeat; */
+  /* background-image: url(~assets/icons8-socks.png); */
+  background: url(~assets/icons8-socks.png) 0 0 repeat;
+  background-size: cover;
+  transform: rotate(30deg);
+}

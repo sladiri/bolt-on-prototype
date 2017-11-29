@@ -56,9 +56,14 @@ const commonConfig = ({ modules, debug = false }) => ({
         use: [
           "svg-sprite-loader"
           // "svgo-loader" // Currently broken?
-          // { loader: 'file-loader' },
+          // { loader: "file-loader" }
           // { loader: 'react-svg-loader', options: { jsx: true } },
         ]
+      },
+      {
+        test: /\.(jpg|png)$/,
+        include: PATHS.assets,
+        loader: "url-loader"
       },
       {
         test: /\.js$/,
@@ -108,7 +113,7 @@ const commonConfig = ({ modules, debug = false }) => ({
         firefox: false
       }
     })
-    // new HtmlWebpackInlineSVGPlugin(),
+    // new HtmlWebpackInlineSVGPlugin()
   ]
 });
 

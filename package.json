@@ -32,7 +32,6 @@
     "eslint-plugin-react": "^7.5.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "favicons-webpack-plugin": "0.0.7",
-    "html-webpack-inline-svg-plugin": "^0.2.2",
     "html-webpack-plugin": "^2.30.1",
     "mkdirp": "^0.5.1",
     "postcss-cssnext": "^3.0.2",
@@ -44,6 +43,7 @@
     "svg-sprite-generator": "0.0.7",
     "svg-sprite-loader": "^3.4.1",
     "uglifyjs-webpack-plugin": "^1.1.1",
+    "url-loader": "^0.6.2",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.5",
     "webpack-visualizer-plugin": "^0.1.11"
