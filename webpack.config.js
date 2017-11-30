@@ -101,7 +101,8 @@ const commonConfig = ({ modules, debug = false }) => ({
   plugins: [
     new HtmlWebpackPlugin({
       title: "Browser Boiler",
-      minify: { maxLineLength: 80 }
+      minify: { maxLineLength: 80 },
+      template: "index-html-template.html"
     }),
     new FaviconsWebpackPlugin({
       logo: PATHS.favicon,
