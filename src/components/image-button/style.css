@@ -1,0 +1,13 @@
+.imageButton {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.imageButton__label {
+  font-size: 0;
+  height: 1px;
+  overflow: hidden;
+  display: block;
+}

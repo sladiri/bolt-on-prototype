@@ -1,0 +1,5 @@
+.toggleButton {
+  width: 2em;
+  transform: rotate(-30deg);
+  margin: 0.2em;
+}

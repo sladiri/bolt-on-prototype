@@ -3,11 +3,12 @@
 }
 
 .sock-btn {
-  width: 48px;
-  height: 48px;
+  width: 3em;
+  height: 3em;
   /* background: url(/favicon-32x32.png) 0 -85px no-repeat; */
   /* background-image: url(~assets/icons8-socks.png); */
   background: url(~assets/icons8-socks.png) 0 0 repeat;
   background-size: cover;
   transform: rotate(30deg);
+  margin: 0.8em;
 }
