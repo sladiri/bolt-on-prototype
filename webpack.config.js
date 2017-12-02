@@ -7,11 +7,12 @@ const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 const PATHS = (() => {
   const build = path.join(__dirname, "build");
   const assets = path.join(__dirname, "assets");
+  const svgSprite = path.join(__dirname, "svg-sprite");
   const favicon = path.join(assets, "icons8-socks.png");
   const src = path.join(__dirname, "src");
   const polyfill = path.join(src, "polyfill");
   const app = path.join(src, "app");
-  const components = path.join(src, "components");
+  const elements = path.join(src, "elements");
   const boltOn = path.join(src, "bolt-on");
   const pouch = path.join(src, "pouch");
   const sam = path.join(src, "sam");
@@ -19,11 +20,12 @@ const PATHS = (() => {
   return {
     build,
     assets,
+    svgSprite,
     favicon,
     src,
     polyfill,
     app,
-    components,
+    elements,
     boltOn,
     pouch,
     sam
@@ -41,8 +43,10 @@ const commonConfig = ({ modules, debug = false }) => ({
   },
   resolve: {
     alias: {
+      app: PATHS.app,
       assets: PATHS.assets,
-      components: PATHS.components,
+      svgSprite: PATHS.svgSprite,
+      elements: PATHS.elements,
       boltOn: PATHS.boltOn,
       pouch: PATHS.pouch,
       sam: PATHS.sam
@@ -51,19 +55,17 @@ const commonConfig = ({ modules, debug = false }) => ({
   module: {
     rules: [
       {
-        test: /\.svg$/,
-        include: PATHS.assets,
-        use: [
-          "svg-sprite-loader"
-          // "svgo-loader" // Currently broken?
-          // { loader: "file-loader" }
-          // { loader: 'react-svg-loader', options: { jsx: true } },
-        ]
-      },
-      {
-        test: /\.(jpg|png)$/,
+        test: /\.(jpg|png|svg)$/,
         include: PATHS.assets,
         loader: "url-loader"
+      },
+      {
+        test: /\.svg$/,
+        include: PATHS.svgSprite,
+        use: [
+          "svg-sprite-loader" // "svgo-loader" // Currently broken?
+          // { loader: 'react-svg-loader', options: { jsx: true } },
+        ]
       },
       {
         test: /\.js$/,

@@ -1,20 +1,15 @@
 // @ts-check
 import * as React from "react";
 import { identity } from "ramda/es";
-import danger3 from "assets/danger-3.svg";
-import { Icon } from "components/icon";
-import { SamPanel } from "components/sam-panel";
-import { UserPanel } from "components/user-panel";
-import { Toggle } from "components/toggle";
-import { AnInput } from "components/an-input";
-import "./style.css";
+import { SamPanel } from "app/sam-panel";
+import { UserPanel } from "app/user-panel";
+import { Toggle } from "app/toggle";
+import { AnInput } from "app/an-input";
+import { ElementsTest } from "app/elements-test";
 
 export const App = ({ views, propose }) => {
   return (
-    <div>
-      <h1>
-        <Icon {...danger3} />&nbsp;Hello, world!
-      </h1>
+    <section className="appShell">
       <SamPanel views={views} />
       <UserPanel
         login={propose("login")}
@@ -29,7 +24,8 @@ export const App = ({ views, propose }) => {
         value={views.text}
         onChange={e => propose("text", { text: e.target.value })}
       />
-    </div>
+      <ElementsTest />
+    </section>
   );
 };
 

@@ -1,8 +1,8 @@
 // @ts-check
 // https://www.nczonline.net/blog/2013/04/01/making-accessible-icon-buttons/
 import * as React from "react";
-import { F } from "@grammarly/focal";
 import md5 from "md5";
+import "./style.css";
 
 const getMediaString = ([mediaKey, size]) => {
   const [mediaPredicate, mediaSize] = mediaKey;
@@ -32,85 +32,103 @@ const getSizesString = sizesMap =>
 
 const getSources = sourcesMap =>
   [...sourcesMap.entries()].map(([media, fileName]) => (
-    <F.source
+    <source
       key={md5(`${media}${fileName}`)}
       media={getMediaString(media)}
       srcSet={fileName}
     />
   ));
 
-const getImage = ({ alt, src, className, title, srcSet, sizes }) => (
-  <F.img
+const getImage = ({ alt, src, className, title, srcSet, sizes, role }) => (
+  <img
     alt={alt}
     src={src}
     className={className}
     title={title}
     srcSet={srcSet && getSrcSetString(srcSet)}
     sizes={sizes && getSizesString(sizes)}
+    role={role}
   />
 );
 
-const getPicture = ({ sources, image, className }) => (
-  <F.picture className={className}>
+const getPicture = ({ sources, image, className, role }) => (
+  <picture className={className} role={role}>
     {getSources(sources)}
     {image}
-  </F.picture>
+  </picture>
 );
 
-const getFigure = ({ image, children, alt, src, className }) => {
-  const baseId = md5(`${alt}-${src}`);
-
-  const ids = [baseId];
-  const figureCaptions = [];
-  React.Children.forEach(children, child => {
-    const id = child.props.id || `${baseId}-${Math.random()}`;
-    const childWithId = child.props.id
-      ? child
-      : React.cloneElement(child, { id });
-
-    ids.push(id);
-    figureCaptions.push(childWithId);
-  });
+// Not supported by a11y tools?
+const getFigure = ({ image, children, className }) => {
+  if (!image.props.alt) {
+    console.warn(
+      "Figure image has no alt attribute, most screen readers will ignore the image. https://dequeuniversity.com/presentations/html5-nfb/figure-figcaption"
+    );
+  }
 
   return (
-    <figure role="group" aria-labelledby={ids.join(" ")} className={className}>
+    <figure role="group" className={className}>
       {image}
-      {figureCaptions}
+      <figcaption>{children}</figcaption>
     </figure>
   );
 };
 
-const resetClassName = ({ image, className }) =>
-  React.cloneElement(image, { className });
-
 export const Image = ({
   sources,
   children,
-  alt,
+  alt = "",
   src,
   className,
+  imgClassName,
   title,
   srcSet,
   sizes,
-  imgClassName
+  role,
+  imageEl // Allow eg. SVG sprite element
 }) => {
-  let image = getImage({ alt, src, className, title, srcSet, sizes });
+  if (imageEl && (imageEl.length || !imageEl.props)) {
+    throw new Error("Image - imageEl must be single React element.");
+  }
+
+  let image =
+    imageEl || getImage({ alt, src, className, title, srcSet, sizes, role });
+
+  const imgProps = {};
+
+  if (imageEl) {
+    imgProps.alt = alt;
+  }
+
+  if (imgClassName) {
+    imgProps.className = imgClassName;
+  }
+
+  if (sources || children) {
+    imgProps.role = undefined;
+  }
+
+  image = React.cloneElement(image, imgProps);
 
   if (sources) {
     image = getPicture({
       sources,
-      image: resetClassName({ image, className: imgClassName }),
-      className
+      image,
+      className,
+      role
     });
   }
 
   if (children) {
-    image = getPicture({
-      sources,
-      image: resetClassName({ image, className: imgClassName }),
+    if (role) {
+      console.warn("Figure image has group role, ignoring role prop.");
+    }
+
+    image = getFigure({
+      image,
+      children,
       className
     });
-    image = getFigure({ image, children, alt, src, className });
   }
 
   return image;

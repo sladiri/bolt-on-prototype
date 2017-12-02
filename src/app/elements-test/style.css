@@ -1,0 +1,62 @@
+@import "global.css";
+
+.elementTest {
+  text-align: center;
+  margin: 4em 0;
+  padding: 1em 0.5em;
+  box-shadow: 0 -0.5em 1em -0.5em rgba(0, 0, 0, 0.75);
+}
+
+.elementTest h1 {
+  color: var(--iconGrey);
+}
+
+.elementTest__divWithBg {
+  position: relative;
+  padding: 2em;
+  text-align: center;
+}
+
+.elementTest__divWithBg:after {
+  background-color: var(--bgGrey);
+  mask-image: url(~assets/danger-11.svg);
+  background-size: contain;
+
+  content: "";
+  z-index: -1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.elementTest__socksImg {
+  width: 80%;
+  margin: 1em;
+}
+
+.elementTest__socksFigure {
+  width: 4em;
+  margin: 1em;
+}
+
+.elementTest__toggleButton {
+  width: 2em;
+  transform: rotate(-30deg);
+  margin: 0.2em;
+}
+
+.elementTest__svgImageButtonTest {
+  width: 2em;
+  height: 2em;
+}
+
+.elementTest__sock-btn {
+  width: 3em;
+  height: 3em;
+  background-image: url(~assets/icons8-socks.png);
+  background-size: cover;
+  transform: rotate(30deg);
+  margin: 0.8em;
+}
