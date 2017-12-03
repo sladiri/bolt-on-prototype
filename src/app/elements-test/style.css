@@ -31,14 +31,19 @@
   right: 0;
 }
 
-.elementTest__socksImg {
+.elementTest__img {
   width: 80%;
   margin: 1em;
 }
 
-.elementTest__socksFigure {
-  width: 4em;
+.elementTest__figureImg {
+  width: 15em;
   margin: 1em;
+}
+
+.svgSprite.elementTest__figureImg {
+  height: 15em;
+  fill: salmon;
 }
 
 .elementTest__toggleButton {

@@ -6,6 +6,8 @@ import danger3 from "svgSprite/danger-3.svg";
 import danger9 from "svgSprite/danger-9.svg";
 import danger14 from "svgSprite/danger-14.svg";
 import socks from "assets/icons8-socks.png";
+import geminiLarge from "assets/gemini4--large.jpg";
+import geminiSmall from "assets/gemini4--small.jpg";
 import "./style.css";
 
 export const ElementsTest = () => (
@@ -16,19 +18,25 @@ export const ElementsTest = () => (
     <section>
       <h1>Images</h1>
       <div className="elementTest__divWithBg">Test SVG background.</div>
-      <Image src={socks} className="elementTest__socksImg" />
+      <Image src={geminiLarge} className="elementTest__img" />
       <Image
-        src={socks}
-        alt="Simple Socks Image"
-        imgClassName="elementTest__socksFigure"
+        className="elementTest__img"
+        srcSet={`${geminiSmall} 400w, ${geminiLarge} 700w`}
+        sizes="50vw"
+      />
+      <Image
+        src={geminiSmall}
+        alt="Gemini 4 EVA"
+        imgClassName="elementTest__figureImg"
       >
         This is a figure caption.
       </Image>
       <Image
-        alt="Explosion"
         imageEl={
           <SvgSprite {...danger14} description="Explosion is destructive" />
         }
+        alt="Explosion"
+        imgClassName="elementTest__figureImg"
       >
         This is a figure caption with SVG sprite.
       </Image>

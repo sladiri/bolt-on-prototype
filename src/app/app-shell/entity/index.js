@@ -8,10 +8,10 @@ export const defaultState = {
 
 const isDefined = x => x !== undefined;
 
-export const getModel = ({ shim }) => ({ state }) => {
-  return async function model(data) {
-    const { toggle, text, userName } = data;
+export const getModel = ({ shim }) => {
+  const state = JSON.parse(JSON.stringify(defaultState));
 
+  return async function model({ toggle, text, userName }) {
     if (isDefined(toggle)) {
       // discards input
       state.toggle = !state.toggle;
@@ -24,5 +24,7 @@ export const getModel = ({ shim }) => ({ state }) => {
     if (isDefined(userName)) {
       state.userName = userName;
     }
+
+    return JSON.parse(JSON.stringify(state));
   };
 };

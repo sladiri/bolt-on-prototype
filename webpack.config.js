@@ -57,7 +57,15 @@ const commonConfig = ({ modules, debug = false }) => ({
       {
         test: /\.(jpg|png|svg)$/,
         include: PATHS.assets,
-        loader: "url-loader"
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 4096,
+              fallback: "file-loader"
+            }
+          }
+        ]
       },
       {
         test: /\.svg$/,

@@ -7,7 +7,7 @@ import { getLocalStore, getShim } from "boltOn";
 import { getSam } from "sam";
 import { App, defaultViewState, getStateRepresentation } from "./app-shell";
 import { getActions } from "./app-shell/control";
-import { defaultState, getModel } from "./app-shell/entity";
+import { getModel } from "./app-shell/entity";
 
 const setupShim = async ({ dbOpts }) => {
   const db = await getDb(dbOpts);
@@ -17,7 +17,7 @@ const setupShim = async ({ dbOpts }) => {
   return getShim({ localStore, setToCheck, ecds: db });
 };
 
-const renderApp = ({ shim }) => {
+const renderApp = async ({ shim }) => {
   const viewState = Atom.create(defaultViewState);
 
   viewState.subscribe(x => {
@@ -28,9 +28,8 @@ const renderApp = ({ shim }) => {
     viewState
   });
 
-  const { propose, actionPending } = getSam({
-    state: defaultState,
-    getModel: getModel({ shim }),
+  const { propose, actionPending } = await getSam({
+    model: getModel({ shim }),
     viewState,
     stateRepresentation,
     actions: getActions({ shim })
@@ -40,11 +39,7 @@ const renderApp = ({ shim }) => {
   document.body.appendChild(rootEl);
 
   ReactDOM.render(
-    <App
-      state={viewState}
-      views={{ ...views, actionPending }}
-      propose={propose}
-    />,
+    <App views={{ ...views, actionPending }} propose={propose} />,
     rootEl
   );
 };
@@ -58,7 +53,7 @@ const renderApp = ({ shim }) => {
 
     const shim = await setupShim({ dbOpts });
 
-    renderApp({ shim });
+    await renderApp({ shim });
   } catch (error) {
     console.error("app -", error);
   }

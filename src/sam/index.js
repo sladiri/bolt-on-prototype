@@ -1,17 +1,16 @@
 // @ts-check
 import { append, reject, equals, is, identity, curry } from "ramda/es";
 
-export const getSam = ({
-  state,
-  getModel,
+export const getSam = async ({
+  model,
   viewState,
   stateRepresentation,
   actions
 }) => {
-  const model = getModel({ state });
-  const pending_ = viewState.lens(s => s.actionPending);
+  const state = await model({});
   stateRepresentation({ state });
 
+  const pending_ = viewState.lens(s => s.actionPending);
   let allowedActions;
 
   async function samStep(actionName, input) {
@@ -30,8 +29,7 @@ export const getSam = ({
     const proposal = actions[actionName] && (await actions[actionName](input));
 
     if (is(Object, proposal) && Object.keys(proposal).length) {
-      await model(proposal);
-
+      const state = await model(proposal);
       allowedActions = stateRepresentation({ state });
     }
 

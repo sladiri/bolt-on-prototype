@@ -4,49 +4,22 @@ import * as React from "react";
 import md5 from "md5";
 import "./style.css";
 
-const getMediaString = ([mediaKey, size]) => {
-  const [mediaPredicate, mediaSize] = mediaKey;
-  return `(${mediaPredicate}: ${mediaSize}) ${size}`;
-};
-
-const getSrcSetString = srcSetMap =>
-  [...srcSetMap.entries()]
-    .reduce((string, [fileName, size]) => {
-      const entry = size ? `${fileName} ${size}` : `${fileName}`;
-      return `${string}, ${entry}`;
-    }, "")
-    .trim();
-
-const getSizesString = sizesMap =>
-  [...sizesMap.entries()]
-    .reduce((string, [mediaKey, size]) => {
-      let entry;
-      if (mediaKey) {
-        entry = getMediaString([mediaKey, size]);
-      } else {
-        entry = `${size}`;
-      }
-      return `${string}, ${entry}`;
-    }, "")
-    .trim();
-
 const getSources = sourcesMap =>
   [...sourcesMap.entries()].map(([media, fileName]) => (
     <source
       key={md5(`${media}${fileName}`)}
-      media={getMediaString(media)}
+      media={undefined}
       srcSet={fileName}
     />
   ));
 
-const getImage = ({ alt, src, className, title, srcSet, sizes, role }) => (
+const getImage = ({ alt, src, className, srcSet, sizes, role }) => (
   <img
     alt={alt}
     src={src}
     className={className}
-    title={title}
-    srcSet={srcSet && getSrcSetString(srcSet)}
-    sizes={sizes && getSizesString(sizes)}
+    srcSet={srcSet}
+    sizes={sizes}
     role={role}
   />
 );
@@ -81,7 +54,6 @@ export const Image = ({
   src,
   className,
   imgClassName,
-  title,
   srcSet,
   sizes,
   role,
@@ -91,8 +63,7 @@ export const Image = ({
     throw new Error("Image - imageEl must be single React element.");
   }
 
-  let image =
-    imageEl || getImage({ alt, src, className, title, srcSet, sizes, role });
+  let image = imageEl || getImage({ alt, src, className, srcSet, sizes, role });
 
   const imgProps = {};
 
