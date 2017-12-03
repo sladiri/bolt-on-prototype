@@ -7,14 +7,15 @@
   "scripts": {
     "clean": "rimraf ./build",
     "start": "webpack-dev-server --env development",
-    "build:sprites": "mkdirp ./build && svg-sprite-generate -d ./assets/**/*.svg -o ./build/sprites.svg",
+    "build:sprites":
+      "mkdirp ./build && svg-sprite-generate -d ./assets/**/*.svg -o ./build/sprites.svg",
     "build": "npm run clean && webpack --env.target production",
     "prettier:check": "prettier -l src/**/*.js",
     "prettier:write": "prettier --write src/**/*.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
-    "babel-eslint": "^8.0.2",
+    "babel-eslint": "^8.0.3",
     "babel-loader": "^7.1.2",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-async-generator-functions": "^6.24.1",
@@ -50,7 +51,7 @@
   },
   "dependencies": {
     "@grammarly/focal": "^0.6.434",
-    "a-plus-forms": "^0.7.0",
+    "a-plus-forms": "^0.7.1",
     "classnames": "^2.2.5",
     "md5": "^2.2.1",
     "pouchdb": "^6.3.4",
@@ -58,6 +59,6 @@
     "ramda": "^0.25.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "rxjs": "^5.5.2"
+    "rxjs": "^5.5.3"
   }
 }
