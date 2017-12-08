@@ -4,7 +4,7 @@ import { F, lift } from "@grammarly/focal";
 import { Form, TextInput, PasswordInput } from "a-plus-forms";
 
 export const UserPanel = lift(
-  ({ userName, login, logout }) =>
+  ({ userName, login, logout, search }) =>
     userName ? (
       <F.div>
         {userName}
@@ -14,9 +14,9 @@ export const UserPanel = lift(
       </F.div>
     ) : (
       <Form onSubmit={login}>
-        <TextInput name="userName" label="Username" />
+        <TextInput name="userName" label="Username" onChange={search} />
         <PasswordInput name="password" label="Password" />
         <button>Login</button>
       </Form>
-    )
+    ),
 );

@@ -1,16 +1,5 @@
 @import "global.css";
 
-.elementTest {
-  text-align: center;
-  margin: 4em 0;
-  padding: 1em 0.5em;
-  box-shadow: 0 -0.5em 1em -0.5em rgba(0, 0, 0, 0.75);
-}
-
-.elementTest h1 {
-  color: var(--iconGrey);
-}
-
 .elementTest__divWithBg {
   position: relative;
   padding: 2em;

@@ -28,17 +28,17 @@ const PATHS = (() => {
     elements,
     boltOn,
     pouch,
-    sam
+    sam,
   };
 })();
 
 const commonConfig = ({ modules, debug = false }) => ({
   entry: {
-    app: [PATHS.polyfill, PATHS.app]
+    app: [PATHS.polyfill, PATHS.app],
   },
   output: {
     path: PATHS.build,
-    filename: "[name]-build.js"
+    filename: "[name]-build.js",
     // pathinfo: true,
   },
   resolve: {
@@ -49,8 +49,8 @@ const commonConfig = ({ modules, debug = false }) => ({
       elements: PATHS.elements,
       boltOn: PATHS.boltOn,
       pouch: PATHS.pouch,
-      sam: PATHS.sam
-    }
+      sam: PATHS.sam,
+    },
   },
   module: {
     rules: [
@@ -62,18 +62,18 @@ const commonConfig = ({ modules, debug = false }) => ({
             loader: "url-loader",
             options: {
               limit: 4096,
-              fallback: "file-loader"
-            }
-          }
-        ]
+              fallback: "file-loader",
+            },
+          },
+        ],
       },
       {
         test: /\.svg$/,
         include: PATHS.svgSprite,
         use: [
-          "svg-sprite-loader" // "svgo-loader" // Currently broken?
+          "svg-sprite-loader", // "svgo-loader" // Currently broken?
           // { loader: 'react-svg-loader', options: { jsx: true } },
-        ]
+        ],
       },
       {
         test: /\.js$/,
@@ -88,7 +88,7 @@ const commonConfig = ({ modules, debug = false }) => ({
               "transform-do-expressions",
               "transform-function-bind",
               "transform-react-jsx",
-              "syntax-dynamic-import"
+              "syntax-dynamic-import",
             ],
             presets: [
               [
@@ -98,21 +98,21 @@ const commonConfig = ({ modules, debug = false }) => ({
                   useBuiltIns: true,
                   modules,
                   targets: {
-                    browsers: ["last 3 versions"]
-                  }
-                }
-              ]
-            ]
-          }
-        }
-      }
-    ]
+                    browsers: ["last 3 versions"],
+                  },
+                },
+              ],
+            ],
+          },
+        },
+      },
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({
       title: "Browser Boiler",
       minify: { maxLineLength: 80 },
-      template: "index-html-template.html"
+      template: "index-html-template.html",
     }),
     new FaviconsWebpackPlugin({
       logo: PATHS.favicon,
@@ -121,11 +121,11 @@ const commonConfig = ({ modules, debug = false }) => ({
         appleIcon: false,
         appleStartup: false,
         favicons: true,
-        firefox: false
-      }
-    })
+        firefox: false,
+      },
+    }),
     // new HtmlWebpackInlineSVGPlugin()
-  ]
+  ],
 });
 
 const productionConfig = () => {
@@ -151,56 +151,57 @@ const productionConfig = () => {
             use: [
               {
                 loader: "css-loader",
-                options: { importLoaders: 1 }
+                options: { importLoaders: 1 },
               },
               {
                 loader: "postcss-loader",
                 options: {
                   plugins: () => [
                     require("postcss-import")({
-                      path: ["src"]
+                      path: ["src"],
                     }),
                     require("postcss-cssnext"),
-                    require("cssnano")
-                  ]
-                }
-              }
-            ]
-          })
-        }
-      ]
+                    require("tailwindcss")("./tailwind.js"),
+                    require("cssnano"),
+                  ],
+                },
+              },
+            ],
+          }),
+        },
+      ],
     },
     plugins: [
       new webpack.DefinePlugin({
-        "process.env.NODE_ENV": JSON.stringify("production")
+        "process.env.NODE_ENV": JSON.stringify("production"),
       }),
       new webpack.optimize.ModuleConcatenationPlugin(),
       new UglifyJSPlugin({
         sourceMap: true,
         uglifyOptions: {
           compress: {
-            drop_debugger: false
-          }
-        }
+            drop_debugger: false,
+          },
+        },
       }),
       ...baseConfig.plugins,
       new ExtractTextPlugin({
-        filename: "[name].css"
+        filename: "[name].css",
       }),
       new webpack.optimize.CommonsChunkPlugin({
         name: "vendor",
-        minChunks: ({ resource }) => /node_modules/.test(resource)
+        minChunks: ({ resource }) => /node_modules/.test(resource),
       }),
       new CompressionPlugin({
         algorithm: "gzip",
         test: /\.js$|\.css$|\.html$|\.eot?.+$|\.ttf?.+$|\.woff?.+$|\.svg?.+$/,
         threshold: 10240,
-        minRatio: 0.8
+        minRatio: 0.8,
       }),
       new Visualizer({
-        filename: "./statistics.html"
-      })
-    ]
+        filename: "./statistics.html",
+      }),
+    ],
   });
 };
 
@@ -222,22 +223,23 @@ const developmentConfig = ({ host = "localhost", port = "3000" }) => {
             "style-loader",
             {
               loader: "css-loader",
-              options: { importLoaders: 1 }
+              options: { importLoaders: 1 },
             },
             {
               loader: "postcss-loader",
               options: {
                 plugins: () => [
                   require("postcss-import")({
-                    path: ["src"]
+                    path: ["src"],
                   }),
-                  require("postcss-cssnext")
-                ]
-              }
-            }
-          ]
-        }
-      ]
+                  require("postcss-cssnext"),
+                  require("tailwindcss")("./tailwind.js"),
+                ],
+              },
+            },
+          ],
+        },
+      ],
     },
     devServer: {
       historyApiFallback: true,
@@ -246,11 +248,20 @@ const developmentConfig = ({ host = "localhost", port = "3000" }) => {
       port,
       https: {
         key: fs.readFileSync(
-          "/mnt/c/Users/sladan.ristic/.ssl/server/privkey.pem"
+          "/mnt/c/Users/sladan.ristic/.ssl/server/privkey.pem",
         ),
-        cert: fs.readFileSync("/mnt/c/Users/sladan.ristic/.ssl/server/cert.pem")
-      }
-    }
+        cert: fs.readFileSync(
+          "/mnt/c/Users/sladan.ristic/.ssl/server/cert.pem",
+        ),
+      },
+      proxy: {
+        "/wiki": {
+          changeOrigin: true,
+          target: "https://en.wikipedia.org",
+          pathRewrite: { "^/wiki": "/w" },
+        },
+      },
+    },
   });
 };
 
@@ -263,6 +274,6 @@ module.exports = env => {
 
   return developmentConfig({
     host: process.env.HOST,
-    port: process.env.PORT
+    port: process.env.PORT,
   });
 };

@@ -32,6 +32,6 @@ export default options => {
 
   return {
     get: get({ setToCheck }),
-    put: put({ setToCheck })
+    put: put({ setToCheck }),
   };
 };

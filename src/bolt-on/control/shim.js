@@ -71,6 +71,6 @@ export default options => {
 
   return {
     get: get({ localStore, setToCheck }),
-    put: put({ localStore, ecds })
+    put: put({ localStore, ecds }),
   };
 };

@@ -1,4 +1,5 @@
-@import "reset.css";
+@import "./tailwind-preflight.css";
+@import "./tailwind-utilities.css";
 
 :root {
   --iconGrey: #333;

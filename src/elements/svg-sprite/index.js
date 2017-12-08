@@ -20,7 +20,7 @@ export const SvgSprite = ({ id, alt, description, className }) => {
       [title, desc]
         .filter(x => x && x.props.id)
         .map(x => x.props.id)
-        .join(" ") || undefined
+        .join(" ") || undefined,
   };
 
   return (

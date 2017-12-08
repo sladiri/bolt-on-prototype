@@ -58,7 +58,7 @@ const syncDb = async ({ PouchDB, source, target }) => {
 const connectDb = async ({ remoteOpts, localOpts }) => {
   const [{ default: PouchDB }, { default: pouchMemory }] = await Promise.all([
     import("pouchdb"),
-    import("pouchdb-adapter-memory")
+    import("pouchdb-adapter-memory"),
   ]);
 
   PouchDB.plugin(pouchMemory);
@@ -129,6 +129,6 @@ export const getDb = dbOptions => {
       await ensureDb();
 
       throw new Error("Not implemented.");
-    }
+    },
   };
 };

@@ -21,18 +21,18 @@ const renderApp = async ({ shim }) => {
   const viewState = Atom.create(defaultViewState);
 
   viewState.subscribe(x => {
-    console.log(`New app state: ${JSON.stringify(x)}`);
+    console.log(`App - New state: ${JSON.stringify(x)}`);
   });
 
   const { stateRepresentation, views } = getStateRepresentation({
-    viewState
+    viewState,
   });
 
   const { propose, actionPending } = await getSam({
     model: getModel({ shim }),
     viewState,
     stateRepresentation,
-    actions: getActions({ shim })
+    actions: getActions({ shim }),
   });
 
   const rootEl = document.createElement("div");
@@ -40,7 +40,7 @@ const renderApp = async ({ shim }) => {
 
   ReactDOM.render(
     <App views={{ ...views, actionPending }} propose={propose} />,
-    rootEl
+    rootEl,
   );
 };
 
@@ -48,7 +48,7 @@ const renderApp = async ({ shim }) => {
   try {
     const dbOpts = {
       localOpts: { name: "bolt-on-test-db" },
-      remoteOpts: { host: "", name: "" }
+      remoteOpts: { host: "", name: "" },
     };
 
     const shim = await setupShim({ dbOpts });

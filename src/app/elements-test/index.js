@@ -11,7 +11,7 @@ import geminiSmall from "assets/gemini4--small.jpg";
 import "./style.css";
 
 export const ElementsTest = () => (
-  <section className="elementTest">
+  <section className="elementTest container mx-auto">
     <h1>
       <SvgSprite {...danger3} />&nbsp;Elements Gallery
     </h1>

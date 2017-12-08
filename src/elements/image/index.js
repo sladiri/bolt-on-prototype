@@ -35,7 +35,7 @@ const getPicture = ({ sources, image, className, role }) => (
 const getFigure = ({ image, children, className }) => {
   if (!image.props.alt) {
     console.warn(
-      "Figure image has no alt attribute, most screen readers will ignore the image. https://dequeuniversity.com/presentations/html5-nfb/figure-figcaption"
+      "Figure image has no alt attribute, most screen readers will ignore the image. https://dequeuniversity.com/presentations/html5-nfb/figure-figcaption",
     );
   }
 
@@ -57,7 +57,7 @@ export const Image = ({
   srcSet,
   sizes,
   role,
-  imageEl // Allow eg. SVG sprite element
+  imageEl, // Allow eg. SVG sprite element
 }) => {
   if (imageEl && (imageEl.length || !imageEl.props)) {
     throw new Error("Image - imageEl must be single React element.");
@@ -86,7 +86,7 @@ export const Image = ({
       sources,
       image,
       className,
-      role
+      role,
     });
   }
 
@@ -98,7 +98,7 @@ export const Image = ({
     image = getFigure({
       image,
       children,
-      className
+      className,
     });
   }
 
