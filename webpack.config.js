@@ -247,12 +247,8 @@ const developmentConfig = ({ host = "localhost", port = "3000" }) => {
       host,
       port,
       https: {
-        key: fs.readFileSync(
-          "/mnt/c/Users/sladan.ristic/.ssl/server/privkey.pem",
-        ),
-        cert: fs.readFileSync(
-          "/mnt/c/Users/sladan.ristic/.ssl/server/cert.pem",
-        ),
+        key: fs.readFileSync("/mnt/c/ssl/server/privkey.pem"),
+        cert: fs.readFileSync("/mnt/c/ssl/server/cert.pem"),
       },
       proxy: {
         "/wiki": {
