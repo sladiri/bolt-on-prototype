@@ -1,37 +1,23 @@
 // @ts-check
-export const get = ({ setToCheck }) => ({ key }) => {
-  if (!key) {
-    throw new Error("[localStore.get] - Missing key");
-  }
-
-  throw new Error("[localStore.get] - Not implemented.");
+export const get = ({ localStorage, prefix }) => ({ key }) => {
+  return JSON.parse(localStorage.getItem(`${prefix}${key}`));
 };
 
-export const put = ({ setToCheck }) => ({ key, val }) => {
-  if (!key) {
-    throw new Error("[localStore.put] - Missing key");
-  }
-
-  if (!val) {
-    throw new Error("[localStore.put] - Missing val");
-  }
-
-  throw new Error("Not implemented.");
+export const put = ({ localStorage, prefix }) => ({ key, ...payload }) => {
+  localStorage.setItem(`${prefix}${key}`, JSON.stringify(payload));
 };
 
-export default options => {
-  if (!options) {
-    throw new Error("[getLocalStore] - No options given.");
+export const getLocalStore = () => {
+  const localStorage = window.localStorage;
+
+  if (!localStorage) {
+    throw new Error("[getLocalStore] - Missing localStorage");
   }
 
-  const { setToCheck } = options;
-
-  if (!setToCheck) {
-    throw new Error("[getLocalStore] - Invalid options given.");
-  }
+  const prefix = "bolton.";
 
   return {
-    get: get({ setToCheck }),
-    put: put({ setToCheck }),
+    get: get({ localStorage, prefix }),
+    put: put({ localStorage, prefix }),
   };
 };

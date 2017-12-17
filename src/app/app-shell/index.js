@@ -45,7 +45,7 @@ export const getStateRepresentation = ({ viewState }) => {
     toggle,
     (ticker, toggle) => `${toggle} // ${ticker}`,
   );
-  const tickerUpdate = Observable::interval(5000)
+  const tickerUpdate = Observable::interval(500000)
     ::skip(1)
     ::_do(::_ticker.set);
   tickerUpdate.subscribe();

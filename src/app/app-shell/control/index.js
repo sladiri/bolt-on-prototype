@@ -1,12 +1,12 @@
 // @ts-check
 import FunctionTree, { sequence } from "function-tree";
-import Devtools from "function-tree/devtools";
+// import Devtools from "function-tree/devtools";
 
-const devtools = new Devtools({
-  host: "localhost:8585",
-  reconnect: false,
-  https: true,
-});
+// const devtools = new Devtools({
+//   host: "localhost:8585",
+//   reconnect: false,
+//   https: true,
+// });
 
 const foo = sequence("My awesome sequence", [
   sequence("nested awesome sequence", [
@@ -64,7 +64,7 @@ const doSearch = term =>
 
 export const getActions = ({ shim }) => {
   const ft = new FunctionTree({ shim });
-  devtools.add(ft);
+  // devtools.add(ft);
 
   const searchTerm = new Subject();
   const search = searchTerm

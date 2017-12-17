@@ -3,7 +3,7 @@ import * as React from "react";
 import { Atom } from "@grammarly/focal";
 import * as ReactDOM from "react-dom";
 import { getDb } from "pouch";
-import { getLocalStore, getShim } from "boltOn";
+import { getShim } from "boltOn";
 import { getSam } from "sam";
 import { App, defaultViewState, getStateRepresentation } from "./app-shell";
 import { getActions } from "./app-shell/control";
@@ -12,9 +12,8 @@ import { getModel } from "./app-shell/entity";
 const setupShim = async ({ dbOpts }) => {
   const db = await getDb(dbOpts);
   const setToCheck = new Set();
-  const localStore = getLocalStore({ setToCheck });
 
-  return getShim({ localStore, setToCheck, ecds: db });
+  return await getShim({ setToCheck, ecds: db });
 };
 
 const renderApp = async ({ shim }) => {
