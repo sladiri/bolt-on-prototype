@@ -110,7 +110,7 @@ const commonConfig = ({ modules, debug = false }) => ({
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "Browser Boiler",
+      title: "Bolt-on Prototype",
       minify: { maxLineLength: 80 },
       template: "index-html-template.html",
     }),
