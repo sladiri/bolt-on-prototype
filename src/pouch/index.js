@@ -12,10 +12,10 @@ export const connectRemote = ({ PouchDB, host, name }) => {
 
 export const connectLocal = ({ PouchDB, name }) => {
   if (!name) {
-    throw new Error("[pouch.connectLocal] - No local DB name given.");
+    throw new Error("[pouch.connectLocal] - Invalid DB name");
   }
 
-  const db = new PouchDB(name);
+  const db = new PouchDB(name, { revs_limit: 3 });
 
   const cache = new PouchDB(`${name}-in-memory`, { adapter: "memory" });
 
@@ -75,7 +75,10 @@ const put = ensureDb => async ({ key, val }) => {
 
   let _rev;
   try {
-    const doc = await db.get(key);
+    const doc = await db.get(key, {
+      revs_info: true,
+      conflicts: true,
+    });
 
     console.log("[pouch.put] - update existing doc", doc);
 
@@ -99,13 +102,13 @@ const put = ensureDb => async ({ key, val }) => {
 
 export const getDb = options => {
   if (!options) {
-    throw new Error("[getDb] - No options given");
+    throw new Error("[getDb] - Invalid options");
   }
 
   const { remoteOpts, localOpts } = options;
 
   if (!localOpts) {
-    throw new Error("[getDb] - Missing setToCheck");
+    throw new Error("[getDb] - Invalid setToCheck");
   }
 
   let db;
