@@ -2,50 +2,38 @@
 import { getLocalStore } from "./control/local-store";
 import { getResolver } from "./control/resolver";
 
-export const getSerialise = ({ version }) => ({ key, val, after }) => {
-  if (!val) {
-    throw new Error("[shim.put] - Missing val");
+export const getDeSerialise = ({ version }) => serialised => {
+  if (!serialised) {
+    throw new Error("[shim.deserialise] - Invalid serialised");
   }
 
-  if (!Array.isArray(after)) {
-    throw new Error("[shim.put] - Invalid after");
+  const deSerlialised = JSON.parse(serialised);
+
+  if (!deSerlialised) {
+    throw new Error("[shim.deserialise] - Invalid deSerlialised");
   }
 
-  return {
-    data: JSON.stringify(val),
-    deps: after,
-    meta: {
-      version,
-      key,
-    },
-  };
-};
+  const { version: _version, payload } = deSerlialised;
 
-export const getDeSerialise = ({ version }) => ({
-  key,
-  item: { meta, data, deps, ...payload },
-}) => {
-  if (!meta) {
-    throw new Error("[shim.deserialise] - Invalid meta-data");
-  }
-
-  if (meta.version !== version) {
+  if (_version !== version) {
     throw new Error("[shim.deserialise] - Invalid version");
   }
 
-  if (meta.key !== key) {
-    throw new Error("[shim.deserialise] - Invalid key");
+  if (!Array.isArray(payload.after)) {
+    throw new Error("[shim.deserialise] - Invalid after");
   }
 
-  if (!Array.isArray(deps)) {
-    throw new Error("[shim.deserialise] - Invalid deps");
+  return payload;
+};
+
+export const getSerialise = ({ version }) => payload => {
+  const serialised = JSON.stringify({ payload, version });
+
+  if (!serialised) {
+    throw new Error("[shim.serialise] - Invalid serialised");
   }
 
-  return {
-    ...payload,
-    val: JSON.parse(data),
-    after: deps,
-  };
+  return serialised;
 };
 
 export const get = ({
@@ -54,55 +42,55 @@ export const get = ({
   localStore,
 }) => async options => {
   if (!options) {
-    throw new Error("[shim.get] - Missing options");
+    throw new Error("[shim.get] - Invalid options");
   }
 
   const { key } = options;
 
   if (!key) {
-    throw new Error("[shim.get] - Missing key");
+    throw new Error("[shim.get] - Invalid key");
   }
 
   setToCheck.add(key);
 
-  const item = localStore.get({ key });
+  const serialised = localStore.get({ key });
 
-  if (!item) {
-    throw new Error("[shim.get] - Invalid item");
-  }
+  const payload = deSerialise(serialised);
 
-  const deserialised = deSerialise({ item, key });
-
-  console.log("deserialised", deserialised);
+  console.log("ddd", payload);
 
   throw new Error("[shim.get] - Not implemented");
 };
 
 export const put = ({ serialise, localStore, ecds }) => async options => {
   if (!options) {
-    throw new Error("[shim.put] - Missing options");
+    throw new Error("[shim.put] - Invalid options");
   }
 
-  const { key } = options;
+  const { key, val, after } = options;
 
   if (!key) {
-    throw new Error("[shim.put] - Missing key");
+    throw new Error("[shim.put] - Invalid key");
   }
 
-  const serialised = serialise({
-    key,
-    ...options,
-  });
+  if (!val) {
+    throw new Error("[shim.put] - Invalid val");
+  }
 
-  const doc = await ecds.put({
+  if (!Array.isArray(after)) {
+    throw new Error("[shim.serialise] - Invalid after");
+  }
+
+  const serialised = serialise({ val, after });
+
+  await ecds.put({
     key,
     val: serialised,
   });
 
   localStore.put({
     key,
-    ...doc,
-    ...serialised,
+    val: serialised,
   });
 };
 
@@ -110,24 +98,22 @@ export const getShim = async options => {
   const version = "1";
 
   if (!options) {
-    throw new Error("[getShim] - No options given");
+    throw new Error("[getShim] - Invalid options");
   }
 
   const { setToCheck, ecds } = options;
 
   if (!setToCheck) {
-    throw new Error("[getShim] - Missing setToCheck");
+    throw new Error("[getShim] - Invalid setToCheck");
   }
 
   if (!ecds) {
-    throw new Error("[getShim] - Missing ecds");
+    throw new Error("[getShim] - Invalid ecds");
   }
 
   const localStore = getLocalStore();
 
-  const resolver = await getResolver({ setToCheck, localStore, ecds });
-
-  await resolver.start();
+  await getResolver({ setToCheck, localStore, ecds });
 
   const serialise = getSerialise({ version });
   const deSerialise = getDeSerialise({ version });

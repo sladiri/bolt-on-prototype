@@ -1,23 +1,23 @@
 // @ts-check
-export const get = ({ localStorage, prefix }) => ({ key }) => {
+const prefix = "bolton.";
+
+export const get = ({ localStorage }) => ({ key }) => {
   return JSON.parse(localStorage.getItem(`${prefix}${key}`));
 };
 
-export const put = ({ localStorage, prefix }) => ({ key, ...payload }) => {
-  localStorage.setItem(`${prefix}${key}`, JSON.stringify(payload));
+export const put = ({ localStorage }) => ({ key, val }) => {
+  localStorage.setItem(`${prefix}${key}`, JSON.stringify(val));
 };
 
 export const getLocalStore = () => {
   const localStorage = window.localStorage;
 
   if (!localStorage) {
-    throw new Error("[getLocalStore] - Missing localStorage");
+    throw new Error("[getLocalStore] - Invalid localStorage");
   }
 
-  const prefix = "bolton.";
-
   return {
-    get: get({ localStorage, prefix }),
-    put: put({ localStorage, prefix }),
+    get: get({ localStorage }),
+    put: put({ localStorage }),
   };
 };
