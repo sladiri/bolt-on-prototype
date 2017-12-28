@@ -23,6 +23,9 @@ Show Bolt-on example for my master-thesis.
 
 ## TODO
 
+* [ ] Bolt-on
+  * [ ] Implement polling Shim from Bailis' paper
+  * [ ] Implement Shim using PouchDB's change-events
 * [ ] How to manage rapid text-input changes (or other events) where slow async
       work is required?
 * [ ] Consider more complex action calls, not just single predefined actions.
