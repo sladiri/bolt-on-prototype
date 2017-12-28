@@ -210,8 +210,10 @@ const developmentConfig = ({ host = "localhost", port = "3000" }) => {
   const baseConfig = commonConfig({ modules: "commonjs" });
 
   return Object.assign({}, baseConfig, {
-    // devtool: "eval-source-map",
-    devtool: "cheap-module-eval-source-map", // line-only,
+    // devtool: "eval",
+    // devtool: "cheap-eval-source-map", // transformed code (lines only)
+    // devtool: "cheap-module-eval-source-map", // original source (lines only)
+    devtool: "eval-source-map", // original source
     module: {
       ...baseConfig.module,
       rules: [
