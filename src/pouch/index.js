@@ -86,7 +86,7 @@ const put = ensureDb => async ({ key, val }) => {
       _rev = doc._rev;
     }
   } catch (error) {
-    if (error.reason !== "missing") {
+    if (error.name !== "not_found") {
       throw error;
     }
   }
