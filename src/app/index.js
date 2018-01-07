@@ -11,9 +11,8 @@ import { getModel } from "./app-shell/entity";
 
 const setupShim = async ({ dbOpts }) => {
   const db = await getDb(dbOpts);
-  const setToCheck = new Set();
 
-  return await getShim({ setToCheck, ecds: db });
+  return await getShim({ ecds: db });
 };
 
 const renderApp = async ({ shim }) => {

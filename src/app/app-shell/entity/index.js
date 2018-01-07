@@ -19,6 +19,12 @@ export const getModel = ({ shim }) => {
       await shim.put(doc);
       doc = await shim.get({ key: "sladi" });
       console.log("entity got doc", doc);
+
+      doc = { key: "sladi2", val: Date.now(), after: ["sladi"] };
+      console.log("entity create doc 2", doc);
+      await shim.put(doc);
+      doc = await shim.get({ key: "sladi2" });
+      console.log("entity got doc 2", doc);
     } catch (error) {
       console.error("entity test doc", error);
     }
