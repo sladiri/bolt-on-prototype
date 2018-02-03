@@ -5,11 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "chrome",
+      "type": "node",
+      "request": "attach",
+      "name": "Attach",
+      "port": 9229
+    },
+    {
+      "type": "node",
       "request": "launch",
-      "name": "Launch Chrome against localhost",
-      "url": "http://localhost:5500",
-      "webRoot": "${workspaceRoot}/build"
+      "name": "Test via NPM",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run-script", "test"],
+      "port": 9229
     }
   ]
 }

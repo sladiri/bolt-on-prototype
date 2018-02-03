@@ -11,7 +11,8 @@
     "build": "npm run clean && webpack --env.target production",
     "prettier:check": "prettier -l src/**/*.js",
     "prettier:write": "prettier --write src/**/*.js",
-    "test": "babel-node node_modules/.bin/tape src/**/*.test.js | faucet"
+    "test": "babel-node --inspect-brk node_modules/.bin/tape src/**/*.test.js | faucet",
+    "foo": "browserify -t babelify src/bolt-on/control/is-covered.test.js | browser-run -p 2222 | faucet"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -26,6 +27,9 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.6.1",
+    "babelify": "^8.0.0",
+    "browser-run": "^4.1.1",
+    "browserify": "^15.2.0",
     "compression-webpack-plugin": "^1.1.6",
     "core-js": "^2.5.3",
     "css-loader": "^0.28.9",
