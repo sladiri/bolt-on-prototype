@@ -1,4 +1,3 @@
-// @ts-check
 // https://www.nczonline.net/blog/2013/04/01/making-accessible-icon-buttons/
 import * as React from "react";
 import classNames from "classnames";

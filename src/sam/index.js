@@ -1,4 +1,3 @@
-// @ts-check
 import { append, reject, equals, is, identity, curry } from "ramda/es";
 
 export const getSam = async ({

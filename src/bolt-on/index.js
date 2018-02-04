@@ -1,4 +1,3 @@
-// @ts-check
 import { getLocalStore } from "./control/local-store";
 import { serialise, deSerialise } from "./control/serialiser";
 import { getResolver } from "./control/resolver";

@@ -1,4 +1,3 @@
-// @ts-check
 import * as React from "react";
 import { Atom } from "@grammarly/focal";
 import * as ReactDOM from "react-dom";

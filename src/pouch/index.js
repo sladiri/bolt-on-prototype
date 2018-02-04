@@ -1,4 +1,3 @@
-// @ts-check
 export const connectRemote = ({ PouchDB, host, name }) => {
   if (!host || !name) {
     return;

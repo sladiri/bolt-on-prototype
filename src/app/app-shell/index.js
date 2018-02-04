@@ -1,4 +1,3 @@
-// @ts-check
 import * as React from "react";
 import { identity } from "ramda/es";
 import { SamPanel } from "app/sam-panel";

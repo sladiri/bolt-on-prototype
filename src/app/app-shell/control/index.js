@@ -1,4 +1,3 @@
-// @ts-check
 import FunctionTree, { sequence } from "function-tree";
 // import Devtools from "function-tree/devtools";
 

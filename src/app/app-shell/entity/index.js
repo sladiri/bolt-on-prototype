@@ -1,4 +1,3 @@
-// @ts-check
 export const defaultState = {
   count: 0,
   toggle: true,

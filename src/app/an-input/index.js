@@ -1,4 +1,3 @@
-// @ts-check
 import * as React from "react";
 import { F } from "@grammarly/focal";
 

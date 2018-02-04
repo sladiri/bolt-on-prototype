@@ -1,4 +1,3 @@
-// @ts-check
 import * as React from "react";
 import { F, lift } from "@grammarly/focal";
 import { Form, TextInput, PasswordInput } from "a-plus-forms";

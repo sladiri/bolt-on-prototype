@@ -1,4 +1,3 @@
-// @ts-check
 const prefix = "bolton.";
 
 export const get = ({ localStorage }) => ({ key }) => {
