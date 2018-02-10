@@ -1,33 +1,8 @@
 import { deSerialise } from "./serialiser";
-
-export const happenedBefore = ({ clockRef, clockPrev }) => {
-  let lessOrEqual = false;
-  let strictlyEqual = false;
-
-  const processKeys = [
-    ...Object.keys(clockRef),
-    ...Object.keys(clockPrev),
-  ].reduce((acc, val) => (acc.includes(val) ? acc : [...acc, val]), []);
-
-  for (const name of processKeys) {
-    const refTick = clockRef[name] || 0;
-    const prevTick = clockPrev[name] || 0;
-
-    if (prevTick > refTick) {
-      return false;
-    } else {
-      lessOrEqual = true;
-    }
-
-    if (prevTick < refTick) {
-      strictlyEqual = true;
-    }
-  }
-
-  return lessOrEqual && strictlyEqual;
-};
+import { happenedBefore } from "./happened-before";
 
 export const checkRemoteDependency = async options => {
+  debugger;
   const { ecds, depKey, depVectorClock, tentativeWrites } = options;
 
   let remoteDepSerialised;
@@ -46,7 +21,7 @@ export const checkRemoteDependency = async options => {
 
   if (!remoteDepSerialised) {
     debugger;
-    return;
+    return false;
   }
 
   const item = deSerialise(remoteDepSerialised.val);
@@ -55,63 +30,68 @@ export const checkRemoteDependency = async options => {
   if (
     happenedBefore({
       clockRef: depVectorClock,
-      clockPrev: item._meta.vectorClock,
+      clock: item._meta.vectorClock,
     })
   ) {
     debugger;
-    return;
+    return false;
   }
 
+  debugger;
   tentativeWrites[depKey] = item;
 
-  if (await isCovered(options)) {
+  if (await isCovered({ ...options, write: item })) {
     debugger;
     return true;
   }
+
   debugger;
+  return false;
 };
 
 const checkLocalDependency = async options => {
+  debugger;
   const { localStore, tentativeWrites, depKey, depVectorClock } = options;
 
   const localDepSerialised = localStore.get({ key: depKey });
 
-  if (!localDepSerialised) {
-    debugger;
-    return await checkRemoteDependency(options);
-  }
+  if (localDepSerialised) {
+    const { _meta: localMeta } = deSerialise(localDepSerialised);
 
-  const { _meta: localMeta } = deSerialise(localDepSerialised);
-
-  if (
-    !happenedBefore({
-      clockRef: depVectorClock,
-      clockPrev: localMeta.vectorClock,
-    })
-  ) {
-    debugger;
-    return true;
+    if (
+      !happenedBefore({
+        clockRef: depVectorClock,
+        clock: localMeta.vectorClock,
+      })
+    ) {
+      debugger;
+      return true;
+    }
   }
 
   if (
     Object.entries(tentativeWrites).find(
       ([key, item]) =>
-        key === depKey ||
+        key === depKey &&
         !happenedBefore({
           clockRef: depVectorClock,
-          clockPrev: item._meta.vectorClock,
+          clock: item._meta.vectorClock,
         }),
     )
   ) {
     debugger;
     return true;
   }
+
   debugger;
+  return await checkRemoteDependency(options);
 };
 
 export const isCovered = async options => {
   debugger;
-  const depKeys = Object.entries(options.remoteMeta.happenedAfter);
+
+  const { write: { _meta: { happenedAfter } } } = options;
+  const depKeys = Object.entries(happenedAfter);
 
   for (const [depKey, depVectorClock] of depKeys) {
     if (await checkLocalDependency({ ...options, depKey, depVectorClock })) {
