@@ -1,4 +1,5 @@
-# Git inside Windows Linux Subsystem and VSCode inside Windows
-# * text eol=lf
-# *.png binary
-# *.jpg binary
+# Git inside Windows Linux Subsystem and VSCode inside Windows.
+# Rely on editor to keep consistent line endings.
+* text eol=lf
+*.png binary
+*.jpg binary
