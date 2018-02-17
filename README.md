@@ -24,11 +24,14 @@ Show Bolt-on example for my master-thesis.
 ## TODO
 
 * [ ] Bolt-on with Shim
-  * [ ] Shim Resolver
+  * [x] Ensure that meta-data is valid on save
+    * [x] Dependency must not have greater clock than new item.
+  * [ ] Shim algorithm
+    * [ ] Pessimistic Shim
+    * [ ] Property-based tests
     * [ ] Optimistic Shim
       * [ ] Implement polling Shim from Bailis' paper
       * [ ] Implement Shim using PouchDB's change-events
-    * [ ] Pessimistic Shim
     * [ ] Optimistic or Pessimistic via argument
   * [ ] Bounded size of Shim (affects Shim performance)
   * [x] Co-locate with Browser

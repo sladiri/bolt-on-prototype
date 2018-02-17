@@ -12,7 +12,7 @@
     "prettier:check": "prettier -l src/**/*.js",
     "prettier:write": "prettier --write src/**/*.js",
     "test": "npm run test:base | faucet",
-    "test:debug": "npm run test:base -- --inspect-brk",
+    "test:debug": "npm run test:base -- --inspect-brk | faucet",
     "test:base": "babel-node node_modules/.bin/tape src/**/*.test.js",
     "foo": "browserify -t babelify src/bolt-on/control/is-covered.test.js | browser-run -p 2222 | faucet"
   },
@@ -21,6 +21,7 @@
     "browser-run": "4.1.3",
     "browserify": "16.0.0",
     "faucet": "0.0.1",
+    "jsverify": "0.8.3",
     "tslint": "5.9.1",
     "typescript": "2.7.1",
     "webpack-dev-server": "2.11.1"

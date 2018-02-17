@@ -59,15 +59,23 @@ export const getOptimistic = options => {
   });
 };
 
-const createHappenedAfter = async ({ get, after }) => {
+const createHappenedAfter = async ({ get, cause, currentClock }) => {
   const result = {};
 
-  for (const x of after) {
+  for (const x of cause) {
     if (!x) {
       throw new Error("[shim.put] - Invalid happened-after item");
     } else if (!x.key && !x.vectorClock) {
       try {
         const dependency = await get({ key: x });
+        const invalidClock = Object.values(dependency._meta.vectorClock).find(
+          clock => clock >= currentClock,
+        );
+        if (invalidClock) {
+          throw new Error(
+            `Invalid causal relation: [${invalidClock} -> ${currentClock}].`,
+          );
+        }
         result[x] = dependency._meta.vectorClock;
       } catch (error) {
         throw new Error(
@@ -82,9 +90,7 @@ const createHappenedAfter = async ({ get, after }) => {
   return result;
 };
 
-const updateMeta = async ({ get, version, meta, vectorClock, after }) => {
-  const happenedAfter = await createHappenedAfter({ get, after });
-
+const updateMeta = async ({ version, meta, vectorClock, happenedAfter }) => {
   let updatedMeta;
 
   if (!meta) {
@@ -126,7 +132,7 @@ export const put = ({ version, vectorClock, localStore, ecds }) => {
       throw new Error("[shim.put] - Invalid options");
     }
 
-    const { key, val, after } = options;
+    const { key, val, cause } = options;
 
     if (!key) {
       throw new Error("[shim.put] - Invalid key");
@@ -136,7 +142,7 @@ export const put = ({ version, vectorClock, localStore, ecds }) => {
       throw new Error("[shim.put] - Invalid val");
     }
 
-    if (!Array.isArray(after)) {
+    if (!Array.isArray(cause)) {
       throw new Error("[shim.put] - Invalid depencencies");
     }
 
@@ -144,13 +150,17 @@ export const put = ({ version, vectorClock, localStore, ecds }) => {
       vectorClock.tick += 1;
 
       const currentVectorClock = { [vectorClock.name]: vectorClock.tick };
+      const happenedAfter = await createHappenedAfter({
+        get,
+        cause,
+        currentClock: vectorClock.tick,
+      });
 
       const meta = await updateMeta({
-        get,
         version,
         meta: val._meta,
         vectorClock: currentVectorClock,
-        after,
+        happenedAfter,
       });
 
       const serialised = serialise({ val, _meta: meta });

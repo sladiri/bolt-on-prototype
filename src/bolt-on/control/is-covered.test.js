@@ -1,19 +1,50 @@
 import test from "tape";
+import jsc from "jsverify";
 import { isCovered } from "./is-covered";
 
-test("isCovered-pessimistic - empty dependencies => true", t => {
+const minimalOptions = {
+  write: {
+    _meta: {
+      happenedAfter: {},
+    },
+  },
+};
+
+/*
+test("isCovered-pessimistic - [x1] (no dependency)", t => {
   t.plan(1);
 
-  const options = {
-    write: {
-      _meta: {
-        happenedAfter: {},
-      },
-    },
-  };
-
-  isCovered(options).then(result => t.equal(result, true));
+  isCovered(minimalOptions).then(result => t.equal(result, true));
 });
+
+test("isCovered-pessimistic - [x1] (random additional parameters)", t => {
+  t.plan(1);
+
+  const withRandomlyAddedParams = jsc.forall(
+    "dict",
+    "dict",
+    "dict",
+    (objA, objB, objC) => {
+      const options = {
+        ...objA,
+        write: {
+          ...objB,
+          _meta: {
+            ...objC,
+            ...minimalOptions.write._meta,
+          },
+        },
+      };
+
+      return isCovered(options).then(x => x === true);
+    },
+  );
+
+  jsc.check(withRandomlyAddedParams).then(result => {
+    t.equal(result, true);
+  });
+});
+*/
 
 const getStores = ({ localData, ecdsData, failKeys = [] }) => ({
   ecds: {
@@ -37,24 +68,25 @@ const getStores = ({ localData, ecdsData, failKeys = [] }) => ({
   },
 });
 
-test("isCovered-pessimistic - dependency locally available => true", t => {
+/*
+test("isCovered-pessimistic - [w1 !-> w2]", t => {
   t.plan(1);
 
   const ecdsData = {
     w1: {
       val: "foo",
       _meta: {
-        vectorClock: { p1: 2 },
-        happenedAfter: {
-          w2: { p2: 1 },
-        },
+        vectorClock: { p1: 1 },
+        happenedAfter: {},
       },
     },
     w2: {
       val: "bar",
       _meta: {
-        vectorClock: { p1: 1 },
-        happenedAfter: {},
+        vectorClock: { p1: 3 },
+        happenedAfter: {
+          w1: { p1: 2 },
+        },
       },
     },
   };
@@ -64,10 +96,10 @@ test("isCovered-pessimistic - dependency locally available => true", t => {
     w2: JSON.parse(JSON.stringify(ecdsData.w2)),
   };
 
-  const write = JSON.parse(JSON.stringify(ecdsData.w1));
+  const write = JSON.parse(JSON.stringify(ecdsData.w2));
 
   const tentativeWrites = {
-    w1: JSON.parse(JSON.stringify(ecdsData.w1)),
+    w2: JSON.parse(JSON.stringify(write)),
   };
 
   const options = {
@@ -76,39 +108,74 @@ test("isCovered-pessimistic - dependency locally available => true", t => {
     ...getStores({ localData, ecdsData }),
   };
 
-  isCovered(options).then(result => t.equal(result, true));
+  isCovered(options).then(result => t.equal(result, false));
 });
 
-test("isCovered-pessimistic - dependency locally unavailable => true", t => {
+test("isCovered-pessimistic - [?? !-> w2] unavailable", t => {
+  t.plan(1);
+
+  const ecdsData = {
+    w2: {
+      val: "bar",
+      _meta: {
+        vectorClock: { p1: 2 },
+        happenedAfter: {
+          w1: { p1: 1 },
+        },
+      },
+    },
+  };
+
+  const localData = {
+    w2: JSON.parse(JSON.stringify(ecdsData.w2)),
+  };
+
+  const write = JSON.parse(JSON.stringify(ecdsData.w2));
+
+  const tentativeWrites = {
+    w2: JSON.parse(JSON.stringify(write)),
+  };
+
+  const options = {
+    write,
+    tentativeWrites,
+    ...getStores({ localData, ecdsData }),
+  };
+
+  isCovered(options).then(result => t.equal(result, false));
+});
+
+test("isCovered-pessimistic - [w1 -> w2] locally available", t => {
   t.plan(1);
 
   const ecdsData = {
     w1: {
       val: "foo",
       _meta: {
-        vectorClock: { p1: 2 },
-        happenedAfter: {
-          w2: { p2: 1 },
-        },
+        vectorClock: { p1: 1 },
+        happenedAfter: {},
       },
     },
     w2: {
       val: "bar",
       _meta: {
-        vectorClock: { p1: 1 },
-        happenedAfter: {},
+        vectorClock: { p1: 2 },
+        happenedAfter: {
+          w1: { p1: 1 },
+        },
       },
     },
   };
 
   const localData = {
     w1: JSON.parse(JSON.stringify(ecdsData.w1)),
+    w2: JSON.parse(JSON.stringify(ecdsData.w2)),
   };
 
-  const write = JSON.parse(JSON.stringify(ecdsData.w1));
+  const write = JSON.parse(JSON.stringify(ecdsData.w2));
 
   const tentativeWrites = {
-    w1: JSON.parse(JSON.stringify(ecdsData.w1)),
+    w2: JSON.parse(JSON.stringify(write)),
   };
 
   const options = {
@@ -120,7 +187,48 @@ test("isCovered-pessimistic - dependency locally unavailable => true", t => {
   isCovered(options).then(result => t.equal(result, true));
 });
 
-test("isCovered-pessimistic - dependency unavailable => false", t => {
+test("isCovered-pessimistic - dependency locally unavailable", t => {
+  t.plan(1);
+
+  const ecdsData = {
+    w1: {
+      val: "foo",
+      _meta: {
+        vectorClock: { p1: 1 },
+        happenedAfter: {},
+      },
+    },
+    w2: {
+      val: "bar",
+      _meta: {
+        vectorClock: { p1: 2 },
+        happenedAfter: {
+          w1: { p1: 1 },
+        },
+      },
+    },
+  };
+
+  const localData = {
+    w2: JSON.parse(JSON.stringify(ecdsData.w2)),
+  };
+
+  const write = JSON.parse(JSON.stringify(ecdsData.w2));
+
+  const tentativeWrites = {
+    w2: JSON.parse(JSON.stringify(write)),
+  };
+
+  const options = {
+    write,
+    tentativeWrites,
+    ...getStores({ localData, ecdsData }),
+  };
+
+  isCovered(options).then(result => t.equal(result, true));
+});
+
+test("isCovered-pessimistic - dependency unavailable", t => {
   t.plan(1);
 
   const ecdsData = {
@@ -153,3 +261,6 @@ test("isCovered-pessimistic - dependency unavailable => false", t => {
 
   isCovered(options).then(result => t.equal(result, false));
 });
+*/
+
+// Bolt-on Causal Consistency, Peter Bailis et al, SIGMOD 2013

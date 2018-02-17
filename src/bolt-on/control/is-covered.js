@@ -3,12 +3,12 @@ import { happenedBefore } from "./happened-before";
 
 export const checkRemoteDependency = async options => {
   debugger;
-  const { ecds, depKey, depVectorClock, tentativeWrites } = options;
+  const { ecds, tentativeWrites, dependency } = options;
 
   let remoteDepSerialised;
 
   try {
-    remoteDepSerialised = await ecds.get({ key: depKey });
+    remoteDepSerialised = await ecds.get({ key: dependency.key });
     debugger;
   } catch (error) {
     if (error.name !== "not_found") {
@@ -29,7 +29,7 @@ export const checkRemoteDependency = async options => {
 
   if (
     happenedBefore({
-      clockRef: depVectorClock,
+      clockRef: dependency.vectorClock,
       clock: item._meta.vectorClock,
     })
   ) {
@@ -38,7 +38,7 @@ export const checkRemoteDependency = async options => {
   }
 
   debugger;
-  tentativeWrites[depKey] = item;
+  tentativeWrites[dependency.key] = item;
 
   if (await isCovered({ ...options, write: item })) {
     debugger;
@@ -51,16 +51,16 @@ export const checkRemoteDependency = async options => {
 
 const checkLocalDependency = async options => {
   debugger;
-  const { localStore, tentativeWrites, depKey, depVectorClock } = options;
+  const { localStore, tentativeWrites, dependency } = options;
 
-  const localDepSerialised = localStore.get({ key: depKey });
+  const localDepSerialised = await localStore.get({ key: dependency.key });
 
   if (localDepSerialised) {
     const { _meta: localMeta } = deSerialise(localDepSerialised);
 
     if (
       !happenedBefore({
-        clockRef: depVectorClock,
+        clockRef: dependency.vectorClock,
         clock: localMeta.vectorClock,
       })
     ) {
@@ -72,9 +72,9 @@ const checkLocalDependency = async options => {
   if (
     Object.entries(tentativeWrites).find(
       ([key, item]) =>
-        key === depKey &&
+        key === dependency.key &&
         !happenedBefore({
-          clockRef: depVectorClock,
+          clockRef: dependency.vectorClock,
           clock: item._meta.vectorClock,
         }),
     )
@@ -91,10 +91,15 @@ export const isCovered = async options => {
   debugger;
 
   const { write: { _meta: { happenedAfter } } } = options;
-  const depKeys = Object.entries(happenedAfter);
+  const dependencies = Object.entries(happenedAfter);
 
-  for (const [depKey, depVectorClock] of depKeys) {
-    if (await checkLocalDependency({ ...options, depKey, depVectorClock })) {
+  for (const [depKey, depVectorClock] of dependencies) {
+    if (
+      await checkLocalDependency({
+        ...options,
+        dependency: { key: depKey, vectorClock: depVectorClock },
+      })
+    ) {
       debugger;
       continue;
     }

@@ -13,13 +13,13 @@ export const getModel = ({ shim }) => {
 
   return async function model(input) {
     try {
-      let doc = { key: "sladi", val: Date.now(), after: [] };
+      let doc = { key: "sladi", val: Date.now(), cause: [] };
       console.log("entity create doc", doc);
       await shim.put(doc);
       doc = await shim.get({ key: "sladi" });
       console.log("entity got doc", doc);
 
-      doc = { key: "sladi2", val: Date.now(), after: ["sladi"] };
+      doc = { key: "sladi2", val: Date.now(), cause: ["sladi"] };
       console.log("entity create doc 2", doc);
       await shim.put(doc);
       doc = await shim.get({ key: "sladi2" });
