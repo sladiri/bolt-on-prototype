@@ -29,6 +29,10 @@ Show Bolt-on example for my master-thesis.
   * [ ] Shim algorithm
     * [ ] Pessimistic Shim
     * [ ] Property-based tests
+      * [ ] Happened-before
+        * [x] Simple property based tests
+        * [ ] Improve property for vector clock happened-before
+      * [ ] is covered
     * [ ] Optimistic Shim
       * [ ] Implement polling Shim from Bailis' paper
       * [ ] Implement Shim using PouchDB's change-events

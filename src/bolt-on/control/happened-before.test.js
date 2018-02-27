@@ -2,72 +2,18 @@ import test from "tape";
 import jsc from "jsverify";
 import { happenedBefore } from "./happened-before";
 
-const Zplus = jsc.bless({
-  generator: jsc.nat.generator.map(function(x) {
-    return x + 1;
-  }),
-});
-
-const nat2array = jsc.bless({
-  generator: jsc.nat.generator.flatmap(function(x) {
-    return jsc.generator.nearray(jsc.nat.generator);
-  }),
-});
-
-const nat2tuple = jsc.bless({
-  generator: jsc.generator.tuple([
-    jsc.generator.nearray(jsc.asciinestring.generator),
-    jsc.generator.nearray(jsc.nat.generator),
-  ]),
-});
-
-const nat2tupleflatMap = jsc.bless({
-  generator: jsc.nat.generator.flatmap(function(x) {
-    return jsc.generator.tuple([
-      jsc.generator.nearray(jsc.asciinestring.generator),
-      jsc.generator.nearray(jsc.nat.generator),
-    ]);
-  }),
-});
-
-const emailGenerator = jsc.asciinestring.generator.map(
-  str => `${str}@example.com`,
-);
-const arbUser = jsc.record({
-  first: jsc.asciinestring,
-  last: jsc.asciinestring,
-  email: jsc.bless({ generator: emailGenerator }),
-});
-
-const randomVectorClock = (size = 100) =>
-  jsc.bless({
-    generator: () => {
-      const arr = jsc.generator.nearray(jsc.nat.generator, size);
-      const result = {};
-      let index = 0;
-      while (Object.keys(result).length !== arr.length) {
-        const key = jsc.asciinestring.generator(arr.length * 2);
-        if (!result[key]) {
-          result[key] = arr[index];
-          index += 1;
-        }
-      }
-      return result;
-    },
-  });
-
-test("happenedBefore - Xa = Y  ==>  X !-> Y  &  Y !-> X", t => {
-  t.plan(1);
-
-  t.equal(
-    jsc.checkForall(randomVectorClock(), clock => {
-      return !happenedBefore({ clockRef: clock, clock });
-    }),
-    true,
-  );
-});
-
-const randomVectorClocks = (minA, maxA, minB, maxB, size = 4) =>
+const randomVectorClocks = ({
+  // TODO: Express A, B as property, such that A < B for example
+  minA = 0,
+  maxA = 0,
+  minB = 0,
+  maxB = 0,
+  sparseA = false,
+  sparseB = false,
+  maxKeyLength = 1,
+  minSize = 0,
+  sizeBase = 128,
+}) =>
   jsc.bless({
     generator: () => {
       const result = {
@@ -75,13 +21,20 @@ const randomVectorClocks = (minA, maxA, minB, maxB, size = 4) =>
         B: {},
       };
       let index = 0;
+      const size = jsc.random(minSize, Math.pow(sizeBase, maxKeyLength));
       while (index < size) {
-        const key = jsc.asciinestring.generator(100);
+        const key = jsc.asciinestring.generator(maxKeyLength);
         const valA = jsc.random(minA, maxA);
         const valB = jsc.random(minB, maxB);
         if (!result[key]) {
-          result.A[key] = valA;
-          result.B[key] = valB;
+          const writeA = sparseA ? jsc.random(0, 1) === 0 : true;
+          if (writeA) {
+            result.A[key] = valA;
+          }
+          const writeB = sparseB ? jsc.random(0, 1) === 0 : true;
+          if (writeB) {
+            result.B[key] = valB;
+          }
           index += 1;
         }
       }
@@ -89,21 +42,28 @@ const randomVectorClocks = (minA, maxA, minB, maxB, size = 4) =>
     },
   });
 
-test("happenedBefore - Xa.. < Ya..  ==>  X --> Y  &  Y !-> X", t => {
-  t.plan(1);
+test("happenedBefore - same clock", t => {
+  t.equal(
+    jsc.checkForall(randomVectorClocks({}), ({ A }) => {
+      return !happenedBefore({ clockRef: A, clock: A });
+    }),
+    true,
+  );
 
   t.equal(
     jsc.checkForall(
-      randomVectorClocks(1, 10, 11, 20, 4),
-      ({ A: smallClock, B: largeClock }) => {
-        return (
-          happenedBefore({ clockRef: largeClock, clock: smallClock }) &&
-          !happenedBefore({ clockRef: smallClock, clock: largeClock })
-        );
+      randomVectorClocks({
+        minA: 0,
+        maxA: 10,
+      }),
+      ({ A }) => {
+        return !happenedBefore({ clockRef: A, clock: A });
       },
     ),
     true,
   );
+
+  t.end();
 });
 
 // https://www.youtube.com/watch?v=jD4ECsieFbE
@@ -202,6 +162,26 @@ test("happenedBefore - causally related", t => {
   t.equal(
     happenedBefore({ clockRef: x, clock: y }) &&
       !happenedBefore({ clockRef: y, clock: x }),
+    true,
+  );
+
+  t.equal(
+    jsc.checkForall(
+      randomVectorClocks({
+        minA: 11,
+        maxA: 20,
+        minB: 1,
+        maxB: 10,
+        sparseB: true,
+        minSize: 1,
+      }),
+      ({ A, B }) => {
+        return (
+          happenedBefore({ clockRef: A, clock: B }) &&
+          !happenedBefore({ clockRef: B, clock: A })
+        );
+      },
+    ),
     true,
   );
 
