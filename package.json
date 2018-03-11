@@ -11,9 +11,9 @@
     "build": "npm run clean && webpack --env.target production",
     "prettier:check": "prettier -l src/**/*.js",
     "prettier:write": "prettier --write src/**/*.js",
-    "test": "npm run test:base | faucet",
-    "test:debug": "npm run test:base -- --inspect-brk | faucet",
-    "test:base": "babel-node node_modules/.bin/tape src/**/*.test.js",
+    "test": "npm run test:base -- src/**/*.test.js | faucet",
+    "test:debug": "npm run test:base -- src/**/*.test.js --inspect-brk | faucet",
+    "test:base": "babel-node node_modules/.bin/tape",
     "foo": "browserify -t babelify src/bolt-on/control/is-covered.test.js | browser-run -p 2222 | faucet"
   },
   "devDependencies": {
