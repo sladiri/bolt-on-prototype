@@ -10,7 +10,6 @@ const minimalOptions = {
   },
 };
 
-/*
 test("isCovered-pessimistic - [x1] (no dependency)", t => {
   t.plan(1);
 
@@ -44,7 +43,6 @@ test("isCovered-pessimistic - [x1] (random additional parameters)", t => {
     t.equal(result, true);
   });
 });
-*/
 
 const getStores = ({ localData, ecdsData, failKeys = [] }) => ({
   ecds: {
@@ -68,7 +66,6 @@ const getStores = ({ localData, ecdsData, failKeys = [] }) => ({
   },
 });
 
-/*
 test("isCovered-pessimistic - [w1 !-> w2]", t => {
   t.plan(1);
 
@@ -261,6 +258,5 @@ test("isCovered-pessimistic - dependency unavailable", t => {
 
   isCovered(options).then(result => t.equal(result, false));
 });
-*/
 
 // Bolt-on Causal Consistency, Peter Bailis et al, SIGMOD 2013
