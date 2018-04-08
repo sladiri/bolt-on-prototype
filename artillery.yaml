@@ -1,0 +1,17 @@
+config:
+  target: "https://localhost:3001"
+  phases:
+    # - duration: 30
+    #   arrivalRate: 1
+    - duration: 60
+      arrivalRate: 5
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 50
+    - duration: 600
+      arrivalRate: 50
+scenarios:
+  - name: "Load index"
+    flow:
+      - get:
+          url: "/"

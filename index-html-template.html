@@ -3,14 +3,26 @@
 
 <head>
   <meta charset="UTF-8">
-  <!-- https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images -->
+  <!--
+        Set viewport
+        https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+    -->
   <meta name="viewport" content="width=device-width">
+
   <title>
     <%= htmlWebpackPlugin.options.title %>
   </title>
 </head>
 
 <body class="sans">
+
+  <div id="App"></div>
+
+  <div id="GunExample">
+    <div id="Output"></div>
+    <input type="text" id="Input" placeholder="Enter a message..." autofocus>
+  </div>
+
 </body>
 
 </html>
