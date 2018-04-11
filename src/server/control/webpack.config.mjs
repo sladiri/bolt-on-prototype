@@ -14,20 +14,20 @@ const paths = ({ publicPath }) => {
   const webroot = path.join(process.cwd(), publicPath);
   const favicon = path.join(process.cwd(), "icons8-socks.png");
   const src = path.join(process.cwd(), "src");
-  const client = path.join(src, "client");
+  const app = path.join(src, "app");
 
   return {
     webroot,
     favicon,
     src,
-    client,
+    app,
   };
 };
 
 const commonConfig = ({ debug = false, paths, publicPath }) => {
   return {
     mode: debug ? "development" : "production",
-    entry: [paths.client],
+    entry: [paths.app],
     output: {
       pathinfo: debug,
       path: paths.webroot,
