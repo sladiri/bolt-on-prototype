@@ -2,8 +2,6 @@ import Koa from "koa";
 import route from "koa-route";
 import mount from "koa-mount";
 import serve from "koa-static";
-// import compress from "koa-compress";
-// import c2k from "koa-connect";
 import webpack from "koa-webpack";
 // @ts-ignore
 import { ssr } from "./ssr.mjs";
@@ -12,18 +10,17 @@ import { config as webpackConfig } from "./webpack.config.mjs";
 
 const publicPath = "/public";
 
-export const createApp = () => {
+export const app = () => {
   const app = new Koa();
   app.use(
     webpack({
       config: webpackConfig({ publicPath }),
-      hot: true,
+      hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true
     }),
   );
   app.use(errorHandler);
   app.use(setXResponseTime);
   app.use(logger);
-  // app.use(compress());
   app.use(mount(publicPath, serve(`.${publicPath}`)));
   app.use(route.get("/", response()));
   app.use(route.get("/posts", posts));
@@ -54,19 +51,20 @@ const logger = async (ctx, next) => {
   console.info(`Responsed to request ${ctx.path} with ${ctx.status}`);
 };
 
-const render = ssr();
-const response = () => async ctx => {
-  const { html, ttRenderMs } = await render(
-    // Using ctx.req.authority is a workaround for http2 and Koa2
-    `${ctx.request.protocol}://${ctx.req.authority}${publicPath}/index.html`,
-    // `${ctx.request.protocol}://${ctx.host}${publicPath}/index.html`,
-  );
-  ctx.set(
-    "Server-Timing",
-    `Prerender;dur=${ttRenderMs};desc="Headless render time (ms)"`,
-  );
-  ctx.body = html;
-  console.info(`Headless rendered page in: ${ttRenderMs}ms`);
+const response = () => {
+  const render = ssr();
+  return async ctx => {
+    const { html, ttRenderMs } = await render(
+      `${ctx.request.protocol}://${ctx.req.authority}${publicPath}/index.html`, // http2 - ctx.req.authority is a workaround for http2 and Koa2?
+      // `${ctx.request.protocol}://${ctx.host}${publicPath}/index.html`, // https
+    );
+    ctx.set(
+      "Server-Timing",
+      `Prerender;dur=${ttRenderMs};desc="Headless render time (ms)"`,
+    );
+    ctx.body = html;
+    console.info(`Headless rendered page in: ${ttRenderMs}ms`);
+  };
 };
 
 const posts = async ctx => {

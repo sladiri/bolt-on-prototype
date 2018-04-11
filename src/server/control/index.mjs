@@ -1,2 +1,2 @@
 // @ts-ignore
-export { createApp } from "./routes.mjs";
+export { app } from "./routes.mjs";

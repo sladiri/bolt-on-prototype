@@ -1,4 +1,6 @@
 import path from "path";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import FaviconsWebpackPlugin from "favicons-webpack-plugin";
 
 export const config = ({ publicPath }) => {
   return commonConfig({
@@ -10,19 +12,19 @@ export const config = ({ publicPath }) => {
 
 const paths = ({ publicPath }) => {
   const webroot = path.join(process.cwd(), publicPath);
+  const favicon = path.join(process.cwd(), "icons8-socks.png");
   const src = path.join(process.cwd(), "src");
   const client = path.join(src, "client");
 
   return {
     webroot,
+    favicon,
     src,
     client,
   };
 };
 
 const commonConfig = ({ debug = false, paths, publicPath }) => {
-  // const HtmlWebpackPlugin = require("html-webpack-plugin");
-  // const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
   return {
     mode: debug ? "development" : "production",
     entry: [paths.client],
@@ -76,21 +78,22 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
       ],
     },
     plugins: [
-      // new HtmlWebpackPlugin({
-      //   title: "Bolt-on Prototype",
-      //   minify: { maxLineLength: 80 },
-      //   template: "index-html-template.html",
-      // }),
-      // new FaviconsWebpackPlugin({ // Webpack 4 incompatible https://github.com/jantimon/favicons-webpack-plugin/issues/108
-      //   logo: PATHS.favicon,
-      //   icons: {
-      //     android: false,
-      //     appleIcon: false,
-      //     appleStartup: false,
-      //     favicons: true,
-      //     firefox: false,
-      //   },
-      // }),
+      new HtmlWebpackPlugin({
+        title: "Bolt-on Prototype",
+        indexPath: debug ? "/public" : "",
+        minify: { maxLineLength: 80 },
+        template: "./index-html-template.html",
+      }),
+      new FaviconsWebpackPlugin({
+        logo: paths.favicon,
+        icons: {
+          android: false,
+          appleIcon: false,
+          appleStartup: false,
+          favicons: true,
+          firefox: false,
+        },
+      }),
     ],
   };
 };

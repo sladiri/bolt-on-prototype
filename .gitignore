@@ -2,8 +2,10 @@
 
 /node_modules/
 
-/build/
+/public/
 
 /*.pem
 
 /bak/
+
+/gundb-data.json

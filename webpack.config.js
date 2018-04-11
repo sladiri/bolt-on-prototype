@@ -1,276 +1,101 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
-// const HtmlWebpackInlineSVGPlugin = require("html-webpack-inline-svg-plugin");
 
-const PATHS = (() => {
-  const build = path.join(__dirname, "build");
-  const assets = path.join(__dirname, "assets");
-  const svgSprite = path.join(__dirname, "svg-sprite");
-  const favicon = path.join(assets, "icons8-socks.png");
-  const src = path.join(__dirname, "src");
-  const polyfill = path.join(src, "polyfill");
-  const app = path.join(src, "app");
-  const elements = path.join(src, "elements");
-  const boltOn = path.join(src, "bolt-on");
-  const pouch = path.join(src, "pouch");
-  const sam = path.join(src, "sam");
+const config = ({ publicPath }) => {
+  return commonConfig({
+    debug: false,
+    publicPath,
+    paths: paths({ publicPath }),
+  });
+};
+
+const paths = ({ publicPath }) => {
+  const webroot = path.join(process.cwd(), publicPath);
+  const favicon = path.join(process.cwd(), "icons8-socks.png");
+  const src = path.join(process.cwd(), "src");
+  const client = path.join(src, "client");
 
   return {
-    build,
-    assets,
-    svgSprite,
+    webroot,
     favicon,
     src,
-    polyfill,
-    app,
-    elements,
-    boltOn,
-    pouch,
-    sam,
+    client,
   };
-})();
+};
 
-const commonConfig = ({ modules, debug = false }) => ({
-  entry: {
-    app: [PATHS.polyfill, PATHS.app],
-  },
-  output: {
-    path: PATHS.build,
-    filename: "[name]-build.js",
-    // pathinfo: true,
-  },
-  resolve: {
-    alias: {
-      app: PATHS.app,
-      assets: PATHS.assets,
-      svgSprite: PATHS.svgSprite,
-      elements: PATHS.elements,
-      boltOn: PATHS.boltOn,
-      pouch: PATHS.pouch,
-      sam: PATHS.sam,
+const commonConfig = ({ debug = false, paths, publicPath }) => {
+  return {
+    mode: debug ? "development" : "production",
+    entry: [paths.client],
+    output: {
+      pathinfo: debug,
+      path: paths.webroot,
+      filename: "index.mjs",
+      publicPath,
     },
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(jpg|png|svg)$/,
-        include: PATHS.assets,
-        use: [
-          {
-            loader: "url-loader",
+    module: {
+      rules: [
+        {
+          test: /\.js$|\.jsm$/,
+          include: paths.src,
+          use: {
+            loader: "babel-loader",
             options: {
-              limit: 4096,
-              fallback: "file-loader",
+              cacheDirectory: true,
+              plugins: [
+                "@babel/plugin-syntax-dynamic-import",
+                // "@babel/plugin-proposal-async-generator-functions",
+                "@babel/plugin-proposal-function-bind",
+                "@babel/plugin-proposal-object-rest-spread",
+              ],
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    debug: true,
+                    spec: true,
+                    modules: false, // Do not transpile modules
+                    useBuiltIns: "usage",
+                    targets: {
+                      browsers: [
+                        "edge >= 16",
+                        "firefox >= 58",
+                        "chrome >= 63",
+                        "safari >= 11",
+                        "ios_saf >= 10.3",
+                        "and_chr >= 64",
+                        "and_uc >= 11.8",
+                        "samsung >= 6.2",
+                      ],
+                    },
+                  },
+                ],
+              ],
             },
           },
-        ],
-      },
-      {
-        test: /\.svg$/,
-        include: PATHS.svgSprite,
-        use: [
-          "svg-sprite-loader", // "svgo-loader" // Currently broken?
-          // { loader: 'react-svg-loader', options: { jsx: true } },
-        ],
-      },
-      {
-        test: /\.js$/,
-        include: PATHS.src,
-        use: {
-          loader: "babel-loader",
-          options: {
-            // cacheDirectory: true,
-            plugins: [
-              "transform-object-rest-spread",
-              "transform-async-generator-functions",
-              "transform-do-expressions",
-              "transform-function-bind",
-              "transform-react-jsx",
-              "syntax-dynamic-import",
-            ],
-            presets: [
-              [
-                "env",
-                {
-                  debug,
-                  useBuiltIns: true,
-                  modules,
-                  targets: {
-                    browsers: ["last 3 versions"],
-                  },
-                },
-              ],
-            ],
-          },
-        },
-      },
-    ],
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "Bolt-on Prototype",
-      minify: { maxLineLength: 80 },
-      template: "index-html-template.html",
-    }),
-    new FaviconsWebpackPlugin({
-      logo: PATHS.favicon,
-      icons: {
-        android: false,
-        appleIcon: false,
-        appleStartup: false,
-        favicons: true,
-        firefox: false,
-      },
-    }),
-    // new HtmlWebpackInlineSVGPlugin()
-  ],
-});
-
-const productionConfig = () => {
-  const webpack = require("webpack");
-  const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
-  const ExtractTextPlugin = require("extract-text-webpack-plugin");
-  const Visualizer = require("webpack-visualizer-plugin");
-  const CompressionPlugin = require("compression-webpack-plugin");
-
-  const baseConfig = commonConfig({ modules: false });
-
-  return Object.assign({}, baseConfig, {
-    devtool: "source-map",
-    module: {
-      ...baseConfig.module,
-      rules: [
-        ...baseConfig.module.rules,
-        {
-          test: /\.css$/,
-          include: PATHS.src,
-          use: ExtractTextPlugin.extract({
-            fallback: "style-loader",
-            use: [
-              {
-                loader: "css-loader",
-                options: { importLoaders: 1 },
-              },
-              {
-                loader: "postcss-loader",
-                options: {
-                  plugins: () => [
-                    require("postcss-import")({
-                      path: ["src"],
-                    }),
-                    require("postcss-cssnext"),
-                    require("tailwindcss")("./tailwind.js"),
-                    require("cssnano"),
-                  ],
-                },
-              },
-            ],
-          }),
         },
       ],
     },
     plugins: [
-      new webpack.DefinePlugin({
-        "process.env.NODE_ENV": JSON.stringify("production"),
+      new HtmlWebpackPlugin({
+        title: "Bolt-on Prototype",
+        indexPath: debug ? "/public" : "",
+        minify: { maxLineLength: 80 },
+        template: "./index-html-template.html",
       }),
-      new webpack.optimize.ModuleConcatenationPlugin(),
-      new UglifyJSPlugin({
-        sourceMap: true,
-        uglifyOptions: {
-          compress: {
-            drop_debugger: false,
-          },
+      new FaviconsWebpackPlugin({
+        logo: paths.favicon,
+        icons: {
+          android: false,
+          appleIcon: false,
+          appleStartup: false,
+          favicons: true,
+          firefox: false,
         },
-      }),
-      ...baseConfig.plugins,
-      new ExtractTextPlugin({
-        filename: "[name].css",
-      }),
-      new webpack.optimize.CommonsChunkPlugin({
-        name: "vendor",
-        minChunks: ({ resource }) => /node_modules/.test(resource),
-      }),
-      new CompressionPlugin({
-        algorithm: "gzip",
-        test: /\.js$|\.css$|\.html$|\.eot?.+$|\.ttf?.+$|\.woff?.+$|\.svg?.+$/,
-        threshold: 10240,
-        minRatio: 0.8,
-      }),
-      new Visualizer({
-        filename: "./statistics.html",
       }),
     ],
-  });
+  };
 };
 
-const developmentConfig = ({ host = "localhost", port = "3000" }) => {
-  const fs = require("fs");
-  const baseConfig = commonConfig({ modules: "commonjs" });
-
-  return Object.assign({}, baseConfig, {
-    // devtool: "eval",
-    // devtool: "cheap-eval-source-map", // transformed code (lines only)
-    // devtool: "cheap-module-eval-source-map", // original source (lines only)
-    devtool: "eval-source-map", // original source
-    module: {
-      ...baseConfig.module,
-      rules: [
-        ...baseConfig.module.rules,
-        {
-          test: /\.css$/,
-          include: PATHS.src,
-          use: [
-            "style-loader",
-            {
-              loader: "css-loader",
-              options: { importLoaders: 1 },
-            },
-            {
-              loader: "postcss-loader",
-              options: {
-                plugins: () => [
-                  require("postcss-import")({
-                    path: ["src"],
-                  }),
-                  require("postcss-cssnext"),
-                  require("tailwindcss")("./tailwind.js"),
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    },
-    devServer: {
-      historyApiFallback: true,
-      stats: "errors-only",
-      host,
-      port,
-      https: {
-        key: fs.readFileSync("/mnt/c/ssl/server/privkey.pem"),
-        cert: fs.readFileSync("/mnt/c/ssl/server/cert.pem"),
-      },
-      proxy: {
-        "/wiki": {
-          changeOrigin: true,
-          target: "https://en.wikipedia.org",
-          pathRewrite: { "^/wiki": "/w" },
-        },
-      },
-    },
-  });
-};
-
-module.exports = env => {
-  console.log("build-env is:", env);
-
-  if (env && env.target === "production") {
-    return productionConfig();
-  }
-
-  return developmentConfig({
-    host: process.env.HOST,
-    port: process.env.PORT,
-  });
-};
+module.exports = config({ publicPath: "/public" });

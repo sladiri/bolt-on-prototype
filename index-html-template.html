@@ -4,10 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <!--
-        Set viewport
-        https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
-    -->
+  Set viewport
+  https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+  -->
   <meta name="viewport" content="width=device-width">
+
+  <!--
+  Does not work with Webpack (works without Webpack)
+  <script type="module">
+    import { app } from '<%= htmlWebpackPlugin.options.indexPath %>/index.mjs';
+    console.log(app)
+    app();
+  </script>
+  -->
+  <script type="module" src="<%= htmlWebpackPlugin.options.indexPath %>/index.mjs"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 
   <title>
     <%= htmlWebpackPlugin.options.title %>
@@ -16,12 +27,46 @@
 
 <body class="sans">
 
-  <div id="App"></div>
+  <div id="container"></div>
 
-  <div id="GunExample">
-    <div id="Output"></div>
-    <input type="text" id="Input" placeholder="Enter a message..." autofocus>
-  </div>
+  <h1>Todos</h1>
+
+  <ul id="gunlist"></ul>
+
+  <form>
+    <input>
+    <button>Add</button>
+  </form>
+
+  <style>
+    ul {
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+    }
+
+    li span {
+      width: 150px;
+      word-break: break-all;
+    }
+
+    img {
+      height: 20px;
+      margin-left: 8px;
+      cursor: pointer;
+    }
+
+    input {
+      width: 150px;
+      margin-right: 8px;
+    }
+
+    input[type='checkbox'] {
+      width: auto;
+    }
+  </style>
 
 </body>
 

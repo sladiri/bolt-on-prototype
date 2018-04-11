@@ -3,16 +3,16 @@ import puppeteer from "puppeteer";
 export const ssr = () => {
   const cache = new Map();
   return async url => {
-    if (cache.has(url)) {
-      return {
-        ...(await cache.get(url)),
-        ttRenderMs: 0,
-      };
-    }
+    return cache.has(url)
+      ? cachedPage(cache, url)
+      : cache.set(url, render(url)).get(url);
+  };
+};
 
-    const cached = render(url);
-    cache.set(url, cached);
-    return cached;
+const cachedPage = async (cache, url) => {
+  return {
+    ...(await cache.get(url)),
+    ttRenderMs: 0,
   };
 };
 
