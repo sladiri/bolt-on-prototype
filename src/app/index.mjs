@@ -1,19 +1,25 @@
-// Babel transpiled dynamic imports do not correctly work with export from module (mjs)
-// export const app = async () => {
+import "./index.pcss";
+import assert from "assert";
+
+// export const app = async () => { // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
 const app = async () => {
   console.log("start");
 
   const container = document.querySelector("#container");
+  assert.ok(container);
 
-  const PRE_RENDERED = container.querySelector("#posts");
-  if (PRE_RENDERED) {
+  const params = new URL(location.href).searchParams;
+  const RENDERING_IN_HEADLESS = params.has("headless");
+  if (RENDERING_IN_HEADLESS) {
+    // Being rendered by headless Chrome on the server.
+    // e.g. shut off features, don't lazy load non-essential resources, etc.
+    await renderPosts(container);
+  } else {
+    assert.ok(container.querySelector("#posts"));
     console.log("Prerendered posts, abort");
     await dynamicImport();
     return;
   }
-
-  await renderPosts(container);
-  // await dynamicImport();
 };
 
 const renderPosts = async container => {
@@ -45,6 +51,8 @@ const dynamicImport = async () => {
 
   // var todos = Gun().get("todos");
   const todos = Gun("https://localhost:3002").get("todos");
+
+  const $ = window.jQuery;
 
   $("form").on("submit", function(event) {
     var input = $("form").find("input");

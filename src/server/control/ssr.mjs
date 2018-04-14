@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import urlModule from "url";
 
 export const ssr = () => {
   const cache = new Map();
@@ -21,7 +22,7 @@ const render = async url => {
 
   const browser = await puppeteer.launch({
     // devtools: true,
-    // slowMo: 500,
+    // slowMo: 250,
     ignoreHTTPSErrors: true,
   });
   const page = await browser.newPage();
@@ -38,10 +39,12 @@ const render = async url => {
   // });
 
   try {
+    const renderUrl = new urlModule.URL(url);
+    renderUrl.searchParams.set("headless", "");
     // networkidle0 waits for the network to be idle (no requests for 500ms).
     // The page's JS has likely produced markup by this point, but wait longer
     // if your site lazy loads, etc.
-    await page.goto(url, { waitUntil: "networkidle0" });
+    await page.goto(renderUrl.toString(), { waitUntil: "networkidle0" });
     await page.waitForSelector("#posts"); // ensure #posts exists in the DOM.
   } catch (err) {
     console.error(err);

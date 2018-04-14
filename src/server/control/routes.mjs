@@ -6,22 +6,20 @@ import webpack from "koa-webpack";
 // @ts-ignore
 import { ssr } from "./ssr.mjs";
 // @ts-ignore
-import { config as webpackConfig } from "./webpack.config.mjs";
+import { config as webpackConfig } from "./webpack-config.mjs";
 
-const publicPath = "/public";
-
-export const app = () => {
+export const app = (publicPath = "/public") => {
   const app = new Koa();
   app.use(
     webpack({
       config: webpackConfig({ publicPath }),
-      hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true
+      hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
     }),
   );
   app.use(errorHandler);
   app.use(setXResponseTime);
   app.use(mount(publicPath, serve(`.${publicPath}`)));
-  app.use(route.get("/", response()));
+  app.use(route.get("/", response({ publicPath })));
   app.use(route.get("/posts", posts));
 
   return app;
@@ -45,7 +43,7 @@ const setXResponseTime = async (ctx, next) => {
   console.info(`Responded to [ ${ctx.method} ${ctx.path} ] in ${ttTotalMs}ms`);
 };
 
-const response = () => {
+const response = ({ publicPath }) => {
   const render = ssr();
   return async ctx => {
     const { html, ttRenderMs } = await render(
