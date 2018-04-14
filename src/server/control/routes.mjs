@@ -20,7 +20,6 @@ export const app = () => {
   );
   app.use(errorHandler);
   app.use(setXResponseTime);
-  app.use(logger);
   app.use(mount(publicPath, serve(`.${publicPath}`)));
   app.use(route.get("/", response()));
   app.use(route.get("/posts", posts));
@@ -43,12 +42,7 @@ const setXResponseTime = async (ctx, next) => {
   await next();
   const ttTotalMs = Date.now() - start;
   ctx.set("X-Response-Time", `${ttTotalMs}ms`);
-  console.info(`Response time for ${ctx.method} ${ctx.url} - ${ttTotalMs}ms`);
-};
-
-const logger = async (ctx, next) => {
-  await next();
-  console.info(`Responsed to request ${ctx.path} with ${ctx.status}`);
+  console.info(`Responded to [ ${ctx.method} ${ctx.path} ] in ${ttTotalMs}ms`);
 };
 
 const response = () => {

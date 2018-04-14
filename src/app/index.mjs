@@ -17,18 +17,22 @@ const app = async () => {
 };
 
 const renderPosts = async container => {
-  const posts = await fetch("/posts").then(resp => resp.json());
-  const html = posts.reduce((html, post) => {
-    return `${html}
+  const postsData = await fetch("/posts").then(resp => resp.json());
+
+  const { hyper, wire, bind, Component } = await import("hyperhtml/esm");
+  console.log("hyperhtml", hyper, wire, bind, Component);
+
+  const posts = postsData.map(
+    post => hyper`
       <li class="post">
         <h2>${post.title}</h2>
         <div class="summary">${post.summary}</div>
         <p>${post.content}</p>
-      </li>`;
-  }, "");
+      </li>
+    `,
+  );
 
-  // CAREFUL: assumes html is sanitized.
-  container.innerHTML = `<ul id="posts">${html}</ul>`;
+  hyper(container)`<ul id="posts">${posts}</ul>`;
 
   console.log("posts rendered");
 };

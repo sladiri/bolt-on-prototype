@@ -79,10 +79,15 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        title: "Bolt-on Prototype",
-        indexPath: debug ? "/public" : "",
+        templateParameters: {
+          production: !debug,
+          title: "Bolt-on Prototype",
+        },
+        meta: {
+          viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+        },
         minify: { maxLineLength: 80 },
-        template: "./index-html-template.html",
+        template: "./index-html-template.ejs",
       }),
       new FaviconsWebpackPlugin({
         logo: paths.favicon,
