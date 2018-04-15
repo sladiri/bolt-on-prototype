@@ -8,7 +8,7 @@ import { ssr } from "./ssr.mjs";
 // @ts-ignore
 import { config as webpackConfig } from "./webpack-config.mjs";
 
-export const app = (publicPath = "/public") => {
+export const app = ({ publicPath }) => {
   const app = new Koa();
   app.use(
     webpack({
@@ -40,22 +40,21 @@ const setXResponseTime = async (ctx, next) => {
   await next();
   const ttTotalMs = Date.now() - start;
   ctx.set("X-Response-Time", `${ttTotalMs}ms`);
-  console.info(`Responded to [ ${ctx.method} ${ctx.path} ] in ${ttTotalMs}ms`);
+  console.log(`Responded to [ ${ctx.method} ${ctx.path} ] in ${ttTotalMs}ms`);
 };
 
 const response = ({ publicPath }) => {
   const render = ssr();
   return async ctx => {
     const { html, ttRenderMs } = await render(
-      `${ctx.request.protocol}://${ctx.req.authority}${publicPath}/index.html`, // http2 - ctx.req.authority is a workaround for http2 and Koa2?
-      // `${ctx.request.protocol}://${ctx.host}${publicPath}/index.html`, // https
+      `${ctx.request.protocol}://${ctx.req.authority}${publicPath}/index.html`, // ctx.req.authority is a workaround for http2 and Koa2?
     );
     ctx.set(
       "Server-Timing",
       `Prerender;dur=${ttRenderMs};desc="Headless render time (ms)"`,
     );
     ctx.body = html;
-    console.info(`Headless rendered page in: ${ttRenderMs}ms`);
+    console.log(`Headless rendered page in: ${ttRenderMs}ms`);
   };
 };
 

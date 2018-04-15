@@ -3,7 +3,7 @@ import assert from "assert";
 
 // export const app = async () => { // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
 const app = async () => {
-  console.log("start");
+  console.log("app start");
 
   const container = document.querySelector("#container");
   assert.ok(container);
@@ -16,7 +16,6 @@ const app = async () => {
     await renderPosts(container);
   } else {
     assert.ok(container.querySelector("#posts"));
-    console.log("Prerendered posts, abort");
     await dynamicImport();
     return;
   }
@@ -25,8 +24,7 @@ const app = async () => {
 const renderPosts = async container => {
   const postsData = await fetch("/posts").then(resp => resp.json());
 
-  const { hyper, wire, bind, Component } = await import("hyperhtml/esm");
-  console.log("hyperhtml", hyper, wire, bind, Component);
+  const { hyper } = await import("hyperhtml/esm");
 
   const posts = postsData.map(
     post => hyper`
@@ -45,12 +43,11 @@ const renderPosts = async container => {
 
 const dynamicImport = async () => {
   const { default: Gun } = await import("gun/gun");
-  console.log("gun", Gun);
-
-  console.log("imported");
 
   // var todos = Gun().get("todos");
   const todos = Gun("https://localhost:3002").get("todos");
+
+  console.log("load todo");
 
   const $ = window.jQuery;
 
@@ -69,6 +66,7 @@ const dynamicImport = async () => {
         .appendTo("#gunlist");
     }
     if (todo) {
+      console.log("got todo");
       var html = '<span onclick="clickTitle(this)">' + todo.title + "</span>";
       html =
         '<input type="checkbox" onclick="clickCheck(this)" ' +
