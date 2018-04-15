@@ -1,5 +1,5 @@
-import "./index.pcss";
 import assert from "assert";
+import "./index.pcss";
 
 // export const app = async () => { // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
 const app = async () => {
@@ -25,17 +25,10 @@ const renderPosts = async container => {
   const postsData = await fetch("/posts").then(resp => resp.json());
 
   const { hyper } = await import("hyperhtml/esm");
+  // @ts-ignore
+  const { Posts } = await import("../posts/index.mjs");
 
-  const posts = postsData.map(
-    post => hyper`
-      <li class="post">
-        <h2>${post.title}</h2>
-        <div class="summary">${post.summary}</div>
-        <p>${post.content}</p>
-      </li>
-    `,
-  );
-
+  const posts = Posts({ postsData });
   hyper(container)`<ul id="posts">${posts}</ul>`;
 
   console.log("posts rendered");

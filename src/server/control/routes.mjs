@@ -46,9 +46,12 @@ const setXResponseTime = async (ctx, next) => {
 const response = ({ publicPath }) => {
   const render = ssr();
   return async ctx => {
-    const { html, ttRenderMs } = await render(
-      `${ctx.request.protocol}://${ctx.req.authority}${publicPath}/index.html`, // ctx.req.authority is a workaround for http2 and Koa2?
-    );
+    const { html, ttRenderMs } = await render({
+      resetCache: "resetcache" in ctx.request.query,
+      url: `${ctx.request.protocol}://${
+        ctx.req.authority
+      }${publicPath}/index.html`, // ctx.req.authority is a workaround for http2 and Koa2?
+    });
     ctx.set(
       "Server-Timing",
       `Prerender;dur=${ttRenderMs};desc="Headless render time (ms)"`,

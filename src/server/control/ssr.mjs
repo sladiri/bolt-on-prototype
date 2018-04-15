@@ -3,8 +3,8 @@ import urlModule from "url";
 
 export const ssr = () => {
   const cache = new Map();
-  return async url => {
-    return cache.has(url)
+  return async ({ url, resetCache = false }) => {
+    return !resetCache && cache.has(url)
       ? cachedPage(cache, url)
       : cache.set(url, render(url)).get(url);
   };
