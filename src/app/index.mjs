@@ -22,16 +22,24 @@ const app = async () => {
 };
 
 const renderPosts = async container => {
-  const postsData = await fetch("/posts").then(resp => resp.json());
+  // const postsData = await fetch("/posts").then(resp => resp.json());
 
-  const { hyper } = await import("hyperhtml/esm");
+  if (typeof document === "object") {
+    const { hyper } = await import("hyperhtml/esm");
+    debugger;
+  } else {
+    // const hyper = await import("viperhtml");
+    debugger;
+  }
+  // const { bind, wire } = await import("hypermorphic");
+  // console.log(bind, wire);
   // @ts-ignore
-  const { Posts } = await import("../posts/index.mjs");
+  // const { Posts } = await import("../posts/index.mjs");
 
-  const posts = Posts({ postsData });
-  hyper(container)`<ul id="posts">${posts}</ul>`;
+  // const posts = Posts({ postsData });
+  // hyper(container)`<ul id="posts">${posts}</ul>`;
 
-  console.log("posts rendered");
+  // console.log("posts rendered");
 };
 
 const dynamicImport = async () => {

@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import urlModule from "url";
 
-export const ssr = () => {
+export const renderChrome = () => {
   const cache = new Map();
   return async ({ url, resetCache = false }) => {
     return !resetCache && cache.has(url)
@@ -21,8 +21,8 @@ const render = async url => {
   const start = Date.now();
 
   const browser = await puppeteer.launch({
-    // devtools: true,
-    // slowMo: 250,
+    devtools: true,
+    slowMo: 250,
     ignoreHTTPSErrors: true,
   });
   const page = await browser.newPage();

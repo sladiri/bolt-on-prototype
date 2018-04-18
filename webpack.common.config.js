@@ -1,24 +1,26 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
+const Html = require("html-webpack-plugin");
+const Favicons = require("favicons-webpack-plugin");
 // https://hackernoon.com/a-tale-of-webpack-4-and-how-to-finally-configure-it-in-the-right-way-4e94c8e7e5c1
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtract = require("mini-css-extract-plugin");
 const WebpackMd5Hash = require("webpack-md5-hash");
 const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
 
-const paths = ({ publicPath }) => {
+const paths = ({ outputPath }) => {
   const base = process.cwd();
-  const webroot = path.join(base, publicPath);
+  const webroot = path.join(base, outputPath);
   const favicon = path.join(base, "icons8-socks.png");
   const src = path.join(base, "src");
   const app = path.join(src, "app");
+  const viperSsr = path.join(src, "server", "control", "viper-ssr.js");
 
   return {
     webroot,
     favicon,
     src,
     app,
+    viperSsr,
   };
 };
 
@@ -82,7 +84,7 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
             //   ? { loader: "style-loader", options: { sourceMap: true } }
             //   : MiniCssExtractPlugin.loader,
             // But we cannot use it in HTTPS (Firefox), so we use it anyway
-            MiniCssExtractPlugin.loader,
+            MiniCssExtract.loader,
             { loader: "css-loader", options: { sourceMap: debug } },
             {
               loader: "postcss-loader",
@@ -93,10 +95,11 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
             },
           ],
         },
+        { test: /\.ejs$/, use: [paths.viperSsr] },
       ],
     },
     plugins: [
-      new FaviconsWebpackPlugin({
+      new Favicons({
         logo: paths.favicon,
         icons: {
           android: false,
@@ -106,10 +109,9 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
           firefox: false,
         },
       }),
-      new MiniCssExtractPlugin({
-        filename: "index.[contenthash].css",
-      }),
-      new HtmlWebpackPlugin({
+      new MiniCssExtract({ filename: "index.[contenthash].css" }),
+      new Html({
+        // Template is generated from SSR via ViperHtml (ejs-loader)
         templateParameters: {
           title: "Bolt-on Prototype",
         },
@@ -119,13 +121,9 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
         minify: {
           maxLineLength: 80,
         },
-        template: "./index-html-template.ejs",
       }),
       new WebpackMd5Hash(),
-      // new PreloadWebpackPlugin(), // CSS is not preloaded, leaves redundant script tags
-      new Visualiser({
-        filename: "./statistics.html",
-      }),
+      new Visualiser({ filename: "statistics.html" }),
     ],
   };
 };

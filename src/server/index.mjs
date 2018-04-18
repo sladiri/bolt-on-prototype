@@ -22,7 +22,7 @@ const cert = fs.readFileSync("./cert.pem", "utf8");
 
 const server = http2.createSecureServer(
   { key, cert },
-  app({ publicPath: "/public" }).callback(),
+  app({ publicPath: "public" }).callback(),
 );
 const serverOptions = { host: "localhost", port: 3001 };
 server.listen(serverOptions, serverCallback(serverOptions));
