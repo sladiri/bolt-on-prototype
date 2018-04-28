@@ -3,7 +3,6 @@ const Html = require("html-webpack-plugin");
 const Favicons = require("favicons-webpack-plugin");
 // https://hackernoon.com/a-tale-of-webpack-4-and-how-to-finally-configure-it-in-the-right-way-4e94c8e7e5c1
 const MiniCssExtract = require("mini-css-extract-plugin");
-const WebpackMd5Hash = require("webpack-md5-hash");
 const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
 
@@ -122,7 +121,6 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
           maxLineLength: 80,
         },
       }),
-      new WebpackMd5Hash(),
       new Visualiser({ filename: "statistics.html" }),
     ],
   };
