@@ -14,12 +14,9 @@ Show Bolt-on example for my master-thesis.
 * The model updates and view updates are clearly separated (model and
   state-representation).
 
-## Focal views
+## Production Build Broken
 
-* [home](https://github.com/grammarly/focal)
-* Focal updates components only on relevant state changes.
-* Read-only lenses help to prevent direct mutation of state in the components.
-* RxJS for derived views is built in. [home](https://github.com/ReactiveX/rxjs)
+Due to a bug in Webpack and UglifyJS, bundling fails when ViperHTML generates the `index.html` file. A workaround is to remove UglifyJS from ViperHTML's code in `C:\Users\sladj\repos\bolt-on-prototype\node_modules\viperhtml\index.js`. See https://github.com/tmaslen/colly/issues/3
 
 ## TODO
 

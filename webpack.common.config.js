@@ -94,7 +94,7 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
             },
           ],
         },
-        { test: /\.ejs$/, use: [paths.viperSsr] },
+        { test: /\.ejs$/, use: [paths.viperSsr] }, // ViperHTML uses UglifyJS, which causes bundling error, remove usage in C:\Users\sladj\repos\bolt-on-prototype\node_modules\viperhtml\index.js https://github.com/tmaslen/colly/issues/3
       ],
     },
     plugins: [
