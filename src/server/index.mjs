@@ -24,10 +24,10 @@ const server = http2.createSecureServer(
   { key, cert },
   app({ publicPath: "public" }).callback(),
 );
-const serverOptions = { host: "localhost", port: 3001 };
+const serverOptions = { host: "localhost", port: 9900 };
 server.listen(serverOptions, serverCallback(serverOptions));
 
 const gunServer = https.createServer({ key, cert });
 gun({ wss: new WebSocket.Server({ server: gunServer }) });
-const gunServerOptions = { host: "localhost", port: 3002 };
+const gunServerOptions = { host: "localhost", port: 9901 };
 gunServer.listen(gunServerOptions, serverCallback(gunServerOptions));

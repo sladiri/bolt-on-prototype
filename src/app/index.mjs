@@ -1,116 +1,142 @@
 import assert from "assert";
-import "./index.pcss";
+// import { Component, bind, hyper, wire } from "hyperhtml/esm";
+// import hyperhtml from "hyperhtml";
+// import "./index.pcss";
+// @ts-ignore
+import { dynamicImportButton } from "./dynamic-import-test";
 
-// export const app = async () => { // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
-const app = async () => {
-  console.log("app start");
+export const app = async ({ render, model }) => {
+  return render`
+    <h1>${model.title}</h1>
+    ${await dynamicImportButton({ render })}
+    <section id="container"></section>
+    `;
+  // await renderPosts(container);
+  // assert.ok(container.querySelector("#posts"));
+  // await dynamicImport();
+};
+
+const babelMjsWorkaround = async () => {
+  // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  // await import("./index.pcss");
 
   const container = document.querySelector("#container");
   assert.ok(container);
 
-  const params = new URL(location.href).searchParams;
-  const RENDERING_IN_HEADLESS = params.has("headless");
-  if (RENDERING_IN_HEADLESS) {
-    // Being rendered by headless Chrome on the server.
-    // e.g. shut off features, don't lazy load non-essential resources, etc.
-    await renderPosts(container);
-  } else {
-    assert.ok(container.querySelector("#posts"));
-    await dynamicImport();
-    return;
-  }
+  const { Component, hyper } = await import("hyperhtml/esm");
+
+  hyper(container)`<h2>FOOBAR</h2>`;
 };
 
-const renderPosts = async container => {
-  // const postsData = await fetch("/posts").then(resp => resp.json());
+// const renderGunPosts = () => {
+//   //   <section>
+//   //   <h2 onclick=${e => {
+//   //     console.log("fooo", e);
+//   //   }}>Todos</h2>
+//   //   <ul id="gunlist"></ul>
+//   //   <form>
+//   //     <input>
+//   //     <button>Add</button>
+//   //   </form>
+//   // </section>
+// };
 
-  if (typeof document === "object") {
-    const { hyper } = await import("hyperhtml/esm");
-    debugger;
-  } else {
-    // const hyper = await import("viperhtml");
-    debugger;
-  }
-  // const { bind, wire } = await import("hypermorphic");
-  // console.log(bind, wire);
-  // @ts-ignore
-  // const { Posts } = await import("../posts/index.mjs");
+// const renderPosts = async container => {
+//   // const postsData = await fetch("/posts").then(resp => resp.json());
 
-  // const posts = Posts({ postsData });
-  // hyper(container)`<ul id="posts">${posts}</ul>`;
+//   if (typeof document === "object") {
+//     const { hyper } = await import("hyperhtml/esm");
+//     debugger;
+//   } else {
+//     // const hyper = await import("viperhtml");
+//     debugger;
+//   }
+//   // const { bind, wire } = await import("hypermorphic");
+//   // console.log(bind, wire);
+//   // @ts-ignore
+//   // const { Posts } = await import("../posts/index.mjs");
 
-  // console.log("posts rendered");
-};
+//   // const posts = Posts({ postsData });
+//   // hyper(container)`<ul id="posts">${posts}</ul>`;
 
-const dynamicImport = async () => {
-  const { default: Gun } = await import("gun/gun");
+//   // console.log("posts rendered");
+// };
 
-  // var todos = Gun().get("todos");
-  const todos = Gun("https://localhost:3002").get("todos");
+// const dynamicImport = async () => {
+//   const { default: Gun } = await import("gun/gun");
 
-  console.log("load todo");
+//   // var todos = Gun().get("todos");
+//   const todos = Gun("https://localhost:3002").get("todos");
 
-  const $ = window.jQuery;
+//   console.log("load todo");
 
-  $("form").on("submit", function(event) {
-    var input = $("form").find("input");
-    todos.set({ title: input.val() });
-    input.val("");
-    event.preventDefault();
-  });
+//   const $ = window.jQuery;
 
-  todos.map().on(function(todo, id) {
-    var li = $("#" + id);
-    if (!li.get(0)) {
-      li = $("<li>")
-        .attr("id", id)
-        .appendTo("#gunlist");
-    }
-    if (todo) {
-      console.log("got todo");
-      var html = '<span onclick="clickTitle(this)">' + todo.title + "</span>";
-      html =
-        '<input type="checkbox" onclick="clickCheck(this)" ' +
-        (todo.done ? "checked" : "") +
-        ">" +
-        html;
-      li.html(html);
-    }
-  });
+//   $("form").on("submit", function(event) {
+//     var input = $("form").find("input");
+//     todos.set({ title: input.val() });
+//     input.val("");
+//     event.preventDefault();
+//   });
 
-  window.clickTitle = element => {
-    element = $(element);
-    if (!element.find("input").get(0)) {
-      element.html(
-        '<input value="' +
-          element.html() +
-          '" onkeyup="keypressTitle(this, event)">',
-      );
-    }
-  };
+//   todos.map().on(function(todo, id) {
+//     var li = $("#" + id);
+//     if (!li.get(0)) {
+//       li = $("<li>")
+//         .attr("id", id)
+//         .appendTo("#gunlist");
+//     }
+//     if (todo) {
+//       console.log("got todo");
+//       var html = '<span onclick="clickTitle(this)">' + todo.title + "</span>";
+//       html =
+//         '<input type="checkbox" onclick="clickCheck(this)" ' +
+//         (todo.done ? "checked" : "") +
+//         ">" +
+//         html;
+//       li.html(html);
+//     }
+//   });
 
-  window.keypressTitle = (element, event) => {
-    if (event.keyCode === 13) {
-      todos
-        .get(
-          $(element)
-            .parent()
-            .parent()
-            .attr("id"),
-        )
-        .put({ title: $(element).val() });
-    }
-  };
+//   window.clickTitle = element => {
+//     element = $(element);
+//     if (!element.find("input").get(0)) {
+//       element.html(
+//         '<input value="' +
+//           element.html() +
+//           '" onkeyup="keypressTitle(this, event)">',
+//       );
+//     }
+//   };
 
-  window.clickCheck = element => {
-    todos
-      .get(
-        $(element)
-          .parent()
-          .attr("id"),
-      )
-      .put({ done: $(element).prop("checked") });
-  };
-};
+//   window.keypressTitle = (element, event) => {
+//     if (event.keyCode === 13) {
+//       todos
+//         .get(
+//           $(element)
+//             .parent()
+//             .parent()
+//             .attr("id"),
+//         )
+//         .put({ title: $(element).val() });
+//     }
+//   };
 
-app(); // Babel transpiled dynamic imports do not correctly work with mjs
+//   window.clickCheck = element => {
+//     todos
+//       .get(
+//         $(element)
+//           .parent()
+//           .attr("id"),
+//       )
+//       .put({ done: $(element).prop("checked") });
+//   };
+// };
+
+babelMjsWorkaround().catch(error => {
+  console.error("app index error", error);
+});

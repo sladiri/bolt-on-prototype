@@ -7,9 +7,22 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Server",
+      "name": "DEV Server",
       "program": "${workspaceFolder}/src/server/index.mjs",
-      "runtimeArgs": ["--experimental-modules"]
+      "runtimeArgs": ["--experimental-modules"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "PROD Server",
+      "program": "${workspaceFolder}/src/server/index.mjs",
+      "runtimeArgs": ["--experimental-modules"],
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   ]
 }

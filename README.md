@@ -14,9 +14,20 @@ Show Bolt-on example for my master-thesis.
 * The model updates and view updates are clearly separated (model and
   state-representation).
 
-## Production Build Broken
+## VS Code Launch Config
 
-Due to a bug in Webpack and UglifyJS, bundling fails when ViperHTML generates the `index.html` file. A workaround is to remove UglifyJS from ViperHTML's code in `C:\Users\sladj\repos\bolt-on-prototype\node_modules\viperhtml\index.js`. See https://github.com/tmaslen/colly/issues/3
+```json
+{
+  "type": "node",
+  "request": "launch",
+  "name": "PROD Server",
+  "program": "${workspaceFolder}/src/server/index.mjs",
+  "runtimeArgs": ["--experimental-modules"],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+```
 
 ## TODO
 

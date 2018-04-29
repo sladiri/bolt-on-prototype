@@ -12,21 +12,19 @@ const paths = ({ outputPath }) => {
   const favicon = path.join(base, "icons8-socks.png");
   const src = path.join(base, "src");
   const app = path.join(src, "app");
-  const viperSsr = path.join(src, "server", "control", "viper-ssr.js");
 
   return {
     webroot,
     favicon,
     src,
     app,
-    viperSsr,
   };
 };
 
 const commonConfig = ({ debug = false, paths, publicPath }) => {
   return {
     mode: debug ? "development" : "production",
-    entry: { index: [paths.app] },
+    entry: { index: [path.join(paths.app, "index.pcss"), paths.app] },
     output: {
       pathinfo: debug,
       path: paths.webroot,
@@ -94,7 +92,6 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
             },
           ],
         },
-        { test: /\.ejs$/, use: [paths.viperSsr] }, // ViperHTML uses UglifyJS, which causes bundling error, remove usage in C:\Users\sladj\repos\bolt-on-prototype\node_modules\viperhtml\index.js https://github.com/tmaslen/colly/issues/3
       ],
     },
     plugins: [
@@ -120,6 +117,7 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
         minify: {
           maxLineLength: 80,
         },
+        template: "index-template.ejs",
       }),
       new Visualiser({ filename: "statistics.html" }),
     ],
