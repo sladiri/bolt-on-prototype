@@ -5,7 +5,8 @@ const Favicons = require("favicons-webpack-plugin");
 const MiniCssExtract = require("mini-css-extract-plugin");
 const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
+const Compression = require("compression-webpack-plugin");
+const PreloadHtml = require("preload-webpack-plugin");
 
 const paths = ({ outputPath }) => {
   const base = process.cwd();
@@ -122,8 +123,9 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
         },
         template: "index-template.ejs",
       }),
+      new PreloadHtml(),
       new Visualiser({ filename: "statistics.html" }),
-    ].concat(debug ? [] : [new CompressionPlugin()]),
+    ].concat(debug ? [] : [new Compression()]),
   };
 };
 

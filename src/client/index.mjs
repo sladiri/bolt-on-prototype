@@ -1,4 +1,5 @@
 import assert from "assert";
+import { hyper as render, wire } from "hyperhtml/esm";
 // @ts-ignore
 import { app } from "../app";
 
@@ -30,7 +31,6 @@ const acceptor = proposal => {
 (async () => {
   const container = document.querySelector("#app");
   assert.ok(container);
-  const { hyper: render, wire } = await import("hyperhtml/esm");
   state.title = document.title;
   await render(container)`${app({
     render,
