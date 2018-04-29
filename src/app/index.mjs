@@ -7,11 +7,11 @@ import { dynamicImportButton } from "./dynamic-import-test";
 
 export const app = async ({ render, model }) => {
   // TODO: Conditional CSS loading? Maybe have CSS in context and use HTTP2 push?
-  return render`
+  return render()`
     <h1>${model.title}</h1>
     ${await dynamicImportButton({ render })}
     <section id="posts"></section>
-    `;
+  `;
   // await renderPosts(container);
   // assert.ok(container.querySelector("#posts"));
   // await dynamicImport();

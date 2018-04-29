@@ -9,6 +9,8 @@ import fs from "fs";
 import { config as webpackConfig } from "./webpack.ssr.config";
 // @ts-ignore
 import { app as clientApp } from "../../app";
+// @ts-ignore
+import { posts as renderPosts } from "../../app/posts";
 
 export const app = ({ publicPath }) => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -50,11 +52,13 @@ const setXResponseTime = async (ctx, next) => {
 };
 
 const posts = async ctx => {
-  ctx.body = [
-    { title: "post a", summary: "a summary", content: "hi there" },
-    { title: "post b", summary: "b summary", content: "bye all" },
-  ];
+  ctx.body = postsData;
 };
+
+const postsData = [
+  { title: "post a", summary: "a summary", content: "hi there" },
+  { title: "post b", summary: "b summary", content: "bye all" },
+];
 
 const produtionResponse = ({ publicPath, ssr }) => async (ctx, next) => {
   if (isIndexPath({ path: ctx.path })) {
@@ -110,16 +114,36 @@ const ssrResponse = ({ renderApp }) => {
 const appString = async ({ body, query }) => {
   const match = /<title>\n*(?<title>.*)\n*<\/title>/.exec(body);
   let appString = await clientApp({
-    render: viper.wire(),
+    render: viper,
     model: {
       title: match.groups.title,
       query,
     },
   });
+  const postsString = await renderPosts({
+    render: viper,
+    model: {
+      posts: postsData,
+      ssrAction: (hook, ...data) =>
+        `return (${hook}).call(this, event, ...${JSON.stringify(data)});`,
+    },
+  });
   appString = viper.wire()`
+    <script>
+      window.dispatcher = window.dispatcher || {
+        toReplay: [],
+        dispatch(action) {
+          this.toReplay.push(action);
+          console.log('pushed', this.toReplay.length);
+        },
+      };
+    </script>
     <section id="app">
       ${appString}
     </section>
-    `;
+    <section id="postsssrtest">
+      ${postsString}
+    </section>
+  `;
   return body.replace(/##SSR##/, appString);
 };
