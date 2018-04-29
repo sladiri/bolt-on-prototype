@@ -1,20 +1,13 @@
-// import assert from "assert";
-// import { Component, bind, hyper, wire } from "hyperhtml/esm";
-// import hyperhtml from "hyperhtml";
-// import "./index.pcss";
 // @ts-ignore
 import { dynamicImportButton } from "./dynamic-import-test";
 
-export const app = async ({ render, model }) => {
+export const app = async props => {
   // TODO: Conditional CSS loading? Maybe have CSS in context and use HTTP2 push?
-  return render()`
-    <h1>${model.title}</h1>
-    ${await dynamicImportButton({ render })}
+  return props.render()`
+    <h1>${props.model.title}</h1>
+    ${await dynamicImportButton(props)}
     <section id="posts"></section>
   `;
-  // await renderPosts(container);
-  // assert.ok(container.querySelector("#posts"));
-  // await dynamicImport();
 };
 
 // const renderGunPosts = () => {
@@ -28,27 +21,6 @@ export const app = async ({ render, model }) => {
 //   //     <button>Add</button>
 //   //   </form>
 //   // </section>
-// };
-
-// const renderPosts = async container => {
-//   // const postsData = await fetch("/posts").then(resp => resp.json());
-
-//   if (typeof document === "object") {
-//     const { hyper } = await import("hyperhtml/esm");
-//     debugger;
-//   } else {
-//     // const hyper = await import("viperhtml");
-//     debugger;
-//   }
-//   // const { bind, wire } = await import("hypermorphic");
-//   // console.log(bind, wire);
-//   // @ts-ignore
-//   // const { Posts } = await import("../posts/index.mjs");
-
-//   // const posts = Posts({ postsData });
-//   // hyper(container)`<ul id="posts">${posts}</ul>`;
-
-//   // console.log("posts rendered");
 // };
 
 // const dynamicImport = async () => {

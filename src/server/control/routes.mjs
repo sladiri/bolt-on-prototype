@@ -52,7 +52,12 @@ const setXResponseTime = async (ctx, next) => {
 };
 
 const posts = async ctx => {
-  ctx.body = postsData;
+  ctx.body = postsData
+    // .filter(() => Math.random() > 0.5)
+    .map(p => ({
+      ...p,
+      content: `${p.content} ${Math.random()}`,
+    }));
 };
 
 const postsData = [
@@ -113,20 +118,23 @@ const ssrResponse = ({ renderApp }) => {
 
 const appString = async ({ body, query }) => {
   const match = /<title>\n*(?<title>.*)\n*<\/title>/.exec(body);
+  const state = {
+    ...defaultState,
+    title: match.groups.title,
+    query,
+  };
+  // test server side rendered click handler
   let appString = await clientApp({
     render: viper,
-    model: {
-      title: match.groups.title,
-      query,
-    },
+    wire: viper,
+    model: state,
+    dispatch,
   });
-  const postsString = await renderPosts({
+  const postsString = await renderPosts()({
     render: viper,
-    model: {
-      posts: postsData,
-      ssrAction: (hook, ...data) =>
-        `return (${hook}).call(this, event, ...${JSON.stringify(data)});`,
-    },
+    wire: viper,
+    model: state,
+    dispatch,
   });
   appString = viper.wire()`
     <script>
@@ -147,3 +155,10 @@ const appString = async ({ body, query }) => {
   `;
   return body.replace(/##SSR##/, appString);
 };
+
+const defaultState = {
+  posts: postsData,
+};
+
+const dispatch = (hook, ...data) =>
+  `return (${hook}).call(this, event, ...${JSON.stringify(data)});`;

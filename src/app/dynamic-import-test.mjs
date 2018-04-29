@@ -1,28 +1,36 @@
-export const dynamicImportButton = async ({ render }) => {
+export const dynamicImportButton = async props => {
   if (typeof document === "object") {
     // SSR does not support pcss imports
     // @ts-ignore
     await import("./dynamic-import-test.pcss");
   }
 
-  return render()`
+  return props.render()`
     <section id="dynamicImportButton">
       <h2>Dynamic Import Test</h2>
-      <button onclick="${onClick}">Import</button>
+      <button onclick="${onClick(props)}">Import</button>
     </section>
   `;
 };
 
-const onClick = async e => {
+const onClick = props => async e => {
   console.log("clikkkk", e);
-  const [{ hyper }, { posts }, postsData] = await Promise.all([
-    import("hyperhtml/esm"),
+  const [{ default: assert }, { posts }, postsData] = await Promise.all([
+    import("assert"),
     import("./posts"),
     fetch("/posts").then(resp => resp.json()),
   ]);
   const container = document.querySelector("#posts");
-  await hyper(container)`${posts({
-    render: hyper,
-    model: { posts: postsData },
-  })}`;
+  assert(container);
+  await window.dispatcher.dispatch({
+    action: "postsFetched",
+    posts: postsData,
+  });
+
+  // await props.render(container)`
+  //   <ul class="posts">
+  //     ${posts(props)}
+  //   </ul>
+  // `;
+  await posts(container)(props);
 };

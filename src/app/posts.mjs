@@ -1,23 +1,18 @@
-export const posts = async ({
-  render,
-  model: {
-    posts,
-    ssrAction = (hook, ...data) => e => hook.call(null, e, ...data),
-  },
-}) => {
+export const posts = container => async ({ render, wire, model, dispatch }) => {
   if (typeof document === "object") {
+    // @ts-ignore
     await import("./posts.pcss");
   }
 
-  const result = posts.map(
+  const result = model.posts.map(
     // any object can be wired
     // to a declarative content
     post =>
       // this will return, per each item
       // an actual <LI> DOM node
       {
-        return render(post)`
-          <li class="posts posts__post" onclick="${ssrAction(
+        return wire(post)`
+          <li class="posts posts__post" onclick="${dispatch(
             onClick,
             post.title,
           )}">
@@ -29,7 +24,8 @@ export const posts = async ({
       },
   );
 
-  return render`
+  // return result;
+  return render(container)`
     <ul class="posts">
       ${result}
     </ul>
