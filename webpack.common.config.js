@@ -11,20 +11,22 @@ const paths = ({ outputPath }) => {
   const webroot = path.join(base, outputPath);
   const favicon = path.join(base, "icons8-socks.png");
   const src = path.join(base, "src");
-  const app = path.join(src, "app");
+  const client = path.join(src, "client");
+  const globalCss = path.join(src, "app", "index.pcss");
 
   return {
     webroot,
     favicon,
     src,
-    app,
+    client,
+    globalCss,
   };
 };
 
 const commonConfig = ({ debug = false, paths, publicPath }) => {
   return {
     mode: debug ? "development" : "production",
-    entry: { index: [path.join(paths.app, "index.pcss"), paths.app] },
+    entry: { index: [paths.globalCss, paths.client] },
     output: {
       pathinfo: debug,
       path: paths.webroot,

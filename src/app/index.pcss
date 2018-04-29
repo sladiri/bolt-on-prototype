@@ -1,19 +1,19 @@
 @import "vars.pcss";
 
 body {
-  background-color: #444;
-  color: #ddd;
-  font-family: sans;
+  background-color: var(--colour-background);
+  color: var(--colour-foreground);
+  font-family: sans-serif;
 }
 
-body,
-section {
-  width: 50%;
+#app {
+  max-width: 50rem;
   margin: 0 auto;
+  padding: 1.5rem 1rem;
 
   & h1,
   & h2 {
-    color: var(--color-heading);
+    color: var(--colour-heading);
   }
 }
 

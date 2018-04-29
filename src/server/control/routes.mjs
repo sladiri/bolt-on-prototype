@@ -12,10 +12,12 @@ import { app as clientApp } from "../../app";
 
 export const app = ({ publicPath }) => {
   const isProduction = process.env.NODE_ENV === "production";
-  const ssr = ssrResponse({ renderApp: appString });
   const serveSsr = isProduction
-    ? produtionResponse({ publicPath, ssr })
-    : developResponse({ ssr });
+    ? produtionResponse({
+        publicPath,
+        ssr: ssrResponse({ renderApp: appString }),
+      })
+    : developResponse({ renderApp: appString });
   const serveFiles = mount(
     isProduction ? "/" : `/${publicPath}`,
     serve(`./${publicPath}`),
@@ -63,7 +65,7 @@ const produtionResponse = ({ publicPath, ssr }) => async (ctx, next) => {
   }
 };
 
-const developResponse = ({ ssr }) => {
+const developResponse = ({ renderApp }) => {
   const webpackMiddleWare = webpack({
     config: webpackConfig({ publicPath: "/", outputPath: "/" }),
     hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
@@ -71,7 +73,10 @@ const developResponse = ({ ssr }) => {
   return async (ctx, next) => {
     await webpackMiddleWare(ctx, next);
     if (isIndexPath({ path: ctx.path })) {
-      await ssr({ body: ctx.body.toString(), ctx });
+      ctx.body = await renderApp({
+        body: ctx.body.toString(),
+        query: ctx.query,
+      });
     }
   };
 };
@@ -104,12 +109,17 @@ const ssrResponse = ({ renderApp }) => {
 
 const appString = async ({ body, query }) => {
   const match = /<title>\n*(?<title>.*)\n*<\/title>/.exec(body);
-  const appString = await clientApp({
+  let appString = await clientApp({
     render: viper.wire(),
     model: {
       title: match.groups.title,
       query,
     },
   });
+  appString = viper.wire()`
+    <section id="app">
+      ${appString}
+    </section>
+    `;
   return body.replace(/##SSR##/, appString);
 };

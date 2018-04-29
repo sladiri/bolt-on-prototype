@@ -1,4 +1,4 @@
-import assert from "assert";
+// import assert from "assert";
 // import { Component, bind, hyper, wire } from "hyperhtml/esm";
 // import hyperhtml from "hyperhtml";
 // import "./index.pcss";
@@ -6,30 +6,15 @@ import assert from "assert";
 import { dynamicImportButton } from "./dynamic-import-test";
 
 export const app = async ({ render, model }) => {
+  // TODO: Conditional CSS loading? Maybe have CSS in context and use HTTP2 push?
   return render`
     <h1>${model.title}</h1>
     ${await dynamicImportButton({ render })}
-    <section id="container"></section>
+    <section id="posts"></section>
     `;
   // await renderPosts(container);
   // assert.ok(container.querySelector("#posts"));
   // await dynamicImport();
-};
-
-const babelMjsWorkaround = async () => {
-  // Babel transpiled dynamic imports do not correctly work with export from module (mjs)
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  // await import("./index.pcss");
-
-  const container = document.querySelector("#container");
-  assert.ok(container);
-
-  const { Component, hyper } = await import("hyperhtml/esm");
-
-  hyper(container)`<h2>FOOBAR</h2>`;
 };
 
 // const renderGunPosts = () => {
@@ -136,7 +121,3 @@ const babelMjsWorkaround = async () => {
 //       .put({ done: $(element).prop("checked") });
 //   };
 // };
-
-babelMjsWorkaround().catch(error => {
-  console.error("app index error", error);
-});
