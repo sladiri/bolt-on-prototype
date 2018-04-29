@@ -2,6 +2,11 @@
 
 Show Bolt-on example for my master-thesis.
 
+## Quick Start
+
+* `npm run build` creates static assets
+* `npm start` serves the assets
+
 ## Bolt-on protocol
 
 * [paper](http://www.bailis.org/papers/bolton-sigmod2013.pdf)
