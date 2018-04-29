@@ -11,6 +11,8 @@ import { config as webpackConfig } from "./webpack.ssr.config";
 import { app as clientApp } from "../../app";
 // @ts-ignore
 import { posts as renderPosts } from "../../app/posts";
+// @ts-ignore
+import { acceptor } from "../../app/acceptor";
 
 export const app = ({ publicPath }) => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -118,24 +120,24 @@ const ssrResponse = ({ renderApp }) => {
 
 const appString = async ({ body, query }) => {
   const match = /<title>\n*(?<title>.*)\n*<\/title>/.exec(body);
+  // set some static state
   const state = {
     ...defaultState,
     title: match.groups.title,
     query,
   };
+  // Update state through app logic
+  const accept = acceptor(state);
+  accept({ posts: postsData });
+  const props = {
+    render: viper,
+    wire: viper,
+    model: state,
+    dispatch,
+  };
   // test server side rendered click handler
-  let appString = await clientApp({
-    render: viper,
-    wire: viper,
-    model: state,
-    dispatch,
-  });
-  const postsString = await renderPosts()({
-    render: viper,
-    wire: viper,
-    model: state,
-    dispatch,
-  });
+  let appString = await clientApp(props);
+  const postsString = await renderPosts()(props);
   appString = viper.wire()`
     <script>
       window.dispatcher = window.dispatcher || {
@@ -157,7 +159,7 @@ const appString = async ({ body, query }) => {
 };
 
 const defaultState = {
-  posts: postsData,
+  posts: [],
 };
 
 const dispatch = (hook, ...data) =>

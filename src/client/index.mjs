@@ -2,6 +2,8 @@ import assert from "assert";
 import { hyper as render, wire } from "hyperhtml/esm";
 // @ts-ignore
 import { app } from "../app";
+// @ts-ignore
+import { acceptor } from "../app/acceptor";
 
 const state = {
   posts: [],
@@ -9,24 +11,7 @@ const state = {
 
 const dispatch = (hook, ...data) => e => hook.call(null, e, ...data);
 
-const acceptor = proposal => {
-  if (!proposal) {
-    return;
-  }
-
-  if (Array.isArray(proposal.posts)) {
-    for (const post of proposal.posts) {
-      const currentIndex = state.posts.findIndex(p => p.title === post.title);
-      if (currentIndex !== -1) {
-        Object.assign(state.posts[currentIndex], post);
-      } else {
-        state.posts.push(post);
-      }
-    }
-  }
-
-  console.log("acceptor with state", state);
-};
+const accept = acceptor(state);
 
 (async () => {
   const container = document.querySelector("#app");
@@ -55,7 +40,7 @@ const replayIntermediateEvents = async () => {
     // }
     const proposal = await action;
     console.log("client side action", proposal);
-    await acceptor(proposal);
+    await accept(proposal);
   };
   for (const result of window.dispatcher.toReplay) {
     console.log("action to replay", await result);
