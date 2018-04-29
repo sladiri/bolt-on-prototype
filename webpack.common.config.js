@@ -117,6 +117,7 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
         },
         meta: {
           viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+          description: "Author: Sladi Ri, Length: 1 pages",
         },
         minify: {
           maxLineLength: 80,
