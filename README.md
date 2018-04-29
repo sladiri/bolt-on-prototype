@@ -14,6 +14,11 @@ Show Bolt-on example for my master-thesis.
 * The model updates and view updates are clearly separated (model and
   state-representation).
 
+## HyperHTML with Server Side Rendering
+
+* [HyperHTML](https://viperhtml.js.org/) updates the DOM efficiently
+* It supports server side rendering. While the page is parsing client-side code, event handlers, for example buttons, record actions to be replayed when the client app is ready.
+
 ## VS Code Launch Config
 
 ```json
