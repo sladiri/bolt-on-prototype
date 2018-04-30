@@ -1,6 +1,6 @@
 module.exports = {
   parser: "babel-eslint",
-  plugins: ["react"],
+  plugins: [],
   env: {
     browser: true,
     es6: true,
@@ -8,13 +8,10 @@ module.exports = {
   },
   extends: [
     "eslint:recommended",
-    "plugin:react/recommended",
-    "prettier",
-    "prettier/react"
+    "prettier"
   ],
   rules: {
     "no-debugger": 0,
-    "no-console": 0,
-    "react/prop-types": 0
+    "no-console": 0
   }
 };

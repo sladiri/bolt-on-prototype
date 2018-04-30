@@ -25,14 +25,11 @@
   "devDependencies": {
     "artillery": "^1.6.0-15",
     "babel-eslint": "^8.2.3",
-    "babelify": "^8.0.0",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-react": "^7.7.0",
     "faucet": "^0.0.1",
     "jsverify": "^0.8.3",
     "prettier": "^1.12.1",
-    "svg-sprite-generator": "0.0.7",
     "tape": "^4.9.0",
     "tslint": "^5.9.1",
     "typescript": "^2.8.3",
@@ -75,6 +72,6 @@
     "tailwindcss": "^0.5.2",
     "viperhtml": "^2.11.0",
     "webpack": "^4.6.0",
-    "webpack-cli": "^2.0.15"
+    "webpack-cli": "^2.1.2"
   }
 }
