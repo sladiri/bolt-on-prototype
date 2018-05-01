@@ -38,9 +38,11 @@ const replayIntermediateEvents = async () => {
     //   window.dispatcher.toReplay.push(action);
     //   return;
     // }
+    console.log("DISPATCH ACTION awaiting proposal ...");
     const proposal = await action;
-    console.log("client side action", proposal);
+    console.log("DISPATCH ACTION accepting proposal ...", proposal);
     await accept(proposal);
+    console.log("DISPATCH ACTION acceptor done", proposal);
   };
   for (const result of window.dispatcher.toReplay) {
     console.log("action to replay", await result);

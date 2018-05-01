@@ -1,4 +1,4 @@
-export const acceptor = state => proposal => {
+export const acceptor = state => async proposal => {
   if (!proposal) {
     return;
   }

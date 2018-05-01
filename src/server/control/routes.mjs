@@ -128,7 +128,7 @@ const appString = async ({ body, query }) => {
   };
   // Update state through app logic
   const accept = acceptor(state);
-  accept({ posts: postsData });
+  await accept({ posts: postsData });
   const props = {
     render: viper,
     wire: viper,
