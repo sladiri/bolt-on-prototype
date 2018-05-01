@@ -1,7 +1,6 @@
 {
   "include": ["src/**/*"],
   "compilerOptions": {
-    "allowJs": true,
-    "lib": ["es7", "dom"]
+    "allowJs": true
   }
 }

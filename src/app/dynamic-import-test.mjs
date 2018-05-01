@@ -25,7 +25,7 @@ const onClick = props => async e => {
     const container = document.querySelector("#posts");
     assert.ok(container);
     // Test delay
-    await window.dispatcher.dispatch(
+    await window["dispatcher"].dispatch(
       new Promise(res =>
         setTimeout(
           () => res({ action: "postsFetched", posts: postsData }),

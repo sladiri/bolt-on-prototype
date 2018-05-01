@@ -30,18 +30,18 @@ const accept = acceptor(state);
 const replayIntermediateEvents = async () => {
   // TODO signal to prevent actions during this phase?
   console.log("replaying start");
-  window.dispatcher.dispatch = dispatch;
-  for (const action of window.dispatcher.toReplay) {
+  window["dispatcher"].dispatch = dispatch;
+  for (const action of window["dispatcher"].toReplay) {
     console.log("action to replay", action);
     await dispatch(action, true);
   }
-  window.dispatcher.toReplay = null;
+  window["dispatcher"].toReplay = null;
   console.log("replaying end");
 };
 
 const dispatch = async (action, isInitialReplay) => {
   try {
-    if (!isInitialReplay && window.dispatcher.toReplay) {
+    if (!isInitialReplay && window["dispatcher"].toReplay) {
       console.warn("DISPATCH: Abort, non-empty window.dispatcher.toReplay.");
       return;
     }
