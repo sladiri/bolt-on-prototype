@@ -1,3 +1,5 @@
+import assert from "assert";
+
 export const dynamicImportButton = async props => {
   if (typeof document === "object") {
     // SSR does not support pcss imports
@@ -14,23 +16,29 @@ export const dynamicImportButton = async props => {
 };
 
 const onClick = props => async e => {
-  console.log("clikkkk", e);
-  const [{ default: assert }, { posts }, postsData] = await Promise.all([
-    import("assert"),
-    import("./posts"),
-    fetch("/posts").then(resp => resp.json()),
-  ]);
-  const container = document.querySelector("#posts");
-  assert(container);
-  await window.dispatcher.dispatch({
-    action: "postsFetched",
-    posts: postsData,
-  });
+  console.log("clicked", e);
+  return (async () => {
+    const [{ posts }, postsData] = await Promise.all([
+      import("./posts"),
+      fetch("/posts").then(resp => resp.json()),
+    ]);
+    const container = document.querySelector("#posts");
+    assert.ok(container);
+    // Test delay
+    await window.dispatcher.dispatch(
+      new Promise(res =>
+        setTimeout(
+          () => res({ action: "postsFetched", posts: postsData }),
+          3000,
+        ),
+      ),
+    );
 
-  // await props.render(container)`
-  //   <ul class="posts">
-  //     ${posts(props)}
-  //   </ul>
-  // `;
-  await posts(container)(props);
+    // await props.render(container)`
+    //   <ul class="posts">
+    //     ${posts(props)}
+    //   </ul>
+    // `;
+    await posts(container)(props);
+  })();
 };

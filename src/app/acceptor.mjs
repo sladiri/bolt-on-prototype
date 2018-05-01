@@ -14,5 +14,5 @@ export const acceptor = state => async proposal => {
     }
   }
 
-  console.log("acceptor with state", state);
+  return JSON.parse(JSON.stringify(state)); // Convenience for loggging etc.
 };

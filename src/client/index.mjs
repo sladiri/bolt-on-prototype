@@ -8,9 +8,7 @@ import { acceptor } from "../app/acceptor";
 const state = {
   posts: [],
 };
-
-const dispatch = (hook, ...data) => e => hook.call(null, e, ...data);
-
+const actionsInProgress = new Set();
 const accept = acceptor(state);
 
 (async () => {
@@ -21,10 +19,10 @@ const accept = acceptor(state);
     render,
     wire,
     model: state,
-    dispatch,
+    dispatch: (hook, ...data) => e => hook.call(null, e, ...data),
   })}`;
-  await new Promise(res => setTimeout(res, 2000)); // Test delay
-  replayIntermediateEvents();
+  await new Promise(res => setTimeout(res, 3000)); // Test delay
+  await replayIntermediateEvents();
 })().catch(error => {
   console.error("app index error", error);
 });
@@ -32,21 +30,44 @@ const accept = acceptor(state);
 const replayIntermediateEvents = async () => {
   // TODO signal to prevent actions during this phase?
   console.log("replaying start");
-  window.dispatcher.dispatch = async action => {
-    // if (window.dispatcher.toReplay) {
-    //   debugger;
-    //   window.dispatcher.toReplay.push(action);
-    //   return;
-    // }
-    console.log("DISPATCH ACTION awaiting proposal ...");
-    const proposal = await action;
-    console.log("DISPATCH ACTION accepting proposal ...", proposal);
-    await accept(proposal);
-    console.log("DISPATCH ACTION acceptor done", proposal);
-  };
-  for (const result of window.dispatcher.toReplay) {
-    console.log("action to replay", await result);
+  window.dispatcher.dispatch = dispatch;
+  for (const action of window.dispatcher.toReplay) {
+    console.log("action to replay", action);
+    await dispatch(action, true);
   }
   window.dispatcher.toReplay = null;
   console.log("replaying end");
+};
+
+const dispatch = async (action, isInitialReplay) => {
+  try {
+    if (!isInitialReplay && window.dispatcher.toReplay) {
+      console.warn("DISPATCH: Abort, non-empty window.dispatcher.toReplay.");
+      return;
+    }
+
+    if (actionsInProgress.size) {
+      console.warn(
+        `DISPATCH: Abort, proposals in progress [${[
+          ...actionsInProgress.values(),
+        ]}] ...`,
+      );
+      return;
+    }
+
+    let actionId = Math.random();
+    while (actionsInProgress.has(actionId)) {
+      actionId = Math.random();
+    }
+    actionsInProgress.add(actionId);
+    console.log(`DISPATCH: awaiting proposal [${actionId}] ...`, action);
+
+    const proposal = await action;
+    const newState = await accept(proposal);
+    actionsInProgress.delete(actionId);
+
+    console.log(`DISPATCH: acceptor done [${actionId}]`, proposal, newState);
+  } catch (error) {
+    console.error("DISPATCH error:", error);
+  }
 };
