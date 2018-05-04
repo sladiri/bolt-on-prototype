@@ -1,5 +1,19 @@
 @import "vars.pcss";
 
+html {
+  font-size: 100%;
+}
+@media (max-width: 60em) { /* Safari does not like REM unit in media query */
+
+  html {
+    font-size: 80%;
+  }
+}
+
+html {
+  font-size: calc(1em + 1vw);
+}
+
 body {
   background-color: var(--colour-background);
   color: var(--colour-foreground);
