@@ -11,6 +11,8 @@ export const restoreSsrState = ({ window }) => {
   Object.defineProperty(state, "_ssr", {
     value: state._ssr,
     enumerable: false,
+    writable: false,
+    configurable: true,
   });
   return state;
 };
@@ -20,12 +22,14 @@ export const replayIntermediateEvents = async ({ propose }) => {
   console.log("replaying start", window["dispatcher"].toReplay);
   for (const action of window["dispatcher"].toReplay) {
     await propose(action, true);
+    // await new Promise(res => window.setTimeout(res, 100)); // Test delay
   }
   console.log("replaying end");
 };
 
 (async () => {
-  await new Promise(res => window.setTimeout(res, 3000)); // Test delay
+  // return;
+  // await new Promise(res => window.setTimeout(res, 2000)); // Test delay
 
   assert.ok(window["dispatcher"]);
   assert.ok(window["dispatcher"].state);
@@ -43,10 +47,14 @@ export const replayIntermediateEvents = async ({ propose }) => {
 
   const reRender = async () => bind(container)`${await app({ model: state })}`;
 
-  const propose = async (...args) => {
-    await proposeInstance(...args);
+  const propose = async (action, isReplay = false) => {
+    if (state._ssr && !isReplay) {
+      throw new Error("PROPOSE called during initialisation");
+    }
+    const newState = await proposeInstance(action);
     // console.log("rerender after client propose");
     await reRender();
+    return newState;
   };
 
   const app = App({
@@ -58,15 +66,28 @@ export const replayIntermediateEvents = async ({ propose }) => {
     model: state,
   });
 
+  // While replay is in progress, the user could already propose actions.
+  Object.defineProperty(state, "_replay", {
+    value: true,
+    enumerable: false,
+    writable: false,
+    configurable: true,
+  });
   await reRender();
 
-  await new Promise(res => window.setTimeout(res, 3000)); // Test delay
+  // await new Promise(res => window.setTimeout(res, 2000)); // Test delay
 
   assert.ok(Array.isArray(window["dispatcher"].toReplay));
   await replayIntermediateEvents({ propose });
   window["dispatcher"].toReplay = null;
   window["dispatcher"] = null;
   Object.defineProperty(state, "_ssr", {
+    value: false,
+    enumerable: false,
+    writable: false,
+    configurable: false,
+  });
+  Object.defineProperty(state, "_replay", {
     value: false,
     enumerable: false,
     writable: false,

@@ -20,7 +20,8 @@ export const posts = async props => {
             <span class="posts posts__summary">${post.summary}</span>
             <p
               class="posts posts__content"
-              onclick=${props.dispatch(onClick, post.title, post.content)}
+              disabled=${props.model._replay}
+              onclick=${props.dispatch(update2, post.title)}
             >${post.content}</p>
           </li>
         `;
@@ -29,12 +30,14 @@ export const posts = async props => {
   return result;
 };
 
-const update = props => event => {
-  console.log("propose test", this, props, event);
-  props.propose({ title: `${Math.random()}` });
-};
+const update = props =>
+  function(event) {
+    console.log("propose test", this, props, event);
+    props.propose({ title: `${Math.random()}` });
+  };
 
-const onClick = (event, ...data) => {
-  console.log("dispatch test", this, data, event);
-  return { title: `${Math.random()}` };
-};
+const update2 = data =>
+  function(event) {
+    console.log("dispatch test", this, event, data);
+    return { title: `${Math.random()}` };
+  };

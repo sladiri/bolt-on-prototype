@@ -21,7 +21,8 @@ export const Propose = ({ actionsInProgress, accept }) => async proposal => {
     const newState = await accept(data);
 
     actionsInProgress.delete(actionId);
-    // console.log(`PROPOSE: acceptor done [${actionId}]`, newState);
+    console.log(`PROPOSE: acceptor done [${actionId}]`, data, newState);
+    return newState;
   } catch (error) {
     console.error("PROPOSE error:", error);
     throw error;

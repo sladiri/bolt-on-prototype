@@ -19,41 +19,41 @@ export const dynamicImportButton = async props => {
       >Import</button>
       <button
         disabled=${props.model._ssr}
-        onclick=${e => {
-          console.log("propose test", this, event, props);
-          props.propose(update(e, props.model.title));
-        }}
+        onclick=${e =>
+          props.propose(updateSSR(props.model.title).call(this, e))}
       >Update</button>
       <button
-        onclick=${props.dispatch(update, props.model.title)}
+        disabled=${props.model._replay}
+        onclick=${props.dispatch(updateSSR, props.model.title)}
       >Update 2</button>
     </section>
   `;
 };
 
-const update = (event, ...data) => {
-  console.log("dispatch test", this, event, data);
-  return { title: `${Math.random()}` };
-};
+const updateSSR = data =>
+  function(event) {
+    console.log("dispatch test", this, event, data);
+    return { title: `${Math.random()}` };
+  };
 
-const onClick = props => event =>
-  // TODO: test function block
-  (async () => {
+const onClick = props =>
+  function(event) {
     console.log("propose test", this, props, event);
+    (async () => {
+      const postsData = await fetch("/posts").then(resp => resp.json());
 
-    const postsData = await fetch("/posts").then(resp => resp.json());
+      await props.propose({ posts: postsData });
 
-    props.propose({ posts: postsData });
+      container = container || document.querySelector("#posts");
+      assert.ok(container);
 
-    container = container || document.querySelector("#posts");
-    assert.ok(container);
-
-    props.bind(container)`
-    <ul class="posts">
-      ${await posts(props)}
-    </ul>
-  `;
-  })().catch(error => {
-    console.error("click handler error", error);
-    throw error;
-  });
+      props.bind(container)`
+        <ul class="posts">
+          ${await posts(props)}
+        </ul>
+      `;
+    })().catch(error => {
+      console.error("click handler error", error);
+      throw error;
+    });
+  };

@@ -12,7 +12,8 @@ export const renderApp = ({ dynamicImportButton }) => props => {
         onclick=${update(childProps)}
       >Update</button>
       <button
-        onclick=${props.dispatch(update2, model.title)}
+        disabled=${model._replay}
+        onclick=${props.dispatch(updateSSR, model.title)}
       >Update 2</button>
       ${await dynamicImportButton(childProps)}
       <section id="posts"></section>
@@ -20,15 +21,17 @@ export const renderApp = ({ dynamicImportButton }) => props => {
   };
 };
 
-const update = props => event => {
-  console.log("propose test", this, event, props);
-  props.propose({ title: `${Math.random()}` });
-};
+const update = props =>
+  function(event) {
+    console.log("propose test", this, event, props);
+    props.propose({ title: `${Math.random()}` });
+  };
 
-const update2 = (event, ...data) => {
-  console.log("dispatch test", this, event, data);
-  return { title: `${Math.random()}` };
-};
+const updateSSR = data =>
+  function(event) {
+    console.log("dispatch test", this, event, data);
+    return { title: `${Math.random()}` };
+  };
 
 export const App = renderApp({ dynamicImportButton });
 

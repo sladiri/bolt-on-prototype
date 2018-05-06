@@ -24,19 +24,18 @@ export const renderString = ({ App, acceptor, postsData }) => async ({
   const props = {
     render: viper,
     wire: viper,
-    dispatch: (hook, ...hookArgs) => `
-      const ssrHookArgs = ${JSON.stringify(hookArgs)};
-      for (const d of ssrHookArgs) {
-        if (d.then === 'function') {
-          throw new Error('SSR action data must be serialisable');
-        }
+    dispatch: (hook, data) => `
+      const ssrData = ${JSON.stringify(data)};
+      if (typeof ssrData === 'object' && !Object.keys(ssrData).length) {
+        console.warn('SSR DISPATCH: Empty object as dispatch data, have you passed a Promise?');
       }
-      const action = (${hook})(event, ...ssrHookArgs);
+      const action = (${hook})(ssrData).call(this, event);
       window.dispatcher.toReplay.push(action);
+      console.log('SSR toReplay', window.dispatcher.toReplay.length);
     `,
     propose: (...args) => `
       const ssrArgs = ${JSON.stringify(args)};
-      throw new Error('propose called on SSR render');
+      throw new Error('SSR PROPOSE: Must not be called on SSR render');
     `,
   };
   // test server side rendered click handler

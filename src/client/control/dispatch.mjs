@@ -1,9 +1,15 @@
-export const Dispatch = ({ propose }) => (hook, ...hookArgs) => async (
-  ...eventArgs
-) => {
-  console.log("dispatched", eventArgs);
-  const dataArgs = await Promise.all(hookArgs);
-  const proposal = hook.apply(eventArgs[0].target, [...eventArgs, ...dataArgs]);
-  // const proposal = hook(event, ...dataArgs);
-  await propose(proposal);
+export const Dispatch = ({ propose }) => (hook, data) => {
+  if (typeof data.then === "function") {
+    // Fail fast if API was used incorrectly.
+    throw new Error("SSR action data must be serialisable");
+  }
+  return async function dispatch(event) {
+    try {
+      const proposal = hook(data).call(this, event);
+      await propose(proposal);
+    } catch (error) {
+      console.error("DISPATCH error:", error);
+      throw error;
+    }
+  };
 };
