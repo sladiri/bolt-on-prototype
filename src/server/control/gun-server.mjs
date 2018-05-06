@@ -1,6 +1,8 @@
 import Gun from "gun";
+import WebSocket from "ws";
 
-export const gun = ({ wss }) => {
+export const gunServer = ({ httpServer }) => {
+  const wss = new WebSocket.Server({ server: httpServer });
   const gunPeers = new Set(); // used as a list of connected clients.
 
   Gun.on("out", onGunOut({ peers: gunPeers }));
@@ -42,6 +44,7 @@ const onGunOut = ({ peers }) =>
 
 const onWsError = error => {
   console.error("gun WebSocket Error:", error);
+  throw error;
 };
 
 const onWsMessage = ({ gunLocal }) => json => {

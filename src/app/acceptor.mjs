@@ -14,5 +14,9 @@ export const acceptor = state => async proposal => {
     }
   }
 
+  if (proposal.title) {
+    state.title = proposal.title;
+  }
+
   return JSON.parse(JSON.stringify(state)); // Convenience for loggging etc.
 };

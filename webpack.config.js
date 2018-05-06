@@ -1,6 +1,6 @@
-const { paths, commonConfig } = require("./webpack.common.config");
+const { paths, config } = require("./webpack.common.config");
 
-module.exports = commonConfig({
+module.exports = config({
   publicPath: "/",
   paths: paths({ outputPath: "public" }),
 });

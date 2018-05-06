@@ -25,7 +25,7 @@ const paths = ({ outputPath }) => {
   };
 };
 
-const commonConfig = ({ debug = false, paths, publicPath }) => {
+const config = ({ debug = false, paths, publicPath }) => {
   return {
     mode: debug ? "development" : "production",
     entry: { index: [paths.globalCss, paths.client] },
@@ -119,18 +119,18 @@ const commonConfig = ({ debug = false, paths, publicPath }) => {
           viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
           description: "Author: Sladi Ri, Length: 1 pages",
         },
-        minify: {
-          maxLineLength: 80,
-        },
         template: "index-template.ejs",
       }),
-      new PreloadHtml(),
-      new Visualiser({ filename: "statistics.html" }),
-    ].concat(debug ? [] : [new Compression()]),
+    ].concat(
+      debug
+        ? []
+        : [
+            new PreloadHtml(),
+            new Visualiser({ filename: "statistics.html" }),
+            new Compression(),
+          ],
+    ),
   };
 };
 
-module.exports = {
-  paths,
-  commonConfig,
-};
+module.exports = { paths, config };
