@@ -28,7 +28,7 @@ export const index = ({ isIndexPath, appString }) => ({ publicPath }) => {
   return async (ctx, next) => {
     if (isIndexPath({ path: ctx.path })) {
       const indexFile = fs.readFileSync(
-        "./" + publicPath + "index.html",
+        "./" + publicPath + "/index.html",
         "utf8",
       ); // syntax colour bug with template literal
       await ssrResponse({ body: indexFile, ctx });
