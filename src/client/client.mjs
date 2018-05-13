@@ -16,16 +16,13 @@ export const restoreSsrState = ({ document }) => {
   assert.ok(appContainer.dataset.app, "appContainer.dataset.app");
   const state = JSON.parse(document.querySelector("#app").dataset.app);
   appContainer.removeAttribute("data-app");
-  return state;
-  // assert.ok(window["dispatcher"].state, "dispatcher.state");
-  // const state = JSON.parse(he.decode(window["dispatcher"].state));
   // Object.defineProperty(state, "_ssr", {
   //   value: state._ssr,
   //   enumerable: false,
   //   writable: false,
   //   configurable: true,
   // });
-  // return state;
+  return state;
 };
 
 export const initialRender = async ({ actions }) => {

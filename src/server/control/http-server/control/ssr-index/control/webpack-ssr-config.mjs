@@ -1,4 +1,4 @@
-import config from "../../../../../../webpack.common.config.js";
+import config from "../../../../../../../webpack.common.config.js";
 
 export const debugConfig = ({ commonConfig, paths }) => ({
   publicPath,

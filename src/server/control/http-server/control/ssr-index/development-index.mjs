@@ -1,10 +1,6 @@
 import webpack from "koa-webpack";
 // @ts-ignore
-import { webpackConfig } from "./webpack-ssr-config";
-// @ts-ignore
-import { isIndexPath } from "./is-index-path";
-// @ts-ignore
-import { appString } from "./app-string";
+import { webpackConfig, isIndexPath, appString } from "./control";
 
 export const index = ({ webpackConfig, isIndexPath, appString }) => () => {
   const webpackMiddleWare = webpack({

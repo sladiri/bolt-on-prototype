@@ -1,8 +1,6 @@
 import fs from "fs";
 // @ts-ignore
-import { isIndexPath } from "./is-index-path";
-// @ts-ignore
-import { appString } from "./app-string";
+import { isIndexPath, appString } from "./control";
 
 export const index = ({ isIndexPath, appString }) => ({ publicPath }) => {
   const cache = new Map();

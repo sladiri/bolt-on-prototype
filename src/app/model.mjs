@@ -1,7 +1,7 @@
 export const accept = async ({ state, proposal }) => {
   try {
     if (proposal.name) {
-      state.name = await Promise.resolve(`world ${proposal.name}!`);
+      state.name = await Promise.resolve(`${proposal.name}!`);
     }
 
     if (Array.isArray(proposal.posts)) {

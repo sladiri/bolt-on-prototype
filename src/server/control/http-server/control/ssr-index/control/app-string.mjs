@@ -1,8 +1,8 @@
 import viper from "viperhtml";
 // @ts-ignore
-import { app, Accept } from "../../../../../app";
+import { app, Accept } from "../../../../../../app";
 // @ts-ignore
-import { posts } from "../../entity";
+import { posts } from "../../../entity";
 
 const titleRegex = /<title>\n*(?<title>.*)\n*<\/title>/;
 
