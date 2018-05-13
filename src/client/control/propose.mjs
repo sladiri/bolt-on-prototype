@@ -1,4 +1,12 @@
-export const Propose = ({ actionsInProgress, accept }) => async proposal => {
+export const propose = ({
+  accept,
+  render,
+  actionsInProgress,
+}) => async proposal => {
+  if (!proposal) {
+    return;
+  }
+  let actionId = Math.random();
   try {
     if (actionsInProgress.size) {
       console.warn(
@@ -8,23 +16,23 @@ export const Propose = ({ actionsInProgress, accept }) => async proposal => {
       );
       return;
     }
-
-    let actionId = Math.random();
     while (actionsInProgress.has(actionId)) {
       actionId = Math.random();
     }
     actionsInProgress.add(actionId);
-
+    // console.log(`PROPOSE: awaiting proposal [${actionId}] ...`, data);
     const data = await proposal;
-    // console.log(`DISPATCH: awaiting proposal [${actionId}] ...`, data);
-
-    const newState = await accept(data);
-
+    if (data) {
+      await accept(data);
+      render();
+    }
     actionsInProgress.delete(actionId);
-    console.log(`PROPOSE: acceptor done [${actionId}]`, data, newState);
-    return newState;
+    // console.log(`PROPOSE: acceptor done [${actionId}]`);
   } catch (error) {
-    console.error("PROPOSE error:", error);
+    console.error(`PROPOSE error for action [${actionId}]:`, error);
     throw error;
   }
 };
+
+export const Propose = ({ accept, render }) =>
+  propose({ accept, render, actionsInProgress: new Set() });

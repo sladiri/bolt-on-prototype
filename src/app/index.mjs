@@ -1,6 +1,6 @@
 // @ts-ignore
-export { App } from "./app";
+export { Accept } from "./model";
 // @ts-ignore
-export { acceptor } from "./acceptor";
+export { app } from "./app";
 // @ts-ignore
 export { posts } from "./posts";

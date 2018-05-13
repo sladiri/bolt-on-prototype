@@ -1,39 +1,25 @@
 // @ts-ignore
-import { dynamicImportButton } from "./dynamic-import-test";
+import { refreshButton } from "./refresh-button";
+// @ts-ignore
+import { posts } from "./posts";
 
-export const renderApp = ({ dynamicImportButton }) => props => {
-  return async ({ model }) => {
-    // TODO: Conditional CSS loading? Maybe have CSS in context and use HTTP2 push?
-    const childProps = { ...props, model };
-    return props.wire(model)`
-      <h1>${model.title}</h1>
-      <button
-        disabled=${model._ssr}
-        onclick=${update(childProps)}
-      >Update</button>
-      <button
-        disabled=${model._replay}
-        onclick=${props.dispatch(updateSSR, model.title)}
-      >Update 2</button>
-      ${await dynamicImportButton(childProps)}
-      <section id="posts"></section>
-    `;
-  };
-};
+export const App = ({ refreshButton, posts }) => async props => props.render(
+  props.state,
+)`
+  <h1>${props.state.title}</h1>
+  <section>
+    <h1>Buttons, ${props.state.name}</h1>
+    ${await refreshButton({ ...props, render: props.wire(":refreshButton") })}
+    ${await refreshButton({ ...props, render: props.wire(":refreshButton1") })}
+  </section>
+  <section>
+    <h1>Posts, ${props.state.name}</h1>
+    ${await posts({ ...props, render: props.wire(":posts") })}
+    ${await posts({ ...props, render: props.wire(":posts1") })}
+  </section>
+`;
 
-const update = props =>
-  function(event) {
-    console.log("propose test", this, event, props);
-    props.propose({ title: `${Math.random()}` });
-  };
-
-const updateSSR = data =>
-  function(event) {
-    console.log("dispatch test", this, event, data);
-    return { title: `${Math.random()}` };
-  };
-
-export const App = renderApp({ dynamicImportButton });
+export const app = App({ refreshButton, posts });
 
 // const renderGunPosts = () => {
 //   //   <section>
