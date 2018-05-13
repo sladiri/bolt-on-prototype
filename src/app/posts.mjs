@@ -6,7 +6,12 @@ export const Posts = ({ fetchPosts, postItems }) => async props => {
   return props.render(props.state)`
     <section>
       <h1>Posts List, ${props.state.name}</h1>
-      <button onclick=${fetchPosts(props)}>Fetch Posts</button>
+      <button onclick=${props.dispatch(
+        "fetchPosts",
+        fetchPosts,
+        42,
+        666,
+      )}>Fetch Posts</button>
       <ul class="posts">
         ${postItems(props)}
       </ul>
@@ -14,10 +19,11 @@ export const Posts = ({ fetchPosts, postItems }) => async props => {
   `;
 };
 
-export const fetchPosts = props =>
-  async function(event) {
+export const fetchPosts = (...args) =>
+  async function(event, action) {
+    console.log("_fetchPosts - function(event, hook)", args, event, this);
     this.setAttribute("disabled", "true");
-    await props.actions.fetchPosts.call(this, event);
+    await action(args);
     this.removeAttribute("disabled");
   };
 

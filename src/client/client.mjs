@@ -32,14 +32,18 @@ export const initialRender = async ({ actions }) => {
   await actions.refresh();
 };
 
-export const replayIntermediateEvents = async ({ propose }) => {
+export const replayIntermediateEvents = async ({ actions }) => {
   assert.ok(window["dispatcher"].toReplay, "dispatcher.toReplay");
   console.log(
-    `replaying start [${window["dispatcher"].toReplay.length} actions]`,
+    `replaying start [${window["dispatcher"].toReplay.size} actions]`,
   );
-  for (const action of window["dispatcher"].toReplay) {
-    await propose(action, true);
-    // await wait(100);
+  for (const entry of window["dispatcher"].toReplay) {
+    console.log("replayIntermediateEvents", entry);
+    const { name, handler, args, target, event } = entry;
+    const action = handler.apply(null, args);
+    const hook = actions[name];
+    await action.apply(target, [event, hook]);
+    await wait(500);
   }
   console.log("replaying end");
 };
@@ -58,6 +62,10 @@ export const replayIntermediateEvents = async ({ propose }) => {
       wire,
       state,
       actions,
+      dispatch: (name, handler, ...args) =>
+        async function(event) {
+          await handler(...args).apply(this, [event, actions[name]]);
+        },
     })}`;
   // #endregion
 
@@ -73,11 +81,11 @@ export const replayIntermediateEvents = async ({ propose }) => {
   // #endregion
 
   // return;
-  // await wait(1000);
+  await wait(3000);
   await initialRender({ actions });
   // TODO: Do not allow actions until replay done?
-  // await replayIntermediateEvents({ propose });
-  // window["dispatcher"] = null;
+  await replayIntermediateEvents({ actions });
+  window["dispatcher"] = null;
 })().catch(error => {
   console.error("app error", error);
 });
