@@ -9,128 +9,130 @@ const Compression = require("compression-webpack-plugin");
 const PreloadHtml = require("preload-webpack-plugin");
 
 const paths = ({ outputPath }) => {
-  const base = process.cwd();
-  const webroot = path.join(base, outputPath);
-  const favicon = path.join(base, "icons8-socks.png");
-  const src = path.join(base, "src");
-  const client = path.join(src, "client");
-  const globalCss = path.join(src, "app", "index.pcss");
+    const base = process.cwd();
+    const webroot = path.join(base, outputPath);
+    const favicon = path.join(base, "icons8-socks.png");
+    const src = path.join(base, "src");
+    const client = path.join(src, "client");
+    const globalCss = path.join(src, "app", "index.pcss");
 
-  return {
-    webroot,
-    favicon,
-    src,
-    client,
-    globalCss,
-  };
+    return {
+        webroot,
+        favicon,
+        src,
+        client,
+        globalCss,
+    };
 };
 
 const config = ({ debug = false, paths, publicPath }) => {
-  return {
-    mode: debug ? "development" : "production",
-    entry: { index: [paths.globalCss, paths.client] },
-    output: {
-      pathinfo: debug,
-      path: paths.webroot,
-      filename: "[name].[hash].mjs",
-      publicPath,
-    },
-    optimization: debug ? undefined : { splitChunks: { chunks: "initial" } },
-    module: {
-      rules: [
-        {
-          test: /\.js$|\.jsm$/,
-          include: paths.src,
-          use: {
-            loader: "babel-loader",
-            options: {
-              cacheDirectory: debug,
-              plugins: [
-                "@babel/plugin-syntax-dynamic-import",
-                // "@babel/plugin-proposal-async-generator-functions",
-                "@babel/plugin-proposal-function-bind",
-                "@babel/plugin-proposal-object-rest-spread",
-              ],
-              presets: [
-                [
-                  "@babel/preset-env",
-                  {
-                    debug: true,
-                    spec: true,
-                    modules: false,
-                    useBuiltIns: "usage",
-                    targets: {
-                      browsers: [
-                        "edge >= 16",
-                        "firefox >= 58",
-                        "chrome >= 63",
-                        "safari >= 11",
-                        "ios_saf >= 10.3",
-                        "and_chr >= 64",
-                        "and_uc >= 11.8",
-                        "samsung >= 6.2",
-                      ],
+    return {
+        mode: debug ? "development" : "production",
+        entry: { index: [paths.globalCss, paths.client] },
+        output: {
+            pathinfo: debug,
+            path: paths.webroot,
+            filename: "[name].[hash].mjs",
+            publicPath,
+        },
+        optimization: debug
+            ? undefined
+            : { splitChunks: { chunks: "initial" } },
+        module: {
+            rules: [
+                {
+                    test: /\.js$|\.jsm$/,
+                    include: paths.src,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            cacheDirectory: debug,
+                            plugins: [
+                                "@babel/plugin-syntax-dynamic-import",
+                                // "@babel/plugin-proposal-async-generator-functions",
+                                "@babel/plugin-proposal-function-bind",
+                                "@babel/plugin-proposal-object-rest-spread",
+                            ],
+                            presets: [
+                                [
+                                    "@babel/preset-env",
+                                    {
+                                        debug: true,
+                                        spec: true,
+                                        modules: false,
+                                        useBuiltIns: "usage",
+                                        targets: {
+                                            browsers: [
+                                                "edge >= 16",
+                                                "firefox >= 58",
+                                                "chrome >= 63",
+                                                "safari >= 11",
+                                                "ios_saf >= 10.3",
+                                                "and_chr >= 64",
+                                                "and_uc >= 11.8",
+                                                "samsung >= 6.2",
+                                            ],
+                                        },
+                                    },
+                                ],
+                            ],
+                        },
                     },
-                  },
-                ],
-              ],
-            },
-          },
+                },
+                {
+                    test: /\.pcss$/,
+                    use: [
+                        // MiniCssExtractPlugin has no HMR support https://github.com/webpack-contrib/mini-css-extract-plugin/issues/34
+                        // debug
+                        //   ? { loader: "style-loader", options: { sourceMap: true } }
+                        //   : MiniCssExtractPlugin.loader,
+                        // But we cannot use it in HTTPS (Firefox), so we use it anyway
+                        MiniCssExtract.loader,
+                        { loader: "css-loader", options: { sourceMap: debug } },
+                        {
+                            loader: "postcss-loader",
+                            options: {
+                                sourceMap: debug ? "inline" : false, // true does not seem to work, with dev-server at least, need to try production
+                                plugins: [postcssCssnext],
+                            },
+                        },
+                    ],
+                },
+            ],
         },
-        {
-          test: /\.pcss$/,
-          use: [
-            // MiniCssExtractPlugin has no HMR support https://github.com/webpack-contrib/mini-css-extract-plugin/issues/34
-            // debug
-            //   ? { loader: "style-loader", options: { sourceMap: true } }
-            //   : MiniCssExtractPlugin.loader,
-            // But we cannot use it in HTTPS (Firefox), so we use it anyway
-            MiniCssExtract.loader,
-            { loader: "css-loader", options: { sourceMap: debug } },
-            {
-              loader: "postcss-loader",
-              options: {
-                sourceMap: debug ? "inline" : false, // true does not seem to work, with dev-server at least, need to try production
-                plugins: [postcssCssnext],
-              },
-            },
-          ],
-        },
-      ],
-    },
-    plugins: [
-      new Favicons({
-        logo: paths.favicon,
-        icons: {
-          android: false,
-          appleIcon: false,
-          appleStartup: false,
-          favicons: true,
-          firefox: false,
-        },
-      }),
-      new MiniCssExtract({ filename: "index.[contenthash].css" }),
-      new Html({
-        // Template is generated from SSR via ViperHtml (ejs-loader)
-        templateParameters: {
-          title: "Bolt-on Prototype",
-        },
-        meta: {
-          viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
-          description: "Author: Sladi Ri, Length: 1 pages",
-        },
-        template: "index-template.ejs",
-      }),
-    ].concat(
-      debug
-        ? []
-        : [
-            new PreloadHtml(),
-            new Visualiser({ filename: "statistics.html" }),
-            new Compression(),
-          ],
-    ),
-  };
+        plugins: [
+            new Favicons({
+                logo: paths.favicon,
+                icons: {
+                    android: false,
+                    appleIcon: false,
+                    appleStartup: false,
+                    favicons: true,
+                    firefox: false,
+                },
+            }),
+            new MiniCssExtract({ filename: "index.[contenthash].css" }),
+            new Html({
+                // Template is generated from SSR via ViperHtml (ejs-loader)
+                templateParameters: {
+                    title: "Bolt-on Prototype",
+                },
+                meta: {
+                    viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
+                    description: "Author: Sladi Ri, Length: 1 pages",
+                },
+                template: "index-template.ejs",
+            }),
+        ].concat(
+            debug
+                ? []
+                : [
+                      new PreloadHtml(),
+                      new Visualiser({ filename: "statistics.html" }),
+                      new Compression(),
+                  ],
+        ),
+    };
 };
 
 module.exports = { paths, config };
