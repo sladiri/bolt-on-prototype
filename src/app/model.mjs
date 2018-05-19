@@ -3,7 +3,6 @@ export const accept = async ({ state, proposal }) => {
         if (proposal.name) {
             state.name = await Promise.resolve(`${proposal.name}!`);
         }
-
         if (Array.isArray(proposal.posts)) {
             for (const post of proposal.posts) {
                 const currentIndex = state.posts.findIndex(
@@ -16,7 +15,6 @@ export const accept = async ({ state, proposal }) => {
                 }
             }
         }
-
         if (proposal.counter !== undefined) {
             if (proposal.counter === null) {
                 state.counter = 10;
@@ -36,7 +34,7 @@ export const Accept = ({ state }) => proposal => {
     return accept({ state, proposal });
 };
 
-export const nap = ({ state, actions }) => {
+export const nextAction = ({ state, actions }) => {
     if (state.counter > 0 && state.counter < 10) {
         return actions.countDown();
     }

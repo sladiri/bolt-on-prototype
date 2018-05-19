@@ -6,7 +6,7 @@ const setImmediate = func => {
 export const propose = ({
     accept,
     render,
-    nap,
+    nextAction,
     actionInProgress,
 }) => async proposal => {
     try {
@@ -27,7 +27,7 @@ export const propose = ({
                 }
                 await accept(data);
                 render();
-                setImmediate(nap);
+                setImmediate(nextAction);
             } catch (error) {
                 console.error(
                     `PROPOSE error awaiting proposal [${localId}]:`,
@@ -42,6 +42,11 @@ export const propose = ({
     }
 };
 
-export const Propose = ({ accept, render, nap }) => {
-    return propose({ accept, render, nap, actionInProgress: { value: null } });
+export const Propose = ({ accept, render, nextAction }) => {
+    return propose({
+        accept,
+        render,
+        nextAction,
+        actionInProgress: { value: null },
+    });
 };

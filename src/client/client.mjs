@@ -4,7 +4,7 @@ import { wire as hyperWire, bind } from "hyperhtml/esm";
 // @ts-ignore
 import { Propose } from "./control";
 // @ts-ignore
-import { app, Accept, nap, Actions } from "../app";
+import { app, Accept, nextAction, Actions } from "../app";
 
 const wait = delay => new Promise(res => setTimeout(res, delay));
 
@@ -43,14 +43,14 @@ export const setupRender = () => {
     return render;
 };
 
-export const setupAppState = ({ initialState, render, nap }) => {
+export const setupAppState = ({ initialState, render, nextAction }) => {
     const accept = Accept({
         state: initialState,
     });
     const propose = Propose({
         accept,
         render: () => render({ state: initialState, actions }),
-        nap: () => nap({ state: initialState, actions }),
+        nextAction: () => nextAction({ state: initialState, actions }),
     });
     const actions = Actions({ propose });
     return actions;
@@ -81,7 +81,7 @@ export const replayIntermediateEvents = async ({ actions }) => {
     assert.ok(window["dispatcher"], "dispatcher");
     const initialState = restoreSsrState({ document });
     const render = setupRender();
-    const actions = setupAppState({ initialState, render, nap });
+    const actions = setupAppState({ initialState, render, nextAction });
     // return;
     await wait(2000);
     await initialRender({ actions });

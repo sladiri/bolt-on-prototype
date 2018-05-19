@@ -1,5 +1,5 @@
 // @ts-ignore
-export { Accept, nap } from "./model";
+export { Accept, nextAction } from "./model";
 // @ts-ignore
 export { Actions } from "./actions";
 // @ts-ignore
