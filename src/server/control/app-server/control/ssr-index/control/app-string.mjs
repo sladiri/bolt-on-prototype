@@ -14,6 +14,7 @@ export const State = ({ titleRegex, body, query }) => ({
     title: titleRegex.exec(body).groups.title,
     name: "EMPTY",
     counter: 10,
+    todos: [],
 });
 
 export const dispatch = (_name, _handler, ..._args) => `{

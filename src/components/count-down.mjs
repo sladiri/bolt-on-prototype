@@ -22,7 +22,9 @@ export const countDown = async ({ render, state, actions }) => {
     const titleClass = [
         "counter",
         `counter--${getCounterColour({ counter: state.counter })}`,
-    ].join(" ");
+    ]
+        .filter(x => !!x.length)
+        .join(" ");
     const text = state.counter === 10 ? "" : `[${state.counter}]`;
     return render(state)`
         <section>

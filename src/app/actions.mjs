@@ -32,4 +32,7 @@ export const Actions = ({ propose }) => ({
                 : countDownClock.tick().then(() => payload);
         await propose(proposal);
     },
+    async updateTodo({ id, ...attrs }) {
+        await propose({ todoId: id, ...attrs });
+    },
 });

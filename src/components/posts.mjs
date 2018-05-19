@@ -1,6 +1,3 @@
-// @ts-ignore
-import { postItem } from "./post-item";
-
 export const Posts = ({ fetchPosts, postItem }) => async props => {
     if (typeof document === "object") {
         // @ts-ignore
@@ -37,6 +34,16 @@ export const fetchPosts = props => {
         await props.actions.fetchPosts();
         this.removeAttribute("disabled");
     };
+};
+
+export const postItem = ({ render, post }) => {
+    return render(post)`
+        <li class="posts posts__post">
+            <h2 class="posts posts__title">${post.title}</h2>
+            <span class="posts posts__summary">${post.summary}</span>
+            <p class="posts posts__content">${post.content}</p>
+        </li>
+    `;
 };
 
 export const posts = Posts({ fetchPosts, postItem });

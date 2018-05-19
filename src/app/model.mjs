@@ -5,11 +5,11 @@ export const accept = async ({ state, proposal }) => {
         }
         if (Array.isArray(proposal.posts)) {
             for (const post of proposal.posts) {
-                const currentIndex = state.posts.findIndex(
-                    p => p.title === post.title,
+                const index = state.posts.findIndex(
+                    x => x.title === post.title,
                 );
-                if (currentIndex !== -1) {
-                    Object.assign(state.posts[currentIndex], post);
+                if (index !== -1) {
+                    Object.assign(state.posts[index], post);
                 } else {
                     state.posts.push(post);
                 }
@@ -22,6 +22,21 @@ export const accept = async ({ state, proposal }) => {
                 if (state.counter + proposal.counter >= 0) {
                     state.counter += proposal.counter;
                 }
+            }
+        }
+        if (proposal.todoId !== undefined) {
+            const { todoId, ...attrs } = proposal;
+            if (todoId) {
+                const index = state.todos.findIndex(x => x.id === todoId);
+                if (index !== -1) {
+                    Object.assign(state.todos[index], attrs);
+                }
+            } else {
+                state.todos.push({
+                    id: Math.random(),
+                    ...attrs,
+                    text: attrs.text.trim(),
+                });
             }
         }
     } catch (error) {
