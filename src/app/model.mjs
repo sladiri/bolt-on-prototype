@@ -21,11 +21,7 @@ export const accept = async ({ state, proposal }) => {
             if (proposal.counter === null) {
                 state.counter = 10;
             } else {
-                if (
-                    ((state.counter === 10 && !proposal.nap) ||
-                        (state.counter !== 10 && proposal.nap)) &&
-                    state.counter + proposal.counter >= 0
-                ) {
+                if (state.counter + proposal.counter >= 0) {
                     state.counter += proposal.counter;
                 }
             }
@@ -42,6 +38,6 @@ export const Accept = ({ state }) => proposal => {
 
 export const nap = ({ state, actions }) => {
     if (state.counter > 0 && state.counter < 10) {
-        return actions.countDown({ nap: true });
+        return actions.countDown();
     }
 };

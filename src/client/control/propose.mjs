@@ -1,43 +1,47 @@
-import "setimmediate";
+// setImmediate is broken because of webpack-env + mjs https://github.com/webpack/webpack/issues/7032
+const setImmediate = func => {
+    return setTimeout(func, 0);
+};
+
 export const propose = ({
     accept,
     render,
     nap,
-    actionsInProgress,
+    actionInProgress,
 }) => async proposal => {
-    if (!proposal) {
-        return;
-    }
-    let actionId = Math.random();
     try {
-        if (actionsInProgress.size) {
-            // console.warn(
-            //     `PROPOSE: Abort, proposals in progress [${[
-            //         ...actionsInProgress.values(),
-            //     ]}] ...`,
-            // );
-            return;
-        }
-        while (actionsInProgress.has(actionId)) {
+        let actionId = Math.random();
+        while (actionInProgress.value === actionId) {
             actionId = Math.random();
         }
-        actionsInProgress.add(actionId);
-        // console.log(`PROPOSE: awaiting proposal [${actionId}] ...`, proposal);
-        const data = await proposal;
-        if (data) {
-            // console.log(`PROPOSE: data [${actionId}]`, data);
-            await accept(data);
-            render();
-            setTimeout(nap, 0); // setImmediate is broken because of webpack-env + mjs https://github.com/webpack/webpack/issues/7032
-        }
-        actionsInProgress.delete(actionId);
-        // console.log(`PROPOSE: acceptor done [${actionId}]`);
+        actionInProgress.value = actionId;
+        setImmediate(async () => {
+            const localId = actionInProgress.value;
+            try {
+                const data = await proposal;
+                if (!data) {
+                    return;
+                }
+                if (localId !== actionInProgress.value) {
+                    return;
+                }
+                await accept(data);
+                render();
+                setImmediate(nap);
+            } catch (error) {
+                console.error(
+                    `PROPOSE error awaiting proposal [${localId}]:`,
+                    error,
+                );
+                throw error;
+            }
+        });
     } catch (error) {
-        console.error(`PROPOSE error for action [${actionId}]:`, error);
+        console.error("PROPOSE error", error);
         throw error;
     }
 };
 
 export const Propose = ({ accept, render, nap }) => {
-    return propose({ accept, render, nap, actionsInProgress: new Set() });
+    return propose({ accept, render, nap, actionInProgress: { value: null } });
 };
