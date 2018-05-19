@@ -29,8 +29,18 @@ export const countDown = async ({ render, state, actions }) => {
     return render(state)`
         <section>
             <h1 class=${titleClass}>Counter ${text}</h1>
-            <button onclick=${actions.countDown}>Decrement</button>
-            <button onclick=${reset(actions)}>Reset</button>
+            <button
+                disabled=${state.counter !== 10}
+                onclick=${actions.countDown}
+            >
+                Start
+            </button>
+            <button
+                disabled=${state.counter === 10}
+                onclick=${reset(actions)}
+            >
+                Reset
+            </button>
         </section>
     `;
 };
