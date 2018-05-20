@@ -1,10 +1,14 @@
 import webpack from "koa-webpack";
 // @ts-ignore
-import { webpackConfig, isIndexPath, appString } from "./control";
+import { debugConfig, isIndexPath, appString } from "./control";
 
-export const index = ({ webpackConfig, isIndexPath, appString }) => () => {
+export const _DevelopmentIndex = ({
+    debugConfig,
+    isIndexPath,
+    appString,
+}) => () => {
     const webpackMiddleWare = webpack({
-        config: webpackConfig({ publicPath: "/", outputPath: "/" }),
+        config: debugConfig({ publicPath: "/", outputPath: "/" }),
         hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
     });
     return async (ctx, next) => {
@@ -19,8 +23,8 @@ export const index = ({ webpackConfig, isIndexPath, appString }) => () => {
     };
 };
 
-export const developmentIndex = index({
-    webpackConfig,
+export const DevelopmentIndex = _DevelopmentIndex({
+    debugConfig,
     isIndexPath,
     appString,
 });

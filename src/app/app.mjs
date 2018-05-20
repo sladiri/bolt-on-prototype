@@ -1,17 +1,12 @@
 // @ts-ignore
 import { refreshButton, posts, todos, countDown } from "../components";
 
-export const App = ({ main }) => async props => {
-    const { render, wire, state } = props;
-    return render(state)`
-        <h1>${state.title}</h1>
-        <main>
-            ${await main({ ...props, render: wire(":main") })}
-        </main>
-    `;
-};
-
-export const Main = ({ refreshButton, posts, todos }) => async props => {
+export const Main = ({
+    refreshButton,
+    posts,
+    todos,
+    countDown,
+}) => async props => {
     const { render, wire, state } = props;
     return render(state)`
         <section>
@@ -41,4 +36,18 @@ export const Main = ({ refreshButton, posts, todos }) => async props => {
     `;
 };
 
-export const app = App({ main: Main({ refreshButton, posts, todos }) });
+export const App = ({ main }) => {
+    return async props => {
+        const { render, wire, state } = props;
+        return render(state)`
+            <h1>${state.title}, ${state.name}</h1>
+            <main>
+                ${await main({ ...props, render: wire(":main") })}
+            </main>
+        `;
+    };
+};
+
+export const app = App({
+    main: Main({ refreshButton, posts, todos, countDown }),
+});

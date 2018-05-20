@@ -1,21 +1,9 @@
+// @ts-ignore
+import { CountDownClock } from "./control";
+
 const wait = delay => new Promise(res => setTimeout(res, delay));
 
-const countDownClock = {
-    _tickerInProgress: null,
-    tick() {
-        if (!this._tickerInProgress) {
-            this._tickerInProgress = new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    this._tickerInProgress = null;
-                    resolve();
-                }, 1000);
-            });
-        }
-        return this._tickerInProgress;
-    },
-};
-
-export const Actions = ({ propose }) => ({
+export const actions = ({ propose, countDownClock }) => ({
     async refresh() {
         await propose({ name: Date.now() });
     },
@@ -36,3 +24,7 @@ export const Actions = ({ propose }) => ({
         await propose({ todoId: id, ...attrs });
     },
 });
+
+export const Actions = ({ propose }) => {
+    return actions({ propose, countDownClock: CountDownClock() });
+};

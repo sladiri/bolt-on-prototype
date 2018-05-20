@@ -1,5 +1,5 @@
 // @ts-ignore
-export { webpackConfig } from "./webpack-ssr-config";
+export { debugConfig } from "./webpack-ssr-config";
 // @ts-ignore
 export { isIndexPath } from "./is-index-path";
 // @ts-ignore

@@ -1,19 +1,3 @@
-export const getCounterColour = ({ counter }) => {
-    if (counter === 10) {
-        return "reset";
-    }
-    if (counter > 6) {
-        return "fine";
-    }
-    if (counter > 3) {
-        return "warning";
-    }
-    if (counter > 0) {
-        return "critical";
-    }
-    return "done";
-};
-
 export const countDown = async ({ render, state, actions }) => {
     if (typeof document === "object") {
         // @ts-ignore
@@ -45,6 +29,22 @@ export const countDown = async ({ render, state, actions }) => {
     `;
 };
 
-const reset = actions => () => {
+export const getCounterColour = ({ counter }) => {
+    if (counter === 10) {
+        return "reset";
+    }
+    if (counter > 6) {
+        return "fine";
+    }
+    if (counter > 3) {
+        return "warning";
+    }
+    if (counter > 0) {
+        return "critical";
+    }
+    return "done";
+};
+
+export const reset = actions => () => {
     actions.countDown({ value: null });
 };

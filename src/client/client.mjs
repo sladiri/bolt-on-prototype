@@ -23,33 +23,36 @@ export const restoreSsrState = ({ document }) => {
     return state;
 };
 
-export const dispatch = ({ actions }) => (name, handler, ...args) => {
+export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     return async function(event) {
         await handler(...args).apply(this, [event, actions[name]]);
     };
 };
 
-export const setupRender = () => {
-    const wire = nameSpace => (reference = null) =>
-        hyperWire(reference, nameSpace);
-    const render = ({ state, actions }) =>
-        bind(document.getElementById("app"))`${app({
+export const Render = async () => {
+    const wire = nameSpace => (reference = null) => {
+        return hyperWire(reference, nameSpace);
+    };
+    const render = async ({ state, actions }) => {
+        const appString = app({
             render: wire(), // no namespace in wire here exposes missing child NS
             wire,
             state,
             actions,
-            dispatch: dispatch({ actions }),
-        })}`;
+            dispatch: Dispatch({ actions }),
+        });
+        return bind(document.getElementById("app"))`${await appString}`;
+    };
     return render;
 };
 
-export const setupAppState = ({ initialState, render, nextAction }) => {
+export const AppState = ({ initialState, Render, nextAction }) => {
     const accept = Accept({
         state: initialState,
     });
     const propose = Propose({
         accept,
-        render: () => render({ state: initialState, actions }),
+        render: () => Render({ state: initialState, actions }),
         nextAction: () => nextAction({ state: initialState, actions }),
     });
     const actions = Actions({ propose });
@@ -79,9 +82,11 @@ export const replayIntermediateEvents = async ({ actions }) => {
 
 (async () => {
     assert.ok(window["dispatcher"], "dispatcher");
-    const initialState = restoreSsrState({ document });
-    const render = setupRender();
-    const actions = setupAppState({ initialState, render, nextAction });
+    const actions = AppState({
+        initialState: restoreSsrState({ document }),
+        Render: await Render(),
+        nextAction,
+    });
     // return;
     await wait(2000);
     await initialRender({ actions });

@@ -1,4 +1,4 @@
 // @ts-ignore
 export { posts } from "./posts";
 // @ts-ignore
-export { productionIndex, developmentIndex } from "./ssr-index";
+export { ProductionIndex, DevelopmentIndex } from "./ssr-index";

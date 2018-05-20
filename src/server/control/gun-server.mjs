@@ -32,8 +32,8 @@ const acceptConnection = ({ gunPeers, gunLocal }) => connection => {
     connection.on("close", onWsClose({ peers: gunPeers, connection }));
 };
 
-const onGunOut = ({ peers }) =>
-    function(message) {
+const onGunOut = ({ peers }) => {
+    return function(message) {
         this.to.next(message);
 
         message = JSON.stringify(message);
@@ -41,6 +41,7 @@ const onGunOut = ({ peers }) =>
             peer.send(message);
         });
     };
+};
 
 const onWsError = error => {
     console.error("gun WebSocket Error:", error);

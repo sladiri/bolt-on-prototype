@@ -41,7 +41,7 @@ export const AppString = ({
     const state = State({ titleRegex, body, query });
     const accept = Accept({ state });
     await accept({ posts }); // Test server side state update
-    const appString = await app({
+    const appString = app({
         render: () => wire(),
         wire: () => () => wire(),
         state,
@@ -53,7 +53,7 @@ export const AppString = ({
             window.dispatcher = { toReplay: [] };
         </script>
         <section id="app" data-app=${JSON.stringify(state)}>
-            ${appString}
+            ${await appString}
         </section>
     `;
     return body.replace(/##SSR##/, ssrString);

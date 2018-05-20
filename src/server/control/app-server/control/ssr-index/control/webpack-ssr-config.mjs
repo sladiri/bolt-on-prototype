@@ -1,6 +1,6 @@
 import config from "../../../../../../../webpack.common.config.js";
 
-export const debugConfig = ({ commonConfig, paths }) => ({
+export const DebugConfig = ({ commonConfig, paths }) => ({
     publicPath,
     outputPath,
 }) => {
@@ -11,7 +11,7 @@ export const debugConfig = ({ commonConfig, paths }) => ({
     });
 };
 
-export const webpackConfig = debugConfig({
+export const debugConfig = DebugConfig({
     commonConfig: config.config,
     paths: config.paths,
 });

@@ -1,4 +1,8 @@
-export const Posts = ({ fetchPosts, postItem }) => async props => {
+export const Posts = ({
+    FetchPosts,
+    FetchPostsSSR,
+    postItem,
+}) => async props => {
     if (typeof document === "object") {
         // @ts-ignore
         await import("./posts.pcss");
@@ -7,9 +11,9 @@ export const Posts = ({ fetchPosts, postItem }) => async props => {
     return render(state)`
         <section>
             <h1>Posts List, ${state.name}</h1>
-            <button onclick=${fetchPosts(props)}>Fetch Posts</button>
+            <button onclick=${FetchPosts(props)}>Fetch Posts</button>
             <button
-                onclick=${dispatch("fetchPosts", fetchPostsSSR, 42, 666)}
+                onclick=${dispatch("fetchPosts", FetchPostsSSR, 42, 666)}
             >
                 Fetch Posts SSR
             </button>
@@ -20,15 +24,7 @@ export const Posts = ({ fetchPosts, postItem }) => async props => {
     `;
 };
 
-export const fetchPostsSSR = (...args) => {
-    return async function(event, action) {
-        this.setAttribute("disabled", "true");
-        await action();
-        this.removeAttribute("disabled");
-    };
-};
-
-export const fetchPosts = props => {
+export const FetchPosts = props => {
     return async function(event) {
         this.setAttribute("disabled", "true");
         await props.actions.fetchPosts();
@@ -46,4 +42,12 @@ export const postItem = ({ render, post }) => {
     `;
 };
 
-export const posts = Posts({ fetchPosts, postItem });
+export const FetchPostsSSR = (...args) => {
+    return async function(event, action) {
+        this.setAttribute("disabled", "true");
+        await action();
+        this.removeAttribute("disabled");
+    };
+};
+
+export const posts = Posts({ FetchPosts, FetchPostsSSR, postItem });

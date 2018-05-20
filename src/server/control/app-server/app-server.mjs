@@ -3,17 +3,17 @@ import route from "koa-route";
 import mount from "koa-mount";
 import serve from "koa-static";
 // @ts-ignore
-import { posts, productionIndex, developmentIndex } from "./control";
+import { posts, ProductionIndex, DevelopmentIndex } from "./control";
 
-export const HttpServer = ({ posts, productionIndex, developmentIndex }) => ({
+export const _AppServer = ({ posts, ProductionIndex, DevelopmentIndex }) => ({
     publicPath,
 }) => {
     const isProduction = process.env.NODE_ENV === "production";
     const filePath = isProduction ? "/" : `/${publicPath}`;
     const ssrIndex = ({ publicPath, isProduction }) => {
         const response = isProduction
-            ? productionIndex({ publicPath })
-            : developmentIndex();
+            ? ProductionIndex({ publicPath })
+            : DevelopmentIndex();
         return response;
     };
     const app = new Koa();
@@ -25,10 +25,10 @@ export const HttpServer = ({ posts, productionIndex, developmentIndex }) => ({
     return app;
 };
 
-export const AppServer = HttpServer({
+export const AppServer = _AppServer({
     posts,
-    productionIndex,
-    developmentIndex,
+    ProductionIndex,
+    DevelopmentIndex,
 });
 
 export const errorHandler = async (ctx, next) => {

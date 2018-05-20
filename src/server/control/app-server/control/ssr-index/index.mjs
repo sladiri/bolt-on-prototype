@@ -1,4 +1,4 @@
 // @ts-ignore
-export { productionIndex } from "./production-index";
+export { ProductionIndex } from "./production-index";
 // @ts-ignore
-export { developmentIndex } from "./development-index";
+export { DevelopmentIndex } from "./development-index";
