@@ -5,4 +5,4 @@ export { posts } from "./posts";
 // @ts-ignore
 export { todos } from "./todos";
 // @ts-ignore
-export { countDown } from "./count-down";
+export { countDownA, countDownB } from "./count-down";

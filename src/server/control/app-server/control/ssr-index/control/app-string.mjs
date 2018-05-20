@@ -41,13 +41,14 @@ export const AppString = ({
     const state = State({ titleRegex, body, query });
     const accept = Accept({ state });
     await accept({ posts }); // Test server side state update
-    const appString = app({
-        render: () => wire(),
-        wire: () => () => wire(),
-        state,
-        actions: {},
-        dispatch,
-    });
+    // const appString = app({
+    //     render: () => wire(),
+    //     wire: () => () => wire(),
+    //     state,
+    //     actions: {},
+    //     dispatch,
+    // });
+    const appString = "";
     const ssrString = wire()`
         <script>
             window.dispatcher = { toReplay: [] };

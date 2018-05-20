@@ -1,68 +1,54 @@
 // @ts-ignore
-import { refreshButton, posts, todos, countDown } from "../components";
+import {
+    refreshButton,
+    posts,
+    todos,
+    countDownA,
+    countDownB,
+    // @ts-ignore
+} from "../components";
 
-export const Main = ({ refreshButton, posts, todos, countDown }) => props => {
-    const { render, wire, state, actions } = props;
-    const countDownA = countDown({
-        ...props,
-        render: wire(":countDownA"),
-        counter: state.counters[0],
-        countDown: (args = {}) => {
-            actions.countDown({ ...args, counterId: 0 });
-        },
-    });
-    const countDownB = countDown({
-        ...props,
-        render: wire(":countDownB"),
-        counter: state.counters[1],
-        countDown: (args = {}) => {
-            actions.countDown({ ...args, counterId: 1 });
-        },
-    });
-    return render(state)`
+export const _main = props => {
+    const { render, name } = props;
+    return render()`
         <section>
-            <h1>CountDown A, ${state.name}</h1>
-            ${countDownA}
+            <h1>Refresh Buttons Test, ${name}</h1>
+            ${refreshButton(props, 0)}
+            ${refreshButton(props, 1)}
         </section>
         <section>
-            <h1>CountDown B, ${state.name}</h1>
-            ${countDownB}
+            <h1>CountDowns Test, ${name}</h1>
+            ${countDownA(props)}
+            ${countDownB(props)}
         </section>
         <section>
-            <h1>Todos, ${state.name}</h1>
-            ${todos({ ...props, render: wire(":todos") })}
+            <h1>Posts Test, ${name}</h1>
+            ${posts(props, 0)}
+            ${posts(props, 1)}
         </section>
         <section>
-            <h1>Buttons, ${state.name}</h1>
-            ${refreshButton({
-                ...props,
-                render: wire(":refreshButton"),
-            })}
-            ${refreshButton({
-                ...props,
-                render: wire(":refreshButton1"),
-            })}
-        </section>
-        <section>
-            <h1>Posts, ${state.name}</h1>
-            ${posts({ ...props, render: wire(":posts") })}
-            ${posts({ ...props, render: wire(":posts1") })}
+            <h1>Todos Test, ${name}</h1>
+            ${todos(props)}
         </section>
     `;
 };
 
-export const App = ({ main }) => {
-    return props => {
-        const { render, wire, state } = props;
-        return render(state)`
-            <h1>${state.title}, ${state.name}</h1>
-            <main>
-                ${main({ ...props, render: wire(":main") })}
-            </main>
-        `;
-    };
+export const main = (props, namespace) => {
+    const state = { name: props._state.name };
+    return props.connect(_main, state, namespace);
 };
 
-export const app = App({
-    main: Main({ refreshButton, posts, todos, countDown }),
-});
+export const _app = props => {
+    const { render, title, name } = props;
+    return render()`
+        <h1>${title}, ${name}</h1>
+        <main>
+            ${main(props)}
+        </main>
+    `;
+};
+
+export const app = props => {
+    const { title, name } = props._state;
+    return props.connect(_app, { title, name }, false);
+};

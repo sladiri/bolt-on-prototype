@@ -29,29 +29,73 @@ export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     };
 };
 
-export const Render = () => {
-    const wire = nameSpace => (reference = null) => {
+export const Connect = props => {
+    const namespaceSet = new Set();
+    return (component, state = {}, _namespace = true) => {
+        if (!component) {
+            console.error("connect: missing component");
+        }
+        if (!props) {
+            console.error("connect: missing props");
+        }
+        if (_namespace === true && !component.name) {
+            console.error("connect: invalid namespace");
+        }
+        const inheritedRender = typeof _namespace === "function";
+        const namespace =
+            _namespace === false || inheritedRender
+                ? false
+                : _namespace === true
+                    ? `:${component.name}`
+                    : `:${component.name}-${_namespace}`;
+        // Inherited render uses object references as namespaces
+        if (!inheritedRender) {
+            if (namespaceSet.has(namespace)) {
+                console.error("connect: duplicate namespace", namespace);
+            }
+            namespaceSet.add(namespace);
+        }
+        const { connect, render: _render, _wire, _actions, _state } = props;
+        const render = namespace
+            ? _wire(namespace)
+            : inheritedRender
+                ? _namespace
+                : _render;
+        return component({
+            ...state,
+            _wire,
+            _actions,
+            _state,
+            connect,
+            render,
+        });
+    };
+};
+
+export const AppState = ({ initialState, nextAction }) => {
+    const wire = nameSpace => (reference = initialState) => {
+        // default wire reference is app state object
         return hyperWire(reference, nameSpace);
     };
-    const render = ({ state, actions }) => {
+    const Render = ({ state, actions }) => {
+        const props = {
+            _wire: wire,
+            _actions: { ...actions, dispatch: Dispatch({ actions }) },
+            _state: state,
+            connect: null,
+            render: null,
+        };
+        const connect = Connect(props);
+        props.connect = connect;
+        props.render = wire(); // no namespace in wire here exposes missing child NS
         const appString = app({
-            render: wire(), // no namespace in wire here exposes missing child NS
-            wire,
-            state,
-            actions,
-            dispatch: Dispatch({ actions }),
+            ...props,
+            connect,
         });
         return bind(document.getElementById("app"))`${appString}`;
     };
-    return render;
-};
-
-export const AppState = ({ initialState, Render, nextAction }) => {
-    const accept = Accept({
-        state: initialState,
-    });
     const propose = Propose({
-        accept,
+        accept: Accept({ state: initialState }),
         render: () => Render({ state: initialState, actions }),
         nextAction: () => nextAction({ state: initialState, actions }),
     });
@@ -84,7 +128,6 @@ export const replayIntermediateEvents = async ({ actions }) => {
     assert.ok(window["dispatcher"], "dispatcher");
     const actions = AppState({
         initialState: restoreSsrState({ document }),
-        Render: Render(),
         nextAction,
     });
     // return;
