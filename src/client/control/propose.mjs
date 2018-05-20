@@ -7,22 +7,22 @@ export const propose = ({
     accept,
     render,
     nextAction,
-    actionInProgress,
-}) => async proposal => {
+    actionsInProgress,
+}) => async ({ proposal, nameSpace = "default" }) => {
     try {
         let actionId = Math.random();
-        while (actionInProgress.value === actionId) {
+        while (actionsInProgress.get(nameSpace) === actionId) {
             actionId = Math.random();
         }
-        actionInProgress.value = actionId;
+        actionsInProgress.set(nameSpace, actionId);
         setImmediate(async () => {
-            const localId = actionInProgress.value;
+            const localId = actionsInProgress.get(nameSpace);
             try {
                 const data = await proposal;
                 if (!data) {
                     return;
                 }
-                if (localId !== actionInProgress.value) {
+                if (localId !== actionsInProgress.get(nameSpace)) {
                     return;
                 }
                 await accept(data);
@@ -43,10 +43,11 @@ export const propose = ({
 };
 
 export const Propose = ({ accept, render, nextAction }) => {
+    const actionsInProgress = new Map();
     return propose({
         accept,
         render,
         nextAction,
-        actionInProgress: { value: null },
+        actionsInProgress,
     });
 };

@@ -88,7 +88,7 @@ export const replayIntermediateEvents = async ({ actions }) => {
         nextAction,
     });
     // return;
-    await wait(2000);
+    // await wait(2000);
     await initialRender({ actions });
     // TODO: Do not allow actions until replay done?
     await replayIntermediateEvents({ actions });

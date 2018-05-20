@@ -15,12 +15,14 @@ export const accept = async ({ state, proposal }) => {
                 }
             }
         }
-        if (proposal.counter !== undefined) {
-            if (proposal.counter === null) {
-                state.counter = 10;
+        const { counterId, counter } = proposal;
+        if (counterId !== undefined && counter !== undefined) {
+            const { counters } = state;
+            if (counter === null) {
+                counters[counterId] = 10;
             } else {
-                if (state.counter + proposal.counter >= 0) {
-                    state.counter += proposal.counter;
+                if (counters[counterId] + counter >= 0) {
+                    counters[counterId] += counter;
                 }
             }
         }
@@ -50,7 +52,9 @@ export const Accept = ({ state }) => proposal => {
 };
 
 export const nextAction = ({ state, actions }) => {
-    if (state.counter > 0 && state.counter < 10) {
-        return actions.countDown();
+    for (const [counterId, counter] of state.counters.entries()) {
+        if (counter > 0 && counter < 10) {
+            actions.countDown({ counterId });
+        }
     }
 };

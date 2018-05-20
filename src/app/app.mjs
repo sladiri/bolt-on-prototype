@@ -7,11 +7,29 @@ export const Main = ({
     todos,
     countDown,
 }) => async props => {
-    const { render, wire, state } = props;
+    const { render, wire, state, actions } = props;
     return render(state)`
         <section>
-            <h1>CountDown, ${state.name}</h1>
-            ${await countDown({ ...props, render: wire(":countDown") })}
+            <h1>CountDown 1, ${state.name}</h1>
+            ${await countDown({
+                ...props,
+                render: wire(":countDown0"),
+                counter: state.counters[0],
+                countDown: (args = {}) => {
+                    actions.countDown({ ...args, counterId: 0 });
+                },
+            })}
+        </section>
+        <section>
+            <h1>CountDown 2, ${state.name}</h1>
+            ${await countDown({
+                ...props,
+                render: wire(":countDown1"),
+                counter: state.counters[1],
+                countDown: (args = {}) => {
+                    actions.countDown({ ...args, counterId: 1 });
+                },
+            })}
         </section>
         <section>
             <h1>Todos, ${state.name}</h1>

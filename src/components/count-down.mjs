@@ -1,27 +1,24 @@
-export const countDown = async ({ render, state, actions }) => {
+export const countDown = async ({ render, state, counter, countDown }) => {
     if (typeof document === "object") {
         // @ts-ignore
         await import("./count-down.pcss");
     }
-    const titleClass = [
-        "counter",
-        `counter--${getCounterColour({ counter: state.counter })}`,
-    ]
+    const titleClass = ["counter", `counter--${getCounterColour({ counter })}`]
         .filter(x => !!x.length)
         .join(" ");
-    const text = state.counter === 10 ? "" : `[${state.counter}]`;
+    const text = counter === 10 ? "" : `[${counter}]`;
     return render(state)`
         <section>
             <h1 class=${titleClass}>Counter ${text}</h1>
             <button
-                disabled=${state.counter !== 10}
-                onclick=${actions.countDown}
+                disabled=${counter !== 10}
+                onclick=${countDown}
             >
                 Start
             </button>
             <button
-                disabled=${state.counter === 10}
-                onclick=${reset(actions)}
+                disabled=${counter === 10}
+                onclick=${reset(countDown)}
             >
                 Reset
             </button>
@@ -45,6 +42,6 @@ export const getCounterColour = ({ counter }) => {
     return "done";
 };
 
-export const reset = actions => () => {
-    actions.countDown({ value: null });
+export const reset = countDown => () => {
+    countDown({ value: null });
 };

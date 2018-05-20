@@ -13,8 +13,8 @@ export const State = ({ titleRegex, body, query }) => ({
     // @ts-ignore
     title: titleRegex.exec(body).groups.title,
     name: "EMPTY",
-    counter: 10,
     todos: [],
+    counters: [10, 10],
 });
 
 export const dispatch = (_name, _handler, ..._args) => `{

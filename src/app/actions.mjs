@@ -1,30 +1,59 @@
 // @ts-ignore
-import { CountDownClock } from "./control";
+import { CountDownClock, UpdateStream } from "./control";
 
 const wait = delay => new Promise(res => setTimeout(res, delay));
 
-export const actions = ({ propose, countDownClock }) => ({
+export const _Actions = ({ propose, service }) => ({
     async refresh() {
-        await propose({ name: Date.now() });
+        const proposal = { name: Date.now() };
+        await propose({ proposal });
     },
     async fetchPosts(...args) {
         await wait(600);
         const postsData = await fetch("/posts").then(resp => resp.json());
-        await propose({ posts: postsData });
+        const proposal = { posts: postsData };
+        await propose({ proposal });
     },
-    async countDown({ value = -1 } = {}) {
-        const payload = { counter: value };
-        const proposal =
-            value === null
-                ? payload
-                : countDownClock.tick().then(() => payload);
-        await propose(proposal);
+    async countDown({ value = -1, counterId }) {
+        const payload = { counter: value, counterId };
+        if (value === null) {
+            await propose({
+                proposal: payload,
+                nameSpace: `countDown${counterId}`,
+            });
+            return;
+        }
+        const {
+            countDown: { clock, idsInProgress },
+        } = service;
+        if (!idsInProgress.has(counterId)) {
+            idsInProgress.set(
+                counterId,
+                clock.tick(counterId).then(() => {
+                    idsInProgress.delete(counterId);
+                    return payload;
+                }),
+            );
+        }
+        const proposal = idsInProgress.get(counterId);
+        await propose({ proposal, nameSpace: `countDown${counterId}` });
     },
     async updateTodo({ id, ...attrs }) {
-        await propose({ todoId: id, ...attrs });
+        const proposal = { todoId: id, ...attrs };
+        await propose({ proposal });
     },
 });
 
 export const Actions = ({ propose }) => {
-    return actions({ propose, countDownClock: CountDownClock() });
+    const actions = _Actions({
+        propose,
+        service: {
+            countDown: {
+                clock: CountDownClock(),
+                idsInProgress: new Map(),
+            },
+        },
+    });
+    UpdateStream({ actions });
+    return actions;
 };
