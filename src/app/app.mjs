@@ -12,9 +12,8 @@ export const _main = props => {
     const { render, name } = props;
     return render()`
         <section>
-            <h1>Refresh Buttons Test, ${name}</h1>
-            ${refreshButton(props, 0)}
-            ${refreshButton(props, 1)}
+            <h1>Todos Test, ${name}</h1>
+            ${todos(props)}
         </section>
         <section>
             <h1>CountDowns Test, ${name}</h1>
@@ -27,8 +26,9 @@ export const _main = props => {
             ${posts(props, 1)}
         </section>
         <section>
-            <h1>Todos Test, ${name}</h1>
-            ${todos(props)}
+            <h1>Refresh Buttons Test, ${name}</h1>
+            ${refreshButton(props, 0)}
+            ${refreshButton(props, 1)}
         </section>
     `;
 };
