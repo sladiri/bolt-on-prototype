@@ -29,11 +29,11 @@ export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     };
 };
 
-export const Render = async () => {
+export const Render = () => {
     const wire = nameSpace => (reference = null) => {
         return hyperWire(reference, nameSpace);
     };
-    const render = async ({ state, actions }) => {
+    const render = ({ state, actions }) => {
         const appString = app({
             render: wire(), // no namespace in wire here exposes missing child NS
             wire,
@@ -41,7 +41,7 @@ export const Render = async () => {
             actions,
             dispatch: Dispatch({ actions }),
         });
-        return bind(document.getElementById("app"))`${await appString}`;
+        return bind(document.getElementById("app"))`${appString}`;
     };
     return render;
 };
@@ -84,12 +84,12 @@ export const replayIntermediateEvents = async ({ actions }) => {
     assert.ok(window["dispatcher"], "dispatcher");
     const actions = AppState({
         initialState: restoreSsrState({ document }),
-        Render: await Render(),
+        Render: Render(),
         nextAction,
     });
     // return;
     // await wait(2000);
-    await initialRender({ actions });
+    initialRender({ actions });
     // TODO: Do not allow actions until replay done?
     await replayIntermediateEvents({ actions });
     window["dispatcher"] = null;

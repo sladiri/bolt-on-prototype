@@ -1,7 +1,7 @@
-export const todos = async props => {
+export const todos = props => {
     if (typeof document === "object") {
         // @ts-ignore
-        await import("./todos.pcss");
+        import("./todos.pcss");
     }
     const { render, state, actions } = props;
     return render(state)`

@@ -1,11 +1,7 @@
-export const Posts = ({
-    FetchPosts,
-    FetchPostsSSR,
-    postItem,
-}) => async props => {
+export const Posts = ({ FetchPosts, FetchPostsSSR, postItem }) => props => {
     if (typeof document === "object") {
         // @ts-ignore
-        await import("./posts.pcss");
+        import("./posts.pcss");
     }
     const { render, state, dispatch } = props;
     return render(state)`
@@ -32,6 +28,14 @@ export const FetchPosts = props => {
     };
 };
 
+export const FetchPostsSSR = (...args) => {
+    return async function(event, action) {
+        this.setAttribute("disabled", "true");
+        await action();
+        this.removeAttribute("disabled");
+    };
+};
+
 export const postItem = ({ render, post }) => {
     return render(post)`
         <li class="posts posts__post">
@@ -40,14 +44,6 @@ export const postItem = ({ render, post }) => {
             <p class="posts posts__content">${post.content}</p>
         </li>
     `;
-};
-
-export const FetchPostsSSR = (...args) => {
-    return async function(event, action) {
-        this.setAttribute("disabled", "true");
-        await action();
-        this.removeAttribute("disabled");
-    };
 };
 
 export const posts = Posts({ FetchPosts, FetchPostsSSR, postItem });

@@ -1,7 +1,7 @@
-export const countDown = async ({ render, state, counter, countDown }) => {
+export const countDown = ({ render, state, counter, countDown }) => {
     if (typeof document === "object") {
         // @ts-ignore
-        await import("./count-down.pcss");
+        import("./count-down.pcss");
     }
     const titleClass = ["counter", `counter--${getCounterColour({ counter })}`]
         .filter(x => !!x.length)

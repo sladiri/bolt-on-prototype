@@ -53,7 +53,7 @@ export const AppString = ({
             window.dispatcher = { toReplay: [] };
         </script>
         <section id="app" data-app=${JSON.stringify(state)}>
-            ${await appString}
+            ${appString}
         </section>
     `;
     return body.replace(/##SSR##/, ssrString);
