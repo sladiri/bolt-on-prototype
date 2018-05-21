@@ -11,7 +11,6 @@ export const CreateTodo = ({ updateTodo }) => {
         });
         // @ts-ignore
         input.value = "";
-        this.removeAttribute("disabled");
     };
 };
 
