@@ -5,18 +5,20 @@ const setImmediate = func => {
 
 export const propose = ({ accept, render, nextAction, inProgress }) => async (
     { proposal },
-    cancellable,
+    cancelId,
 ) => {
     try {
-        let actionId;
-        if (cancellable) {
-            inProgress.value = actionId = !inProgress.value;
+        let actionFlag;
+        if (cancelId) {
+            const inProgressValue = !(inProgress.get(cancelId) || false);
+            inProgress.set(cancelId, inProgressValue);
+            actionFlag = inProgressValue;
         }
         const data = await proposal;
         if (!data) {
             return;
         }
-        if (cancellable && actionId !== inProgress.value) {
+        if (cancelId && actionFlag !== inProgress.get(cancelId)) {
             return;
         }
         await accept(data);
@@ -29,7 +31,7 @@ export const propose = ({ accept, render, nextAction, inProgress }) => async (
 };
 
 export const Propose = ({ accept, render, nextAction }) => {
-    const inProgress = { value: true };
+    const inProgress = new Map();
     return propose({
         accept,
         render,

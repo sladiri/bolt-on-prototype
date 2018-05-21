@@ -16,18 +16,18 @@ export const _Actions = ({ propose, service }) => {
                 : wait(1000, fetch("/posts"))
                       .then(resp => resp.json())
                       .then(posts => ({ posts }));
-            await propose({ proposal }, true);
+            await propose({ proposal }, "fetchPosts");
         },
         async countDown({ value = -1, counterId }) {
             const { idsInProgress } = service;
             const payload = { counter: value, counterId };
             if (value === null) {
                 clearTimeout(idsInProgress.get(counterId));
-                idsInProgress.delete(counterId);
                 await propose({
                     proposal: payload,
                     nameSpace: `countDown${counterId}`,
                 });
+                idsInProgress.delete(counterId);
                 return;
             }
             if (idsInProgress.has(counterId)) {
