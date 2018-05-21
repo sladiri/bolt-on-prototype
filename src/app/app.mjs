@@ -43,6 +43,10 @@ export const main = props => {
 };
 
 export const app = props => {
+    if (typeof document === "object") {
+        // @ts-ignore
+        import("./app.pcss");
+    }
     const { render, connect, title, name } = props;
     return render`
         <h1>${title}, ${name}</h1>
