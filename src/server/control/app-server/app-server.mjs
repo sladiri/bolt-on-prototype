@@ -27,7 +27,7 @@ export const errorHandler = async (ctx, next) => {
     try {
         await next();
     } catch (error) {
-        console.error("server error -", error);
+        console.error("Server error", error);
         ctx.status = 500;
         ctx.body = error.message;
     }

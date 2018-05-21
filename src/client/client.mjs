@@ -143,5 +143,5 @@ export const replayIntermediateEvents = async ({ actions }) => {
     await replayIntermediateEvents({ actions });
     window["dispatcher"] = null;
 })().catch(error => {
-    console.error("app error", error);
+    console.error("App error", error);
 });

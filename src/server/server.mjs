@@ -13,7 +13,7 @@ const cert = fs.readFileSync("./cert.pem", "utf8");
 const serverCallback = ({ host, port }) => error => {
     if (error) {
         console.error(
-            `Server [ https://${host}:${port} ] listen error:`,
+            `Server [ https://${host}:${port} ] listen error`,
             error,
             error && error.stack,
         );

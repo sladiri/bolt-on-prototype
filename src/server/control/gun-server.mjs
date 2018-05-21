@@ -44,7 +44,7 @@ const onGunOut = ({ peers }) => {
 };
 
 const onWsError = error => {
-    console.error("gun WebSocket Error:", error);
+    console.error("Gun WebSocket error", error);
     throw error;
 };
 
@@ -63,5 +63,5 @@ const onWsClose = ({ peers, connection }) => (reason, description) => {
     if (reason === 1000 || reason === 1001) {
         return;
     }
-    console.error("gun peer closed due to error", reason, description);
+    console.error("Gun peer closed due to error", reason, description);
 };

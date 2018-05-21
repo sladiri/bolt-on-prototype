@@ -6,6 +6,12 @@ export const FetchPosts = ({ fetchPosts }) => {
     };
 };
 
+export const CancelFetch = ({ fetchPosts }) => {
+    return async function(event) {
+        await fetchPosts({ cancel: true });
+    };
+};
+
 export const FetchPostsSSR = (...args) => {
     return async function(event, action) {
         this.setAttribute("disabled", "true");
@@ -56,6 +62,7 @@ export const _posts = props => {
             >
                 Fetch Posts SSR
             </button>
+            <button onclick=${CancelFetch({ fetchPosts })}>Cancel Fetch</button>
             <ul class="posts">
                 ${posts.map((post, i) => connect(postItem, props, { post }, i))}
             </ul>
