@@ -128,8 +128,8 @@ const config = ({ debug = false, paths, publicPath }) => {
                 ? []
                 : [
                       new PreloadHtml(),
-                      new Visualiser({ filename: "statistics.html" }),
                       new Compression(),
+                      new Visualiser({ filename: "statistics.html" }),
                   ],
         ),
     };

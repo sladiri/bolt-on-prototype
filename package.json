@@ -22,7 +22,7 @@
     "test:base": "babel-node node_modules/.bin/tape",
     "foo": "browserify -t babelify src/bolt-on/control/is-covered.test.js | browser-run -p 2222 | faucet"
   },
-  "devDependencies": {
+  "dependencies": {
     "artillery": "^1.6.0-17",
     "babel-eslint": "^8.2.3",
     "eslint": "^4.19.1",
@@ -34,9 +34,7 @@
     "tape": "^4.9.0",
     "tslint": "^5.10.0",
     "typescript": "^2.8.3",
-    "webpack-visualizer-plugin": "^0.1.11"
-  },
-  "dependencies": {
+    "webpack-visualizer-plugin": "^0.1.11",
     "@babel/core": "^7.0.0-beta.47",
     "@babel/plugin-proposal-async-generator-functions": "^7.0.0-beta.47",
     "@babel/plugin-proposal-function-bind": "^7.0.0-beta.47",
@@ -50,9 +48,7 @@
     "css-loader": "^0.28.11",
     "favicons-webpack-plugin": "0.0.9",
     "file-loader": "^1.1.11",
-    "function-tree": "^3.2.2",
     "gun": "^0.9.996",
-    "he": "^1.1.1",
     "html-webpack-plugin": "^3.1.0",
     "hyperhtml": "^2.10.1",
     "koa": "^2.5.1",
@@ -60,7 +56,6 @@
     "koa-route": "^3.2.0",
     "koa-static": "^4.0.3",
     "loader-utils": "^1.1.0",
-    "madge": "^3.0.1",
     "mini-css-extract-plugin": "^0.4.0",
     "mkdirp": "^0.5.1",
     "postcss-cssnext": "^3.1.0",
