@@ -6,16 +6,34 @@ import { posts } from "../../../entity";
 
 export const titleRegex = /<title>\n*(?<title>.*)\n*<\/title>/;
 
-export const State = ({ titleRegex, body, query }) => ({
+export const defaultState = Object.assign(Object.create(null), {
     // _ssr: true,
-    query,
-    posts: [],
-    // @ts-ignore
-    title: titleRegex.exec(body).groups.title,
     name: "EMPTY",
+    posts: [],
     todos: [],
-    counters: [10, 10],
+    counters: [20, 20],
 });
+
+export const Connect = ({ defaultProps }) => {
+    return (component, parentProps, ...args) => {
+        let childProps = {};
+        if (
+            args.length === 1 &&
+            !(
+                typeof args[0] === "boolean" ||
+                typeof args[0] === "string" ||
+                typeof args[0] === "number"
+            )
+        ) {
+            childProps = args[0];
+        }
+        if (args.length > 1) {
+            childProps = args[0] !== undefined ? args[0] : childProps;
+        }
+        const props = Object.assign(Object.create(defaultProps), childProps);
+        return component(props);
+    };
+};
 
 export const dispatch = (_name, _handler, ..._args) => `{
     const name = '${_name}';
@@ -30,41 +48,33 @@ export const dispatch = (_name, _handler, ..._args) => `{
     });
 }`;
 
-export const AppString = ({
-    wire,
-    State,
-    Accept,
-    titleRegex,
-    app,
-    posts,
-}) => async ({ body, query }) => {
-    const state = State({ titleRegex, body, query });
-    const accept = Accept({ state });
+export const defaultProps = Object.assign(Object.create(null), {
+    render: viper.wire(),
+    _wire: viper.wire,
+    _actions: Object.assign(Object.create(null), { dispatch }),
+    _state: defaultState,
+});
+
+export const appString = async ({ body, query }) => {
+    Object.assign(defaultState, {
+        // _ssr: true,
+        query,
+        // @ts-ignore
+        title: titleRegex.exec(body).groups.title,
+    });
+    const accept = Accept({ state: defaultState });
     await accept({ posts }); // Test server side state update
-    // const appString = app({
-    //     render: () => wire(),
-    //     wire: () => () => wire(),
-    //     state,
-    //     actions: {},
-    //     dispatch,
-    // });
-    const appString = "";
-    const ssrString = wire()`
+    const connect = Connect({ defaultProps });
+    defaultProps.connect = connect;
+    const { title, name } = defaultState;
+    const appString = connect(app, defaultProps, { title, name });
+    const ssrString = viper.wire()`
         <script>
             window.dispatcher = { toReplay: [] };
         </script>
-        <section id="app" data-app=${JSON.stringify(state)}>
+        <section id="app" data-app=${JSON.stringify(defaultState)}>
             ${appString}
         </section>
     `;
     return body.replace(/##SSR##/, ssrString);
 };
-
-export const appString = AppString({
-    wire: viper.wire,
-    State,
-    Accept,
-    titleRegex,
-    app,
-    posts,
-});

@@ -5,9 +5,7 @@ import serve from "koa-static";
 // @ts-ignore
 import { posts, ProductionIndex, DevelopmentIndex } from "./control";
 
-export const _AppServer = ({ posts, ProductionIndex, DevelopmentIndex }) => ({
-    publicPath,
-}) => {
+export const AppServer = ({ publicPath }) => {
     const isProduction = process.env.NODE_ENV === "production";
     const filePath = isProduction ? "/" : `/${publicPath}`;
     const ssrIndex = ({ publicPath, isProduction }) => {
@@ -24,12 +22,6 @@ export const _AppServer = ({ posts, ProductionIndex, DevelopmentIndex }) => ({
     app.use(mount(filePath, serve(`./${publicPath}`)));
     return app;
 };
-
-export const AppServer = _AppServer({
-    posts,
-    ProductionIndex,
-    DevelopmentIndex,
-});
 
 export const errorHandler = async (ctx, next) => {
     try {

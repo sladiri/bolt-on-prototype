@@ -2,9 +2,7 @@ import fs from "fs";
 // @ts-ignore
 import { isIndexPath, appString } from "./control";
 
-export const _ProductionIndex = ({ isIndexPath, appString }) => ({
-    publicPath,
-}) => {
+export const ProductionIndex = ({ publicPath }) => {
     const cache = new Map();
     const ssrResponse = async ({ body, ctx }) => {
         console.log("SSR Cache Length", cache.size);
@@ -37,5 +35,3 @@ export const _ProductionIndex = ({ isIndexPath, appString }) => ({
         }
     };
 };
-
-export const ProductionIndex = _ProductionIndex({ isIndexPath, appString });

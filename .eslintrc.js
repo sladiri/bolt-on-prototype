@@ -10,6 +10,6 @@ module.exports = {
     rules: {
         "no-debugger": 0,
         "no-console": 0,
-        "no-unused-vars": ["error", { args: "none" }],
+        "no-unused-vars": 1,
     },
 };

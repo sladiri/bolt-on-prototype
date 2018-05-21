@@ -2,15 +2,15 @@ export const CreateTodo = ({ updateTodo }) => {
     return async function(event) {
         event.preventDefault();
         this.setAttribute("disabled", "true");
-        const textInput = document.querySelector("#newTodo");
+        const input = this.parentElement.querySelector("input.newTodo");
         await updateTodo({
             id: null,
             done: false,
             // @ts-ignore
-            text: textInput.value,
+            text: input.value,
         });
         // @ts-ignore
-        textInput.value = "";
+        input.value = "";
         this.removeAttribute("disabled");
     };
 };
@@ -23,27 +23,20 @@ export const UpdateTodo = ({ updateTodo, todo }) => {
     };
 };
 
-export const _todoItem = props => {
+export const todoItem = props => {
     const { render, todo, updateTodo } = props;
-    return render(todo)`
+    return render`
         <li class=${todo.done ? "todo--done" : ""}>
             <span>${todo.text}</span>
             <label>
                 <input
                     type="checkbox"
-                    onclick=${UpdateTodo({ updateTodo, todo })} />
+                    onclick=${UpdateTodo({ updateTodo, todo })}
+                />
                 Toggle Done
             </label>
         </li>
     `;
-};
-
-export const todoItem = todo => (props, namespace) => {
-    const state = {
-        todo,
-        updateTodo: props._actions.updateTodo,
-    };
-    return props.connect(_todoItem, state, namespace);
 };
 
 export const _todos = props => {
@@ -51,24 +44,44 @@ export const _todos = props => {
         // @ts-ignore
         import("./todos.pcss");
     }
-    const { render, name, todos, updateTodo } = props;
-    return render()`
+    const { render, connect, name, todos, updateTodo } = props;
+    return render`
         <h1>TODO List, ${name}</h1>
         <form>
-            <input id="newTodo" />
+            <input class="newTodo" />
             <button onclick=${CreateTodo({ updateTodo })}>Add TODO</button>
+            <script>
+                (() => {
+                    const inputs = document.querySelectorAll('input.newTodo');
+                    for (const input of inputs) {
+                        const button = input.parentElement.querySelector('button');
+                        const setDisabled = () => {
+                            const disabled = !input.value.length;
+                            if (disabled) {
+                                button.setAttribute("disabled", "true");
+                            } else {
+                                button.removeAttribute("disabled");
+                            }
+                        }
+                        setDisabled();
+                        input.addEventListener('keyup', setDisabled);
+                    }
+                })()
+            </script>
         </form>
         <ul class="todos">
-            ${todos.map(todo => todoItem(todo)(props, render))}
+            ${todos.map((todo, i) =>
+                connect(todoItem, props, { todo, updateTodo }, i),
+            )}
         </ul>
     `;
 };
 
-export const todos = (props, namespace) => {
+export const todos = props => {
     const state = {
         name: props._state.name,
         todos: props._state.todos,
         updateTodo: props._actions.updateTodo,
     };
-    return props.connect(_todos, state, namespace);
+    return props.connect(_todos, props, state);
 };

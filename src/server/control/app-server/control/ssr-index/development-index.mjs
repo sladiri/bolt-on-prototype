@@ -2,11 +2,7 @@ import webpack from "koa-webpack";
 // @ts-ignore
 import { debugConfig, isIndexPath, appString } from "./control";
 
-export const _DevelopmentIndex = ({
-    debugConfig,
-    isIndexPath,
-    appString,
-}) => () => {
+export const DevelopmentIndex = () => {
     const webpackMiddleWare = webpack({
         config: debugConfig({ publicPath: "/", outputPath: "/" }),
         hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
@@ -22,9 +18,3 @@ export const _DevelopmentIndex = ({
         }
     };
 };
-
-export const DevelopmentIndex = _DevelopmentIndex({
-    debugConfig,
-    isIndexPath,
-    appString,
-});

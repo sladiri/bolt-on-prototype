@@ -1,5 +1,5 @@
 import assert from "assert";
-import { wire as hyperWire, bind } from "hyperhtml/esm";
+import { wire, bind } from "hyperhtml/esm";
 // import he from "he";
 // @ts-ignore
 import { Propose } from "./control";
@@ -12,14 +12,11 @@ export const restoreSsrState = ({ document }) => {
     const appContainer = document.querySelector("#app");
     assert.ok(appContainer, "appContainer");
     assert.ok(appContainer.dataset.app, "appContainer.dataset.app");
-    const state = JSON.parse(document.querySelector("#app").dataset.app);
+    const state = Object.assign(
+        Object.create(null),
+        JSON.parse(document.querySelector("#app").dataset.app),
+    );
     appContainer.removeAttribute("data-app");
-    // Object.defineProperty(state, "_ssr", {
-    //   value: state._ssr,
-    //   enumerable: false,
-    //   writable: false,
-    //   configurable: true,
-    // });
     return state;
 };
 
@@ -29,74 +26,83 @@ export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     };
 };
 
-export const Connect = props => {
-    const namespaceSet = new Set();
-    return (component, state = {}, _namespace = true) => {
-        if (!component) {
-            console.error("connect: missing component");
-        }
-        if (!props) {
-            console.error("connect: missing props");
-        }
-        if (_namespace === true && !component.name) {
-            console.error("connect: invalid namespace");
-        }
-        const inheritedRender = typeof _namespace === "function";
-        const namespace =
-            _namespace === false || inheritedRender
-                ? false
-                : _namespace === true
-                    ? `:${component.name}`
-                    : `:${component.name}-${_namespace}`;
-        // Inherited render uses object references as namespaces
-        if (!inheritedRender) {
-            if (namespaceSet.has(namespace)) {
-                console.error("connect: duplicate namespace", namespace);
+export const Connect = ({ namespaceSet, defaultProps }) => {
+    return (component, parentProps, ...args) => {
+        let childProps = {};
+        let addNamespace = true;
+        if (args.length === 1) {
+            if (
+                typeof args[0] === "boolean" ||
+                typeof args[0] === "string" ||
+                typeof args[0] === "number"
+            ) {
+                addNamespace = args[0];
+            } else {
+                childProps = args[0];
             }
-            namespaceSet.add(namespace);
         }
-        const { connect, render: _render, _wire, _actions, _state } = props;
-        const render = namespace
-            ? _wire(namespace)
-            : inheritedRender
-                ? _namespace
-                : _render;
-        return component({
-            ...state,
-            _wire,
-            _actions,
-            _state,
-            connect,
-            render,
+        if (args.length > 1) {
+            childProps = args[0] !== undefined ? args[0] : childProps;
+            addNamespace = args[1] !== undefined ? args[1] : addNamespace;
+        }
+        const { _wire } = defaultProps;
+        const { render: parentRender, _namespace } = parentProps;
+        const namespace = [..._namespace];
+        let childRender = null;
+        if (addNamespace === false) {
+            childRender = parentRender;
+        } else {
+            namespace.push(component.name);
+            if (addNamespace !== true) {
+                namespace.push(addNamespace);
+            }
+            const childNs = `:${namespace.join(":")}`;
+            if (namespaceSet.has(childNs)) {
+                console.warn("Connect: Duplicate namespace", childNs);
+            } else {
+                namespaceSet.add(childNs);
+            }
+            childRender = _wire(childNs)();
+        }
+        const props = Object.assign(Object.create(defaultProps), childProps, {
+            _namespace: namespace,
+            render: childRender,
         });
+        return component(props);
     };
 };
 
 export const AppState = ({ initialState, nextAction }) => {
-    const wire = nameSpace => (reference = initialState) => {
+    const _wire = nameSpace => (reference = initialState) => {
         // default wire reference is app state object
-        return hyperWire(reference, nameSpace);
+        return wire(reference, nameSpace);
     };
-    const Render = ({ state, actions }) => {
-        const props = {
-            _wire: wire,
-            _actions: { ...actions, dispatch: Dispatch({ actions }) },
-            _state: state,
-            connect: null,
-            render: null,
-        };
-        const connect = Connect(props);
-        props.connect = connect;
-        props.render = wire(); // no namespace in wire here exposes missing child NS
-        const appString = app({
-            ...props,
-            connect,
-        });
+    const namespaceSet = new Set();
+    let defaultProps;
+    let connect;
+    let props;
+    const render = ({ state, actions }) => {
+        if (!defaultProps) {
+            actions.dispatch = Dispatch({ actions });
+            defaultProps = Object.assign(Object.create(null), {
+                _wire,
+                _actions: actions,
+                _state: state,
+            });
+            connect = Connect({ namespaceSet, defaultProps });
+            defaultProps.connect = connect;
+            props = Object.assign(Object.create(null), defaultProps);
+            props.render = _wire()(); // no namespace in wire here exposes missing child NS
+        }
+        props._namespace = [];
+        namespaceSet.clear();
+        const { title, name } = state;
+        const appString = connect(app, props, { title, name }, false);
         return bind(document.getElementById("app"))`${appString}`;
     };
     const propose = Propose({
         accept: Accept({ state: initialState }),
-        render: () => Render({ state: initialState, actions }),
+        render: () => render({ state: initialState, actions }),
         nextAction: () => nextAction({ state: initialState, actions }),
     });
     const actions = Actions({ propose });

@@ -1,5 +1,5 @@
 export const getCounterColour = ({ counter }) => {
-    if (counter === 10) {
+    if (counter === 20) {
         return "reset";
     }
     if (counter > 6) {
@@ -14,11 +14,19 @@ export const getCounterColour = ({ counter }) => {
     return "done";
 };
 
-export const reset = countDown => () => {
-    countDown({ value: null });
-};
+export const CountDown = countDown =>
+    function() {
+        this.setAttribute("disabled", "true");
+        countDown({});
+    };
 
-export const _countDown = props => {
+export const Reset = countDown =>
+    function() {
+        this.setAttribute("disabled", "true");
+        countDown({ value: null });
+    };
+
+export const countDown = props => {
     if (typeof document === "object") {
         // @ts-ignore
         import("./count-down.pcss");
@@ -27,42 +35,22 @@ export const _countDown = props => {
     const titleClass = ["counter", `counter--${getCounterColour({ counter })}`]
         .filter(x => !!x.length)
         .join(" ");
-    const text = counter === 10 ? "" : `[${counter}]`;
-    return render()`
+    const text = counter === 20 ? "" : `[${counter}]`;
+    return render`
         <section>
             <h1 class=${titleClass}>Counter ${text}</h1>
             <button
-                disabled=${counter !== 10}
-                onclick=${countDown}
+                disabled=${counter !== 20}
+                onclick=${CountDown(countDown)}
             >
                 Start
             </button>
             <button
-                disabled=${counter === 10}
-                onclick=${reset(countDown)}
+                disabled=${counter === 20}
+                onclick=${Reset(countDown)}
             >
                 Reset
             </button>
         </section>
     `;
-};
-
-export const countDownA = (props, namespace) => {
-    const state = {
-        counter: props._state.counters[0],
-        countDown: arg => {
-            props._actions.countDown({ ...arg, counterId: 0 });
-        },
-    };
-    return props.connect(_countDown, state, `${namespace}-0`);
-};
-
-export const countDownB = (props, namespace) => {
-    const state = {
-        counter: props._state.counters[1],
-        countDown: arg => {
-            props._actions.countDown({ ...arg, counterId: 1 });
-        },
-    };
-    return props.connect(_countDown, state, `${namespace}-1`);
 };
