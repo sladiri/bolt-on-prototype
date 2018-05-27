@@ -26,78 +26,72 @@ export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     };
 };
 
-export const Connect = ({ namespaceSet, defaultProps }) => {
-    return (component, parentProps, ...args) => {
-        let childProps = {};
-        let addNamespace = true;
+export const Connect = ({ defaultProps }) => {
+    const idComponentMap = new WeakMap();
+    return (namespace = [], id = Number.MIN_SAFE_INTEGER) => (
+        component,
+        ...args
+    ) => {
+        assert.ok(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
+        let componentId;
+        if (!component.name) {
+            componentId = id++;
+        } else if (idComponentMap.has(component)) {
+            componentId = idComponentMap.get(component);
+        } else {
+            idComponentMap.set(component, id++);
+            componentId = id;
+        }
+        const childNamespace = [...namespace, componentId];
+        let childProps = Object.create(null);
+        let wireNamespace;
+        let wireReference;
         if (args.length === 1) {
-            if (
-                typeof args[0] === "boolean" ||
-                typeof args[0] === "string" ||
-                typeof args[0] === "number"
-            ) {
-                addNamespace = args[0];
-            } else {
-                childProps = args[0];
+            if (Object.prototype.toString.call(args[0]) === "[object Object]") {
+                childProps = Object.assign(childProps, args[0]);
+            }
+            if (typeof args[0] === "number" || typeof args[0] === "string") {
+                wireNamespace = `:${args[0]}`;
+                childNamespace.push(`${args[0]}`); // mark namespaced
             }
         }
         if (args.length > 1) {
-            childProps = args[0] !== undefined ? args[0] : childProps;
-            addNamespace = args[1] !== undefined ? args[1] : addNamespace;
+            childProps = Object.assign(childProps, args[0]);
+            wireReference = args[1];
         }
-        const { _wire } = defaultProps;
-        const { render: parentRender, _namespace } = parentProps;
-        const namespace = [..._namespace];
-        let childRender = null;
-        if (addNamespace === false) {
-            childRender = parentRender;
-        } else {
-            namespace.push(component.name);
-            if (addNamespace !== true) {
-                namespace.push(addNamespace);
-            }
-            const childNs = `:${namespace.join(":")}`;
-            if (namespaceSet.has(childNs)) {
-                console.warn("Connect: Duplicate namespace", childNs);
-            } else {
-                namespaceSet.add(childNs);
-            }
-            childRender = _wire(childNs)();
+        if (wireReference) {
+            const parentNs = childNamespace
+                .filter(x => typeof x === "string")
+                .join("--");
+            wireNamespace = wireNamespace || ":";
+            wireNamespace = `${wireNamespace}|${parentNs}`;
         }
+        const { _connect } = defaultProps;
         const props = Object.assign(Object.create(defaultProps), childProps, {
-            _namespace: namespace,
-            render: childRender,
+            render: wire(wireReference, wireNamespace),
+            connect: _connect(childNamespace, id),
         });
         return component(props);
     };
 };
 
 export const AppState = ({ initialState, nextAction }) => {
-    const _wire = nameSpace => (reference = initialState) => {
-        // default wire reference is app state object
-        return wire(reference, nameSpace);
-    };
-    const namespaceSet = new Set();
     let defaultProps;
-    let connect;
     let props;
     const render = ({ state, actions }) => {
         if (!defaultProps) {
             actions.dispatch = Dispatch({ actions });
             defaultProps = Object.assign(Object.create(null), {
-                _wire,
                 _actions: actions,
                 _state: state,
             });
-            connect = Connect({ namespaceSet, defaultProps });
-            defaultProps.connect = connect;
+            defaultProps._connect = Connect({ defaultProps });
             props = Object.assign(Object.create(null), defaultProps);
-            props.render = _wire()(); // no namespace in wire here exposes missing child NS
+            props.render = wire();
         }
         props._namespace = [];
-        namespaceSet.clear();
         const { title, name } = state;
-        const appString = connect(app, props, { title, name }, false);
+        const appString = defaultProps._connect()(app, { title, name });
         return bind(document.getElementById("app"))`${appString}`;
     };
     const propose = Propose({

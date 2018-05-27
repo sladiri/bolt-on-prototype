@@ -22,7 +22,7 @@ export const UpdateTodo = ({ updateTodo, todo }) => {
     };
 };
 
-export const todoItem = props => {
+export const _todoItem = props => {
     const { render, todo, updateTodo } = props;
     return render`
         <li class=${todo.done ? "todo--done" : ""}>
@@ -31,6 +31,7 @@ export const todoItem = props => {
                 <input
                     type="checkbox"
                     onclick=${UpdateTodo({ updateTodo, todo })}
+                    checked=${todo.done}
                 />
                 Toggle Done
             </label>
@@ -44,6 +45,9 @@ export const _todos = props => {
         import("./todos.pcss");
     }
     const { render, connect, name, todos, updateTodo } = props;
+    const todoItem = todo => {
+        return connect(_todoItem, { todo, updateTodo }, todo);
+    };
     return render`
         <h1>TODO List, ${name}</h1>
         <form>
@@ -69,9 +73,7 @@ export const _todos = props => {
             </script>
         </form>
         <ul class="todos">
-            ${todos.map((todo, i) =>
-                connect(todoItem, props, { todo, updateTodo }, i),
-            )}
+            ${todos.map(todoItem)}
         </ul>
     `;
 };
@@ -82,5 +84,5 @@ export const todos = props => {
         todos: props._state.todos,
         updateTodo: props._actions.updateTodo,
     };
-    return props.connect(_todos, props, state);
+    return props.connect(_todos, state);
 };

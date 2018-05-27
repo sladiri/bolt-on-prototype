@@ -32,16 +32,16 @@ export const postSummary = props => {
         summary: props.summary,
         name: props._state.name,
     };
-    return props.connect(_postSummary, props, state);
+    return props.connect(_postSummary, state);
 };
 
-export const postItem = props => {
-    const { render, connect, post } = props;
+export const _postItem = props => {
+    const { render, connect, title, summary, content } = props;
     return render`
         <li class="posts posts__post">
-            <h2 class="posts posts__title">${post.title}</h2>
-            ${connect(postSummary, props, { summary: post.summary })}
-            <p class="posts posts__content">${post.content}</p>
+            <h2 class="posts posts__title">${title}</h2>
+            ${connect(postSummary, { summary })}
+            <p class="posts posts__content">${content}</p>
         </li>
     `;
 };
@@ -53,6 +53,9 @@ export const _posts = props => {
     }
     const { render, connect, dispatch, name, posts, fetchPosts } = props;
     const onClick = dispatch("fetchPosts", FetchPostsSSR, 42, 666);
+    const postItem = post => {
+        return connect(_postItem, { ...post }, post);
+    };
     return render`
         <section>
             <h1>Posts List, ${name}</h1>
@@ -64,7 +67,7 @@ export const _posts = props => {
             </button>
             <button onclick=${CancelFetch({ fetchPosts })}>Cancel Fetch</button>
             <ul class="posts">
-                ${posts.map((post, i) => connect(postItem, props, { post }, i))}
+                ${posts.map(postItem)}
             </ul>
         </section>
     `;
@@ -77,5 +80,5 @@ export const posts = props => {
         dispatch: props._actions.dispatch,
         fetchPosts: props._actions.fetchPosts,
     };
-    return props.connect(_posts, props, state);
+    return props.connect(_posts, state);
 };

@@ -1,3 +1,4 @@
+import assert from "assert";
 import viper from "viperhtml";
 // @ts-ignore
 import { app, Accept } from "../../../../../../app";
@@ -15,22 +16,50 @@ export const defaultState = Object.assign(Object.create(null), {
 });
 
 export const Connect = ({ defaultProps }) => {
-    return (component, parentProps, ...args) => {
-        let childProps = {};
-        if (
-            args.length === 1 &&
-            !(
-                typeof args[0] === "boolean" ||
-                typeof args[0] === "string" ||
-                typeof args[0] === "number"
-            )
-        ) {
-            childProps = args[0];
+    const idComponentMap = new WeakMap();
+    return (namespace = [], id = Number.MIN_SAFE_INTEGER) => (
+        component,
+        ...args
+    ) => {
+        assert.ok(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
+        let componentId;
+        if (!component.name) {
+            componentId = id++;
+        } else if (idComponentMap.has(component)) {
+            componentId = idComponentMap.get(component);
+        } else {
+            idComponentMap.set(component, id++);
+            componentId = id;
+        }
+        const childNamespace = [...namespace, componentId];
+        let childProps = Object.create(null);
+        let wireNamespace;
+        let wireReference;
+        if (args.length === 1) {
+            if (Object.prototype.toString.call(args[0]) === "[object Object]") {
+                childProps = Object.assign(childProps, args[0]);
+            }
+            if (typeof args[0] === "number" || typeof args[0] === "string") {
+                wireNamespace = `:${args[0]}`;
+                childNamespace.push(`${args[0]}`); // mark namespaced
+            }
         }
         if (args.length > 1) {
-            childProps = args[0] !== undefined ? args[0] : childProps;
+            childProps = Object.assign(childProps, args[0]);
+            wireReference = args[1];
         }
-        const props = Object.assign(Object.create(defaultProps), childProps);
+        if (wireReference) {
+            const parentNs = childNamespace
+                .filter(x => typeof x === "string")
+                .join("--");
+            wireNamespace = wireNamespace || ":";
+            wireNamespace = `${wireNamespace}|${parentNs}`;
+        }
+        const { _connect } = defaultProps;
+        const props = Object.assign(Object.create(defaultProps), childProps, {
+            render: viper.wire(wireReference, wireNamespace),
+            connect: _connect(childNamespace, id),
+        });
         return component(props);
     };
 };
@@ -49,10 +78,9 @@ export const dispatch = (_name, _handler, ..._args) => `{
 }`;
 
 export const defaultProps = Object.assign(Object.create(null), {
-    render: viper.wire(),
-    _wire: viper.wire,
     _actions: Object.assign(Object.create(null), { dispatch }),
     _state: defaultState,
+    render: viper.wire(),
 });
 
 export const appString = async ({ body, query }) => {
@@ -64,10 +92,9 @@ export const appString = async ({ body, query }) => {
     });
     const accept = Accept({ state: defaultState });
     await accept({ posts }); // Test server side state update
-    const connect = Connect({ defaultProps });
-    defaultProps.connect = connect;
     const { title, name } = defaultState;
-    const appString = connect(app, defaultProps, { title, name });
+    defaultProps._connect = Connect({ defaultProps });
+    const appString = defaultProps._connect()(app, { title, name });
     const ssrString = viper.wire()`
         <script>
             window.dispatcher = { toReplay: [] };

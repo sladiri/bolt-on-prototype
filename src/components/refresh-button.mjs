@@ -13,5 +13,5 @@ export const refreshButton = props => {
         name: props._state.name,
         refresh: props._actions.refresh,
     };
-    return props.connect(_refreshButton, props, state);
+    return props.connect(_refreshButton, state);
 };
