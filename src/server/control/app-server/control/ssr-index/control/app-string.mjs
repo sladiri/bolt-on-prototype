@@ -1,4 +1,3 @@
-import assert from "assert";
 import viper from "viperhtml";
 // @ts-ignore
 import { app, Accept } from "../../../../../../app";
@@ -21,7 +20,7 @@ export const Connect = ({ defaultProps }) => {
         component,
         ...args
     ) => {
-        assert.ok(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
+        console.assert(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
         let componentId;
         if (!component.name) {
             componentId = id++;

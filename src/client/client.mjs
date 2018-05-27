@@ -1,4 +1,3 @@
-import assert from "assert";
 import { wire, bind } from "hyperhtml/esm";
 // import he from "he";
 // @ts-ignore
@@ -10,8 +9,8 @@ const wait = delay => new Promise(res => setTimeout(res, delay));
 
 export const restoreSsrState = ({ document }) => {
     const appContainer = document.querySelector("#app");
-    assert.ok(appContainer, "appContainer");
-    assert.ok(appContainer.dataset.app, "appContainer.dataset.app");
+    console.assert(appContainer, "appContainer");
+    console.assert(appContainer.dataset.app, "appContainer.dataset.app");
     const state = Object.assign(
         Object.create(null),
         JSON.parse(document.querySelector("#app").dataset.app),
@@ -32,7 +31,7 @@ export const Connect = ({ defaultProps }) => {
         component,
         ...args
     ) => {
-        assert.ok(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
+        console.assert(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
         let componentId;
         if (!component.name) {
             componentId = id++;
@@ -104,14 +103,14 @@ export const AppState = ({ initialState, nextAction }) => {
 };
 
 export const initialRender = async ({ actions }) => {
-    assert.ok(document, "document");
+    console.assert(document, "document");
     const container = document.querySelector("#app");
-    assert.ok(container, "container");
+    console.assert(container, "container");
     await actions.refresh();
 };
 
 export const replayIntermediateEvents = async ({ actions }) => {
-    assert.ok(window["dispatcher"].toReplay, "dispatcher.toReplay");
+    console.assert(window["dispatcher"].toReplay, "dispatcher.toReplay");
     console.log(`replaying [${window["dispatcher"].toReplay.length}] actions`);
     for (const entry of window["dispatcher"].toReplay) {
         console.log("replaying entry", entry);
@@ -125,7 +124,7 @@ export const replayIntermediateEvents = async ({ actions }) => {
 };
 
 (async () => {
-    assert.ok(window["dispatcher"], "dispatcher");
+    console.assert(window["dispatcher"], "dispatcher");
     const actions = AppState({
         initialState: restoreSsrState({ document }),
         nextAction,
