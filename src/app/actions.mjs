@@ -1,4 +1,3 @@
-// @ts-ignore
 import { UpdateStream } from "./control";
 
 const wait = (delay, value) =>

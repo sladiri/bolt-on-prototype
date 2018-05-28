@@ -1,11 +1,4 @@
-// @ts-ignore
-import {
-    refreshButton,
-    posts,
-    todos,
-    countDown,
-    // @ts-ignore
-} from "../components";
+import { refreshButton, posts, todos, countDown } from "../components";
 
 export const mapCountDowns = props => i => {
     const state = {
@@ -44,7 +37,6 @@ export const main = props => {
 
 export const app = props => {
     if (typeof document === "object") {
-        // @ts-ignore
         import("./app.pcss");
     }
     const { render, connect, title, name } = props;

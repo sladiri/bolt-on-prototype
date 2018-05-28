@@ -2,7 +2,6 @@ import Koa from "koa";
 import route from "koa-route";
 import mount from "koa-mount";
 import serve from "koa-static";
-// @ts-ignore
 import { posts, ProductionIndex, DevelopmentIndex } from "./control";
 
 export const AppServer = ({ publicPath }) => {

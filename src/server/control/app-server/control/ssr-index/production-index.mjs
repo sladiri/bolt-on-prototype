@@ -1,5 +1,4 @@
 import fs from "fs";
-// @ts-ignore
 import { isIndexPath, appString } from "./control";
 
 export const ProductionIndex = ({ publicPath }) => {

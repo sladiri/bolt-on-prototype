@@ -28,7 +28,6 @@ export const Reset = countDown =>
 
 export const countDown = props => {
     if (typeof document === "object") {
-        // @ts-ignore
         import("./count-down.pcss");
     }
     const { render, counter, countDown } = props;

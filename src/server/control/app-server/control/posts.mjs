@@ -1,4 +1,3 @@
-// @ts-ignore
 import { posts as postsData } from "../entity";
 
 export const posts = async ctx => {

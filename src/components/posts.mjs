@@ -48,7 +48,6 @@ export const _postItem = props => {
 
 export const _posts = props => {
     if (typeof document === "object") {
-        // @ts-ignore
         import("./posts.pcss");
     }
     const { render, connect, dispatch, name, posts, fetchPosts } = props;

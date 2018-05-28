@@ -1,7 +1,6 @@
 import fs from "fs";
 import http2 from "http2";
 import https from "https";
-// @ts-ignore
 import { AppServer, GunServer } from "./control";
 
 const host = "localhost";

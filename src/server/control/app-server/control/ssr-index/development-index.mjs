@@ -1,5 +1,4 @@
 import webpack from "koa-webpack";
-// @ts-ignore
 import { debugConfig, isIndexPath, appString } from "./control";
 
 export const DevelopmentIndex = () => {

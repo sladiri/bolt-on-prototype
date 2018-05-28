@@ -6,10 +6,8 @@ export const CreateTodo = ({ updateTodo }) => {
         await updateTodo({
             id: null,
             done: false,
-            // @ts-ignore
             text: input.value,
         });
-        // @ts-ignore
         input.value = "";
     };
 };
@@ -41,7 +39,6 @@ export const _todoItem = props => {
 
 export const _todos = props => {
     if (typeof document === "object") {
-        // @ts-ignore
         import("./todos.pcss");
     }
     const { render, connect, name, todos, updateTodo } = props;
