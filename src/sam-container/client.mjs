@@ -17,10 +17,13 @@ export const ClientApp = async ({
 }) => {
     console.assert(window["dispatcher"], "dispatcher");
     const { wire, bind } = await import("hyperhtml/esm");
+    const idComponentMap = new WeakMap();
+    const wiresMap = new Map();
     const namespaceSet = new Set();
     let defaultProps;
     let props;
     const render = ({ state, actions }) => {
+        wiresMap.clear();
         namespaceSet.clear();
         if (!defaultProps) {
             actions.dispatch = Dispatch({ actions });
@@ -31,8 +34,10 @@ export const ClientApp = async ({
             defaultProps._connect = Connect({
                 wire,
                 defaultProps,
-                globalState: state,
+                idComponentMap,
+                wiresMap,
                 namespaceSet,
+                globalState: state,
             });
             props = Object.assign(Object.create(null), defaultProps);
         }

@@ -5,10 +5,11 @@ export const isObject = x => {
 export const Connect = ({
     wire,
     defaultProps,
+    idComponentMap = new WeakMap(),
+    wiresMap = new Map(),
     namespaceSet = new Set(),
     globalState = null,
 }) => {
-    const idComponentMap = new WeakMap();
     return (parentNamespace = [], id = Number.MIN_SAFE_INTEGER) => (
         component,
         ...args
@@ -30,7 +31,7 @@ export const Connect = ({
                 childProps = Object.assign(childProps, arg);
             }
             if (typeof arg === "number" || typeof arg === "string") {
-                childNamespace.push(`${arg}`); // mark namespaced
+                childNamespace.push(`${arg}`);
             }
         }
         if (args.length > 1) {
@@ -45,7 +46,11 @@ export const Connect = ({
                 typeof namespace === "number" ||
                 typeof namespace === "string"
             ) {
-                childNamespace.push(`${namespace}`); // mark namespaced
+                console.assert(
+                    !`${namespace}`.startsWith("#"),
+                    "connect wire id",
+                ); // conflicts with namespaced-mark below
+                childNamespace.push(`${namespace}`);
             }
         }
         if (wireReference) {
@@ -56,7 +61,15 @@ export const Connect = ({
                 idComponentMap.set(wireReference, id++);
                 refId = id;
             }
-            childNamespace.push(refId);
+            childNamespace.push(`#${refId}`); // mark namespaced
+            wiresMap.set(`#${refId}`, wireReference);
+        } else {
+            const refs = childNamespace.filter(
+                x => typeof x === "string" && x.startsWith("#"),
+            );
+            if (refs.length) {
+                wireReference = wiresMap.get(refs[refs.length - 1]); // Use leaf to free maximum memory
+            }
         }
 
         const wireNamespace = `:${childNamespace.join(";")}`;
