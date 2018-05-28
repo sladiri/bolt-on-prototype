@@ -14,7 +14,7 @@ export const Connect = ({
         component,
         ...args
     ) => {
-        console.assert(id < Number.MAX_SAFE_INTEGER, "Connect ID exhuasted");
+        console.assert(id < Number.MAX_SAFE_INTEGER, "Connect ID exhausted");
         let componentId;
         if (idComponentMap.has(component)) {
             componentId = idComponentMap.get(component);
