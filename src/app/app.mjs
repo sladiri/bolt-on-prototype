@@ -7,7 +7,7 @@ export const mapCountDowns = props => i => {
             props._actions.countDown({ ...arg, counterId: i });
         },
     };
-    return props.connect(countDown, state);
+    return props.connect(countDown, state, null, i);
 };
 
 export const main = props => {

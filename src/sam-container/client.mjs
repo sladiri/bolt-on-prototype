@@ -17,16 +17,23 @@ export const ClientApp = async ({
 }) => {
     console.assert(window["dispatcher"], "dispatcher");
     const { wire, bind } = await import("hyperhtml/esm");
+    const namespaceSet = new Set();
     let defaultProps;
     let props;
     const render = ({ state, actions }) => {
+        namespaceSet.clear();
         if (!defaultProps) {
             actions.dispatch = Dispatch({ actions });
             defaultProps = Object.assign(Object.create(null), {
                 _actions: actions,
                 _state: state,
             });
-            defaultProps._connect = Connect({ wire, defaultProps });
+            defaultProps._connect = Connect({
+                wire,
+                defaultProps,
+                globalState: state,
+                namespaceSet,
+            });
             props = Object.assign(Object.create(null), defaultProps);
         }
         props._namespace = [];

@@ -42,8 +42,8 @@ export const _todos = props => {
         import("./todos.pcss");
     }
     const { render, connect, name, todos, updateTodo } = props;
-    const todoItem = todo => {
-        return connect(_todoItem, { todo, updateTodo }, todo);
+    const todoItem = (todo, i) => {
+        return connect(_todoItem, { todo, updateTodo }, todo, i);
     };
     return render`
         <h1>TODO List, ${name}</h1>
