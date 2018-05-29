@@ -48,13 +48,15 @@ export const _todos = props => {
     return render`
         <h1>TODO List, ${name}</h1>
         <form>
-            <input class="newTodo" />
+            <label>Enter TODO<input class="newTodo" /></label>
             <button onclick=${CreateTodo({ updateTodo })}>Add TODO</button>
             <script>
                 (() => {
                     const inputs = document.querySelectorAll('input.newTodo');
                     for (const input of inputs) {
-                        const button = input.parentElement.querySelector('button');
+                        const button = input
+                            .parentElement
+                            .parentElement.querySelector('button');
                         const setDisabled = () => {
                             const disabled = !input.value.length;
                             if (disabled) {

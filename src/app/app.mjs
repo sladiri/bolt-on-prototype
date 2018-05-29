@@ -1,4 +1,10 @@
-import { refreshButton, posts, todos, countDown } from "../components";
+import {
+    refreshButton,
+    refreshInput,
+    posts,
+    todos,
+    countDown,
+} from "../components";
 
 export const mapCountDowns = props => i => {
     const state = {
@@ -14,11 +20,6 @@ export const main = props => {
     const { render, connect, name } = props;
     return render`
         <section>
-            <h1>Refresh Button Test, ${name}</h1>
-            ${connect(refreshButton, 0)}
-            ${connect(refreshButton, 1)}
-        </section>
-        <section>
             <h1>CountDowns Test, ${name}</h1>
             ${[0, 1].map(mapCountDowns(props))}
         </section>
@@ -26,6 +27,16 @@ export const main = props => {
             <h1>Todos Test, ${name}</h1>
             ${connect(todos, 0)}
             ${connect(todos, 1)}
+        </section>
+        <section>
+            <h1>Refresh Button Test, ${name}</h1>
+            ${connect(refreshButton, 0)}
+            ${connect(refreshButton, 1)}
+        </section>
+        <section>
+            <h1>Refresh Input Test, ${name}</h1>
+            ${connect(refreshInput, 0)}
+            ${connect(refreshInput, 1)}
         </section>
         <section>
             <h1>Posts Test, ${name}</h1>

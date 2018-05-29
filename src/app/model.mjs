@@ -1,8 +1,8 @@
 export const Accept = ({ state }) => {
     return async proposal => {
         try {
-            if (proposal.name) {
-                state.name = await Promise.resolve(`${proposal.name}!`);
+            if (proposal.name !== undefined) {
+                state.name = proposal.name;
             }
             if (Array.isArray(proposal.posts)) {
                 for (const post of proposal.posts) {
@@ -15,6 +15,9 @@ export const Accept = ({ state }) => {
                         state.posts.push(post);
                     }
                 }
+                // state.posts = JSON.parse(
+                //     JSON.stringify(proposal.posts.concat(state.posts)),
+                // );
             }
             const { counterId, counter } = proposal;
             if (counterId !== undefined && counter !== undefined) {

@@ -1,6 +1,6 @@
 import { UpdateStream } from "./control";
 
-const wait = (delay, value) =>
+const wait = delay => value =>
     new Promise(res => setTimeout(() => res(value), delay));
 
 export const _Actions = ({ propose, service }) => {
@@ -9,10 +9,17 @@ export const _Actions = ({ propose, service }) => {
             const proposal = { name: Date.now() };
             await propose({ proposal });
         },
+        async setName({ value }) {
+            if (typeof value !== "string") {
+                return;
+            }
+            await propose({ proposal: { name: value } });
+        },
         async fetchPosts({ cancel = false } = {}) {
             const proposal = cancel
                 ? {}
-                : wait(1000, fetch("/posts"))
+                : fetch("/posts")
+                      //   .then(wait(1000))
                       .then(resp => resp.json())
                       .then(posts => ({ posts }));
             await propose({ proposal }, "fetchPosts");
