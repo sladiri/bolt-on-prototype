@@ -64,7 +64,6 @@ export const initialRender = async ({ actions }) => {
     const container = document.querySelector("#app");
     console.assert(container, "container");
     await actions.refresh();
-    await actions.refresh(); // populate hyperhtml's weak map
 };
 
 const wait = delay => new Promise(res => setTimeout(res, delay));
