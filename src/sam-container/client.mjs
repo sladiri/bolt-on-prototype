@@ -1,11 +1,11 @@
+import { Connect } from "./control/connect";
 import {
-    Connect,
     restoreSsrState,
     Dispatch,
     Propose,
     initialRender,
     replayIntermediateEvents,
-} from "./control";
+} from "./control/client";
 
 export const ClientApp = async ({
     app,

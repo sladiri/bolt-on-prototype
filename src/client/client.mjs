@@ -1,5 +1,7 @@
-import { app, Accept, nextAction, Actions } from "../app";
-import { ClientApp } from "../sam-container";
+import { app } from "../app/app";
+import { Actions } from "../app/actions";
+import { Accept, nextAction } from "../app/model";
+import { ClientApp } from "../sam-container/client";
 
 ClientApp({
     app,

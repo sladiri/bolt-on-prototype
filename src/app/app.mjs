@@ -1,10 +1,8 @@
-import {
-    refreshButton,
-    refreshInput,
-    posts,
-    todos,
-    countDown,
-} from "../components";
+import { refreshButton } from "../components/refresh-button";
+import { refreshInput } from "../components/refresh-input";
+import { posts } from "../components/posts";
+import { todos } from "../components/todos";
+import { countDown } from "../components/count-down";
 
 export const mapCountDowns = props => i => {
     const state = {

@@ -1,1 +1,0 @@
-export { Propose } from "./propose";

@@ -1,4 +1,4 @@
-import { UpdateStream } from "./control";
+import { UpdateStream } from "./control/update-stream";
 
 const wait = delay => value =>
     new Promise(res => setTimeout(() => res(value), delay));

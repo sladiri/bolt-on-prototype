@@ -1,6 +1,7 @@
 import viper from "viperhtml";
-import { app, Accept } from "../../../../../../app";
-import { SsrApp } from "../../../../../../sam-container";
+import { app } from "../../../../../../app/app";
+import { Accept } from "../../../../../../app/model";
+import { SsrApp } from "../../../../../../sam-container/server";
 import { posts } from "../../../entity";
 
 const wire = viper.wire;

@@ -1,5 +1,6 @@
 import viper from "viperhtml";
-import { Connect, ssrDefaultProps, ssrDispatch } from "./control";
+import { Connect } from "./control/connect";
+import { ssrDefaultProps, ssrDispatch } from "./control/server";
 
 const wire = viper.wire;
 
