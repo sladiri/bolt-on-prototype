@@ -114,6 +114,7 @@ const config = ({ debug = false, paths, publicPath }) => {
             }),
             new MiniCssExtract({ filename: "index.[contenthash].css" }),
             new Html({
+                minify: debug ? false : {},
                 // Template is generated from SSR via ViperHtml (ejs-loader)
                 templateParameters: {
                     title: "Bolt-on Prototype",
