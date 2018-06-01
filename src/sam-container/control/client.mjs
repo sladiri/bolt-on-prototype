@@ -48,12 +48,13 @@ export const Propose = ({ accept, render, nextAction }) => {
 };
 
 export const restoreSsrState = ({ rootElement }) => {
-    console.assert(rootElement["dataset"].app, "rootElement.dataset.app");
+    const dataElement = document.getElementById("app-ssr-data");
+    console.assert(dataElement && dataElement["value"], "dataElement.value");
     const state = Object.assign(
         Object.create(null),
-        JSON.parse(rootElement["dataset"].app),
+        JSON.parse(dataElement["value"]),
     );
-    rootElement.removeAttribute("data-app");
+    rootElement.removeChild(dataElement);
     return state;
 };
 

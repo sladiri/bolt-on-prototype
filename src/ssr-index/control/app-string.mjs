@@ -30,14 +30,17 @@ export const appString = async ({ body, query }) => {
     const { title, name } = state;
     const appString = AppString(appShell, { title, name });
     const ssrString = wire()`
-        <body data-app=${JSON.stringify(state)}>
-            <script>
-                window.dispatcher = { toReplay: [] };
-            </script>
-            <section>
-                ${appString}
-            </section>
-        </body>
+        <input
+            id="app-ssr-data"
+            type="hidden"
+            value=${JSON.stringify(state)}
+        />
+        <script>
+            window.dispatcher = { toReplay: [] };
+        </script>
+        <section>
+            ${appString}
+        </section>
     `;
-    return body.replace(/##SSR##/, ssrString);
+    return body.replace(/<body></, `<body>${ssrString}<`);
 };
