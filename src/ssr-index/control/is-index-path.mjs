@@ -1,4 +1,4 @@
-const indexPathRegex = /^\/(index\.html)?(\?.*)?(index\.html\/.*)?$/;
+const indexPathRegex = /^\/(app\/(.*))?$/;
 
 export const isIndexPath = ({ path }) => {
     return !!indexPathRegex.exec(path);
