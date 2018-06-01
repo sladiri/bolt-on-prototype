@@ -13,7 +13,7 @@ const paths = ({ outputPath }) => {
     const webroot = path.join(base, outputPath);
     const favicon = path.join(base, "icons8-socks.png");
     const src = path.join(base, "src");
-    const client = path.join(src, "client");
+    const client = path.join(src, "client", "client.mjs");
     const globalCss = path.join(src, "app", "index.pcss");
 
     return {

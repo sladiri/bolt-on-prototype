@@ -2,7 +2,9 @@ import Koa from "koa";
 import route from "koa-route";
 import mount from "koa-mount";
 import serve from "koa-static";
-import { posts, ProductionIndex, DevelopmentIndex } from "./control";
+import { posts } from "./control/posts";
+import { ProductionIndex } from "../ssr-index/production-index";
+import { DevelopmentIndex } from "../ssr-index/development-index";
 
 export const AppServer = ({ publicPath }) => {
     const isProduction = process.env.NODE_ENV === "production";

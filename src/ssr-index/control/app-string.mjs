@@ -1,8 +1,8 @@
 import viper from "viperhtml";
-import { app } from "../../../../../../app/app";
-import { Accept } from "../../../../../../app/model";
-import { SsrApp } from "../../../../../../sam-container/server";
-import { posts } from "../../../entity";
+import { app } from "../../app/app";
+import { Accept } from "../../app/model";
+import { SsrApp } from "../../sam-container/server";
+import { posts } from "../../posts-data/posts";
 
 const wire = viper.wire;
 

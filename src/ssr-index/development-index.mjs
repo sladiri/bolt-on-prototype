@@ -1,9 +1,11 @@
 import webpack from "koa-webpack";
-import { debugConfig, isIndexPath, appString } from "./control";
+import { config as ssrConfig } from "./control/webpack-ssr-config";
+import { isIndexPath } from "./control/is-index-path";
+import { appString } from "./control/app-string";
 
 export const DevelopmentIndex = () => {
     const webpackMiddleWare = webpack({
-        config: debugConfig({ publicPath: "/", outputPath: "/" }),
+        config: ssrConfig({ publicPath: "/", outputPath: "/" }),
         hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
     });
     return async (ctx, next) => {

@@ -1,5 +1,6 @@
-import fs from "fs";
-import { isIndexPath, appString } from "./control";
+import { readFileSync } from "fs";
+import { isIndexPath } from "./control/is-index-path";
+import { appString } from "./control/app-string";
 
 export const ProductionIndex = ({ publicPath }) => {
     const cache = new Map();
@@ -24,7 +25,7 @@ export const ProductionIndex = ({ publicPath }) => {
 
     return async (ctx, next) => {
         if (isIndexPath({ path: ctx.path })) {
-            const indexFile = fs.readFileSync(
+            const indexFile = readFileSync(
                 "./" + publicPath + "/index.html",
                 "utf8",
             ); // syntax colour bug with template literal

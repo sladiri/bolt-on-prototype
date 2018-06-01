@@ -1,4 +1,4 @@
-import { posts as postsData } from "../entity";
+import { posts as postsData } from "../../posts-data/posts";
 
 export const posts = async ctx => {
     ctx.body = postsData.concat(
