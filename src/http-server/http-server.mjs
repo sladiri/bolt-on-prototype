@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import http2 from "http2";
 import https from "https";
 import { AppServer } from "../app-server/app-server";
-import { GunServer } from "../gun-server/gun-server";
+import { GunJsServer } from "../gunjs-server/gunjs-server";
 
 const host = "localhost";
 const appPort = 9900;
@@ -31,6 +31,6 @@ const appServerOptions = { host, port: appPort };
 appServer.listen(appServerOptions, serverCallback(appServerOptions));
 
 const syncServer = https.createServer({ key, cert });
-GunServer({ httpServer: syncServer });
+GunJsServer({ httpServer: syncServer });
 const syncServerOptions = { host, port: syncPort };
 syncServer.listen(syncServerOptions, serverCallback(syncServerOptions));

@@ -1,7 +1,7 @@
 import Gun from "gun";
 import WebSocket from "ws";
 
-export const GunServer = ({ httpServer }) => {
+export const GunJsServer = ({ httpServer }) => {
     const wss = new WebSocket.Server({ server: httpServer });
     const gunPeers = new Set(); // used as a list of connected clients.
 
