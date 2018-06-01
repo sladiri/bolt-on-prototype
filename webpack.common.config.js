@@ -50,7 +50,6 @@ const config = ({ debug = false, paths, publicPath }) => {
                             cacheDirectory: debug,
                             plugins: [
                                 "@babel/plugin-syntax-dynamic-import",
-                                // "@babel/plugin-proposal-async-generator-functions",
                                 "@babel/plugin-proposal-function-bind",
                                 "@babel/plugin-proposal-object-rest-spread",
                             ],
@@ -63,15 +62,16 @@ const config = ({ debug = false, paths, publicPath }) => {
                                         modules: false,
                                         useBuiltIns: "usage",
                                         targets: {
+                                            node: "10.3.0", // target named node exports
                                             browsers: [
-                                                // target native async function
+                                                // target native async function and generators
                                                 "edge >= 15",
-                                                "firefox >= 52",
+                                                "firefox >= 53",
                                                 "chrome >= 55",
                                                 "safari >= 10.1",
                                                 "ios_saf >= 10.3",
                                                 "and_chr >= 55",
-                                                "and_ff >= 52",
+                                                "and_ff >= 53",
                                                 "and_uc >= 11.8",
                                                 "samsung >= 6.2",
                                             ],
