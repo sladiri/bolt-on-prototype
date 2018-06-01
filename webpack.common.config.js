@@ -36,9 +36,7 @@ const config = ({ debug = false, paths, publicPath }) => {
             filename: "[name].[hash].mjs",
             publicPath,
         },
-        optimization: debug
-            ? undefined
-            : { splitChunks: { chunks: "initial" } },
+        optimization: debug ? undefined : { splitChunks: { chunks: "all" } },
         module: {
             rules: [
                 {
