@@ -9,13 +9,16 @@ import {
 
 export const ClientApp = async ({
     app,
-    state = restoreSsrState(),
-    rootEl,
+    state,
+    rootElement,
     Accept,
     Actions,
     nextAction,
 }) => {
+    console.assert(document, "document");
+    console.assert(rootElement, "rootElement");
     console.assert(window["dispatcher"], "dispatcher");
+    state = state || restoreSsrState({ rootElement });
     const { wire, bind } = await import("hyperhtml/esm");
     const idComponentMap = new WeakMap();
     const wiresMap = new Map();
@@ -44,7 +47,7 @@ export const ClientApp = async ({
         props._namespace = [];
         const { title, name } = state;
         const appString = defaultProps._connect()(app, { title, name });
-        return bind(rootEl)`${appString}`;
+        return bind(rootElement)`${appString}`;
     };
     const propose = Propose({
         accept: Accept({ state }),

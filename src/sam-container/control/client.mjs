@@ -47,22 +47,17 @@ export const Propose = ({ accept, render, nextAction }) => {
     });
 };
 
-export const restoreSsrState = () => {
-    const appContainer = window.document.querySelector("#app");
-    console.assert(appContainer, "appContainer");
-    console.assert(appContainer["dataset"].app, "appContainer.dataset.app");
+export const restoreSsrState = ({ rootElement }) => {
+    console.assert(rootElement["dataset"].app, "rootElement.dataset.app");
     const state = Object.assign(
         Object.create(null),
-        JSON.parse(window.document.querySelector("#app")["dataset"].app),
+        JSON.parse(rootElement["dataset"].app),
     );
-    appContainer.removeAttribute("data-app");
+    rootElement.removeAttribute("data-app");
     return state;
 };
 
 export const initialRender = async ({ actions }) => {
-    console.assert(document, "document");
-    const container = document.querySelector("#app");
-    console.assert(container, "container");
     await actions.refresh();
 };
 

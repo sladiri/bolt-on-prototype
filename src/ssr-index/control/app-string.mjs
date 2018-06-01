@@ -1,6 +1,6 @@
 import viper from "viperhtml";
-import { app } from "../../app/app";
-import { Accept } from "../../app/model";
+import { appShell } from "../../app-shell/app-shell";
+import { Accept } from "../../app-shell/model";
 import { SsrApp } from "../../sam-container/server";
 import { posts } from "../../posts-data/posts";
 
@@ -28,14 +28,16 @@ export const appString = async ({ body, query }) => {
     });
     await accept({ posts }); // Test server side state update
     const { title, name } = state;
-    const appString = AppString(app, { title, name });
+    const appString = AppString(appShell, { title, name });
     const ssrString = wire()`
-        <script>
-            window.dispatcher = { toReplay: [] };
-        </script>
-        <section id="app" data-app=${JSON.stringify(state)}>
-            ${appString}
-        </section>
+        <body data-app=${JSON.stringify(state)}>
+            <script>
+                window.dispatcher = { toReplay: [] };
+            </script>
+            <section>
+                ${appString}
+            </section>
+        </body>
     `;
     return body.replace(/##SSR##/, ssrString);
 };

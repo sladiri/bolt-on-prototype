@@ -1,11 +1,11 @@
-import { app } from "../app/app";
-import { Actions } from "../app/actions";
-import { Accept, nextAction } from "../app/model";
+import { appShell } from "../app-shell/app-shell";
+import { Actions } from "../app-shell/actions";
+import { Accept, nextAction } from "../app-shell/model";
 import { ClientApp } from "../sam-container/client";
 
 ClientApp({
-    app,
-    rootEl: document.getElementById("app"),
+    app: appShell,
+    rootElement: document.body,
     Accept,
     Actions,
     nextAction,
