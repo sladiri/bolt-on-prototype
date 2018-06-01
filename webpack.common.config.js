@@ -7,6 +7,7 @@ const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
 const Compression = require("compression-webpack-plugin");
 const PreloadHtml = require("preload-webpack-plugin");
+const Minify = require("babel-minify-webpack-plugin");
 
 const paths = ({ outputPath }) => {
     const base = process.cwd();
@@ -41,7 +42,7 @@ const config = ({ debug = false, paths, publicPath }) => {
         module: {
             rules: [
                 {
-                    test: /\.js$|\.jsm$/,
+                    test: /\.js$|\.mjs$/,
                     include: paths.src,
                     use: {
                         loader: "babel-loader",
@@ -63,12 +64,14 @@ const config = ({ debug = false, paths, publicPath }) => {
                                         useBuiltIns: "usage",
                                         targets: {
                                             browsers: [
-                                                "edge >= 16",
-                                                "firefox >= 58",
-                                                "chrome >= 63",
-                                                "safari >= 11",
+                                                // target native async function
+                                                "edge >= 15",
+                                                "firefox >= 52",
+                                                "chrome >= 55",
+                                                "safari >= 10.1",
                                                 "ios_saf >= 10.3",
-                                                "and_chr >= 64",
+                                                "and_chr >= 55",
+                                                "and_ff >= 52",
                                                 "and_uc >= 11.8",
                                                 "samsung >= 6.2",
                                             ],
@@ -128,6 +131,10 @@ const config = ({ debug = false, paths, publicPath }) => {
                 ? []
                 : [
                       new PreloadHtml(),
+                      new Minify(
+                          { mangle: { topLevel: true } },
+                          { test: /\.js($|\?)|\.mjs($|\?)/i },
+                      ),
                       new Compression(),
                       new Visualiser({ filename: "statistics.html" }),
                   ],
