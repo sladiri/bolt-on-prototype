@@ -1,3 +1,4 @@
+import { wire, bind } from "hyperhtml/esm";
 import { Connect } from "./control/connect";
 import {
     restoreSsrState,
@@ -19,7 +20,6 @@ export const ClientApp = async ({
     console.assert(rootElement, "rootElement");
     console.assert(window["dispatcher"], "dispatcher");
     state = state || restoreSsrState({ rootElement });
-    const { wire, bind } = await import("hyperhtml/esm");
     const idComponentMap = new WeakMap();
     const wiresMap = new Map();
     const namespaceSet = new Set();
