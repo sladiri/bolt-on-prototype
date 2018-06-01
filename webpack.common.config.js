@@ -63,13 +63,13 @@ const config = ({ debug = false, paths, publicPath }) => {
                                             node: "10.3.0", // target named node exports
                                             browsers: [
                                                 // target native async function and generators
+                                                "chrome >= 55",
                                                 "edge >= 15",
                                                 "firefox >= 53",
-                                                "chrome >= 55",
                                                 "safari >= 10.1",
-                                                "ios_saf >= 10.3",
                                                 "and_chr >= 55",
                                                 "and_ff >= 53",
+                                                "ios_saf >= 10.3",
                                                 "and_uc >= 11.8",
                                                 "samsung >= 6.2",
                                             ],
