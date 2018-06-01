@@ -34,16 +34,21 @@ export const _todoItem = props => {
                 Toggle Done
             </label>
         </li>
-    `;
+        `;
 };
 
 export const _todos = props => {
-    if (typeof document === "object") {
+    if (typeof window === "object") {
         import("./todos.pcss");
     }
     const { render, connect, name, todos, updateTodo } = props;
     const todoItem = (todo, i) => {
-        return connect(_todoItem, { todo, updateTodo }, todo, i);
+        return connect(
+            _todoItem,
+            { todo, updateTodo },
+            todo,
+            i,
+        );
     };
     return render`
         <h1>TODO List, ${name}</h1>
@@ -74,7 +79,7 @@ export const _todos = props => {
         <ul class="todos">
             ${todos.map(todoItem)}
         </ul>
-    `;
+        `;
 };
 
 export const todos = props => {
@@ -83,5 +88,8 @@ export const todos = props => {
         todos: props._state.todos,
         updateTodo: props._actions.updateTodo,
     };
-    return props.connect(_todos, state);
+    return props.connect(
+        _todos,
+        state,
+    );
 };

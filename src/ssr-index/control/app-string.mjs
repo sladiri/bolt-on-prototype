@@ -20,7 +20,7 @@ export const appString = async ({ body, query }) => {
     Object.assign(state, {
         // _ssr: true,
         query,
-        title: titleRegex.exec(body).groups.title,
+        title: titleRegex.exec(body)["groups"].title,
     });
     const { accept, AppString } = SsrApp({
         state,

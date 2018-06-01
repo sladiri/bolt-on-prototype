@@ -27,7 +27,7 @@ export const Reset = countDown =>
     };
 
 export const countDown = props => {
-    if (typeof document === "object") {
+    if (typeof window === "object") {
         import("./count-down.pcss");
     }
     const { render, counter, countDown } = props;
@@ -51,5 +51,5 @@ export const countDown = props => {
                 Reset
             </button>
         </section>
-    `;
+        `;
 };

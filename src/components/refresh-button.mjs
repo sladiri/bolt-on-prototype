@@ -5,7 +5,7 @@ export const _refreshButton = props => {
             <h1>Refresh Button, ${name}</h1>
             <button onclick=${refresh}>Refresh State</button>
         </section>
-    `;
+        `;
 };
 
 export const refreshButton = props => {
@@ -13,5 +13,8 @@ export const refreshButton = props => {
         name: props._state.name,
         refresh: props._actions.refresh,
     };
-    return props.connect(_refreshButton, state);
+    return props.connect(
+        _refreshButton,
+        state,
+    );
 };

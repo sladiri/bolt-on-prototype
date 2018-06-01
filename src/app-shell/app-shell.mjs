@@ -1,94 +1,54 @@
-import { refreshButton } from "../components/refresh-button";
-import { refreshInput } from "../components/refresh-input";
-import { posts } from "../components/posts";
-import { todos } from "../components/todos";
-import { countDown } from "../components/count-down";
+import { skipLink } from "../components/skip-link";
+import { home } from "../pages/home";
 
-export const mapCountDowns = props => i => {
-    const state = {
-        counter: props._state.counters[i],
-        countDown: arg => {
-            props._actions.countDown({ ...arg, counterId: i });
-        },
-    };
-    return props.connect(
-        countDown,
-        state,
-        null,
-        i,
+const pages = {
+    default: home,
+};
+
+export const pageFromPath = path => pages.default;
+
+export const appShell = props => {
+    if (typeof window === "object") {
+        import("./app-shell.pcss");
+    }
+    const {
+        render,
+        connect,
+        _state: { title, name },
+    } = props;
+    const { landMarks = [], page } = pageFromPath();
+    const skipLinks = renderSkipLinks({ connect, landMarks });
+    const content = connect(
+        page,
+        { title, name },
+    );
+    return render`
+        ${skipLinks}
+        <header></header>
+        <nav></nav>
+        <main>${content}</main>
+        <footer></footer>
+        `;
+};
+
+export const renderSkipLinks = ({ connect, landMarks }) => {
+    return [["main", "Main Content"], ...landMarks].map(([id, label], i) =>
+        connect(
+            skipLink,
+            { id, label },
+            null,
+            i,
+        ),
     );
 };
 
-export const main = props => {
-    const { render, connect, name } = props;
-    return render`
-        <section>
-            <h1>CountDowns Test, ${name}</h1>
-            ${[0, 1].map(mapCountDowns(props))}
-        </section>
-        <section>
-            <h1>Todos Test, ${name}</h1>
-            ${connect(
-                todos,
-                0,
-            )}
-            ${connect(
-                todos,
-                1,
-            )}
-        </section>
-        <section>
-            <h1>Refresh Button Test, ${name}</h1>
-            ${connect(
-                refreshButton,
-                0,
-            )}
-            ${connect(
-                refreshButton,
-                1,
-            )}
-        </section>
-        <section>
-            <h1>Refresh Input Test, ${name}</h1>
-            ${connect(
-                refreshInput,
-                0,
-            )}
-            ${connect(
-                refreshInput,
-                1,
-            )}
-        </section>
-        <section>
-            <h1>Posts Test, ${name}</h1>
-            ${connect(
-                posts,
-                0,
-            )}
-            ${connect(
-                posts,
-                1,
-            )}
-        </section>
-    `;
-};
-
-export const appShell = props => {
-    if (typeof document === "object") {
-        import("./app-shell.pcss");
-    }
-    const { render, connect, title, name } = props;
-    return render`
-        <a href="/#main" class="skipLink">Skip To Main Content</a>
-        <header></header>
-        <main>
-            <h1 id="main">${title}, ${name}</h1>
-            ${refreshButton(props)}
-            ${connect(
-                main,
-                { name },
-            )}
-        </main>
-        <footer></footer>
-    `;
-};
+if (typeof window === "object") {
+    window["onpushstate"] = function(event) {
+        console.log("history", event.state, window["location"].href);
+        if (event.state) {
+            console.log("history changed because of pushState/replaceState");
+        } else {
+            console.log("history changed because of a page load");
+        }
+    };
+}

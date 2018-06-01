@@ -12,7 +12,7 @@ export const _refreshInput = props => {
             <h1>Set Name, ${name}</h1>
             <label>Enter Name<input onkeyup=${SetName({ setName })} /></label>
         </section>
-    `;
+        `;
 };
 
 export const refreshInput = props => {
@@ -20,5 +20,8 @@ export const refreshInput = props => {
         name: props._state.name,
         setName: props._actions.setName,
     };
-    return props.connect(_refreshInput, state);
+    return props.connect(
+        _refreshInput,
+        state,
+    );
 };
