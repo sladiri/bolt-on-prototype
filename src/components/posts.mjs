@@ -42,7 +42,7 @@ export const _postItem = props => {
     const { render, connect, title, summary, content } = props;
     return render`
         <li class="posts posts__post">
-            <h2 class="posts posts__title">${title}</h2>
+            <p class="posts posts__title">${title}</p>
             ${connect(
                 postSummary,
                 { summary },
@@ -56,7 +56,7 @@ export const _posts = props => {
     if (typeof window === "object") {
         import("./posts.pcss");
     }
-    const { render, connect, dispatch, name, posts, fetchPosts } = props;
+    const { render, connect, dispatch, posts, fetchPosts } = props;
     const onClick = dispatch("fetchPosts", FetchPostsSSR, 42, 666);
     const postItem = post => {
         return connect(
@@ -67,7 +67,6 @@ export const _posts = props => {
     };
     return render`
         <section>
-            <h1>Posts List, ${name}</h1>
             <button onclick=${FetchPosts({ fetchPosts })}>Fetch Posts</button>
             <button
                 onclick=${onClick}
@@ -84,7 +83,6 @@ export const _posts = props => {
 
 export const posts = props => {
     const state = {
-        name: props._state.name,
         posts: props._state.posts,
         dispatch: props._actions.dispatch,
         fetchPosts: props._actions.fetchPosts,

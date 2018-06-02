@@ -31,11 +31,11 @@ export const sections = props => {
     const { render, connect, name } = props;
     return render`
         <section>
-            <h1 id="CountDowns" tabindex="-1">CountDowns Test, ${name}</h1>
+            <h2 id="CountDowns" tabindex="-1">CountDowns Test, ${name}</h1>
             ${[0, 1].map(mapCountDowns(props))}
         </section>
         <section>
-            <h1 id="Todos" tabindex="-1">Todos Test, ${name}</h1>
+            <h2 id="Todos" tabindex="-1">Todos Test, ${name}</h2>
             ${connect(
                 todos,
                 0,
@@ -46,7 +46,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="RefreshButton" tabindex="-1">Refresh Button Test, ${name}</h1>
+            <h2 id="RefreshButton" tabindex="-1">Refresh Button Test, ${name}</h2>
             ${connect(
                 refreshButton,
                 0,
@@ -57,7 +57,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="RefreshInput" tabindex="-1">Refresh Input Test, ${name}</h1>
+            <h2 id="RefreshInput" tabindex="-1">Refresh Input Test, ${name}</h2>
             ${connect(
                 refreshInput,
                 0,
@@ -68,7 +68,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="Posts" tabindex="-1">Posts Test, ${name}</h1>
+            <h2 id="Posts" tabindex="-1">Posts Test, ${name}</h2>
             ${connect(
                 posts,
                 0,

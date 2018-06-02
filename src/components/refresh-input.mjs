@@ -6,10 +6,9 @@ export const SetName = ({ setName }) => {
 };
 
 export const _refreshInput = props => {
-    const { render, name, setName } = props;
+    const { render, setName } = props;
     return render`
         <section>
-            <h1>Set Name, ${name}</h1>
             <label>Enter Name<input onkeyup=${SetName({ setName })} /></label>
         </section>
         `;
@@ -17,7 +16,6 @@ export const _refreshInput = props => {
 
 export const refreshInput = props => {
     const state = {
-        name: props._state.name,
         setName: props._actions.setName,
     };
     return props.connect(

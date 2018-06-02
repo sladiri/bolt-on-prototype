@@ -31,13 +31,13 @@ export const countDown = props => {
         import("./count-down.pcss");
     }
     const { render, counter, countDown } = props;
-    const titleClass = ["counter", `counter--${getCounterColour({ counter })}`]
+    const infoClass = ["counter", `counter--${getCounterColour({ counter })}`]
         .filter(x => !!x.length)
         .join(" ");
     const text = counter === 20 ? "" : `[${counter}]`;
     return render`
         <section>
-            <h1 class=${titleClass}>Counter ${text}</h1>
+            <p class=${infoClass}>Counter ${text}</p>
             <button
                 disabled=${counter !== 20}
                 onclick=${CountDown(countDown)}
