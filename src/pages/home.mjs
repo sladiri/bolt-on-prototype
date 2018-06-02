@@ -16,6 +16,7 @@ export const home = {
     page: props => {
         const { render, connect, title, name } = props;
         return render`
+            <!-- first h1 on page is nav-point for screen readers -->
             <h1 id="Main" tabindex="-1">${title} - Home, ${name}</h1>
             ${refreshButton(props)}
             ${connect(
