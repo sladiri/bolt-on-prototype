@@ -23,14 +23,17 @@ const serverCallback = ({ host, port }) => error => {
     }
 };
 
-const appServer = http2.createSecureServer(
-    { key, cert },
-    AppServer({ publicPath: "public" }).callback(),
-);
-const appServerOptions = { host, port: appPort };
-appServer.listen(appServerOptions, serverCallback(appServerOptions));
+(async () => {
+    const app = AppServer({ publicPath: "public" });
+    const appServer = http2.createSecureServer({ key, cert }, app.callback());
+    const appServerOptions = { host, port: appPort };
+    appServer.listen(appServerOptions, serverCallback(appServerOptions));
 
-const syncServer = https.createServer({ key, cert });
-GunJsServer({ httpServer: syncServer });
-const syncServerOptions = { host, port: syncPort };
-syncServer.listen(syncServerOptions, serverCallback(syncServerOptions));
+    const syncServer = https.createServer({ key, cert });
+    GunJsServer({ httpServer: syncServer });
+    const syncServerOptions = { host, port: syncPort };
+    syncServer.listen(syncServerOptions, serverCallback(syncServerOptions));
+})().catch(error => {
+    console.error("HTTP-server error:", error);
+    process.exit(1);
+});

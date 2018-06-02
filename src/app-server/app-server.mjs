@@ -9,17 +9,14 @@ import { DevelopmentIndex } from "../ssr-index/development-index";
 export const AppServer = ({ publicPath }) => {
     const isProduction = process.env.NODE_ENV === "production";
     const filePath = isProduction ? "/" : `/${publicPath}`;
-    const ssrIndex = ({ publicPath, isProduction }) => {
-        const response = isProduction
-            ? ProductionIndex({ publicPath })
-            : DevelopmentIndex();
-        return response;
-    };
+    const ssrIndex = isProduction
+        ? ProductionIndex({ publicPath })
+        : DevelopmentIndex();
     const app = new Koa();
     app.use(errorHandler);
     app.use(setXResponseTime);
     app.use(route.get("/posts", posts));
-    app.use(ssrIndex({ publicPath, isProduction }));
+    app.use(ssrIndex);
     app.use(mount(filePath, serve(`./${publicPath}`)));
     return app;
 };
