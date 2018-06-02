@@ -21,10 +21,10 @@ export const appShell = props => {
     );
     return render`
         <ul class="skipLinks">${skipLinks}</ul>
-        <header role="banner"></header>
-        <nav role="navigation"></nav>
-        <main role="main">${content}</main>
-        <footer role="contentinfo"></footer>
+        <header></header>
+        <nav></nav>
+        <main>${content}</main>
+        <footer></footer>
         `;
 };
 
