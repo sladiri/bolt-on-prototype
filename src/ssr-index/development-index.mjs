@@ -6,7 +6,7 @@ import { appIndex } from "./control/app-index";
 export const DevelopmentIndex = () => {
     const webpackMiddleWare = webpack({
         config: ssrConfig({ publicPath: "/", outputPath: "/" }),
-        // hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
+        hot: false, // Firefox does not allow insecure operation, requires allowinsecurefromhttps=true + fails
     });
     return async (ctx, next) => {
         const path = ctx.path; // Serve index with Webpack, store original path

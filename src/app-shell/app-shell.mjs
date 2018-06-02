@@ -13,25 +13,26 @@ export const appShell = props => {
         connect,
         _state: { title, name },
     } = props;
-    const { landMarks = [], page } = pageFromPath();
-    const skipLinks = renderSkipLinks({ connect, landMarks });
+    const { skips = [], page } = pageFromPath();
+    const skipLinks = renderSkipLinks({ connect, skips });
     const content = connect(
         page,
-        { title, name },
+        { name },
     );
     return render`
-        ${skipLinks}
+        <ul class="skipLinks">${skipLinks}</ul>
         <header></header>
         <nav></nav>
+        <h1>${title}, ${name}</h1>
         <main>${content}</main>
         <footer></footer>
         `;
 };
 
-export const renderSkipLinks = ({ connect, landMarks }) => {
-    return [["main", "Main Content"], ...landMarks].map(([id, label], i) =>
+export const renderSkipLinks = ({ connect, skips }) => {
+    return skips.map(([id, label], i) =>
         connect(
-            skipLink,
+            props => props.render`<li>${skipLink(props)}</li>`,
             { id, label },
             null,
             i,

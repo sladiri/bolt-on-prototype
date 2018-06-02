@@ -5,7 +5,8 @@ import { todos } from "../components/todos";
 import { countDown } from "../components/count-down";
 
 export const home = {
-    landMarks: [
+    skips: [
+        ["Main", "Main Content"],
         ["CountDowns", "CountDowns Test"],
         ["Todos", "Todos Test"],
         ["RefreshButton", "RefreshButton Test"],
@@ -13,9 +14,9 @@ export const home = {
         ["Posts", "Posts Test"],
     ],
     page: props => {
-        const { render, connect, title, name } = props;
+        const { render, connect, name } = props;
         return render`
-            <h1 id="main">${title}, ${name}</h1>
+            <h1 id="Main" tabindex="-1">Home, ${name}</h1>
             ${refreshButton(props)}
             ${connect(
                 sections,
@@ -29,11 +30,11 @@ export const sections = props => {
     const { render, connect, name } = props;
     return render`
         <section>
-            <h1 id="CountDowns">CountDowns Test, ${name}</h1>
+            <h1 id="CountDowns" tabindex="-1">CountDowns Test, ${name}</h1>
             ${[0, 1].map(mapCountDowns(props))}
         </section>
         <section>
-            <h1 id="Todos">Todos Test, ${name}</h1>
+            <h1 id="Todos" tabindex="-1">Todos Test, ${name}</h1>
             ${connect(
                 todos,
                 0,
@@ -44,7 +45,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="RefreshButton">Refresh Button Test, ${name}</h1>
+            <h1 id="RefreshButton" tabindex="-1">Refresh Button Test, ${name}</h1>
             ${connect(
                 refreshButton,
                 0,
@@ -55,7 +56,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="RefreshInput">Refresh Input Test, ${name}</h1>
+            <h1 id="RefreshInput" tabindex="-1">Refresh Input Test, ${name}</h1>
             ${connect(
                 refreshInput,
                 0,
@@ -66,7 +67,7 @@ export const sections = props => {
             )}
         </section>
         <section>
-            <h1 id="Posts">Posts Test, ${name}</h1>
+            <h1 id="Posts" tabindex="-1">Posts Test, ${name}</h1>
             ${connect(
                 posts,
                 0,
