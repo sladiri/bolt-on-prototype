@@ -17,13 +17,12 @@ export const appShell = props => {
     const skipLinks = renderSkipLinks({ connect, skips });
     const content = connect(
         page,
-        { name },
+        { title, name },
     );
     return render`
         <ul class="skipLinks">${skipLinks}</ul>
         <header role="banner"></header>
         <nav role="navigation"></nav>
-        <h1>${title}, ${name}</h1>
         <main role="main">${content}</main>
         <footer role="contentinfo"></footer>
         `;

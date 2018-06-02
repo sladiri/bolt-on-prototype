@@ -14,9 +14,9 @@ export const home = {
         ["Posts", "Posts Test"],
     ],
     page: props => {
-        const { render, connect, name } = props;
+        const { render, connect, title, name } = props;
         return render`
-            <h1 id="Main" tabindex="-1">Home, ${name}</h1>
+            <h1 id="Main" tabindex="-1">${title} - Home, ${name}</h1>
             ${refreshButton(props)}
             ${connect(
                 sections,
