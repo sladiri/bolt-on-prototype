@@ -22,8 +22,8 @@ export const appShell = props => {
     return render`
         <ul class="skipLinks">${skipLinks}</ul>
         <header></header>
-        <nav></nav>
-        <main>${content}</main>
+        <div role="navigation"></div>
+        <div role="main">${content}</div>
         <footer></footer>
         `;
 };
