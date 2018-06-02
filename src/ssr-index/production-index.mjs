@@ -1,37 +1,34 @@
 import { readFileSync } from "fs";
 import { isIndexPath } from "./control/is-index-path";
-import { appString } from "./control/app-string";
+import { appIndex } from "./control/app-index";
 
 export const ProductionIndex = ({ publicPath }) => {
     const cache = new Map();
-    const ssrResponse = async ({ body, ctx }) => {
-        console.log("SSR Cache Length", cache.size);
+    const ssrIndex = SsrIndex({ publicPath });
+    return async (ctx, next) => {
+        if (!isIndexPath({ path: ctx.path })) {
+            await next();
+            return;
+        }
         const cacheKey = ctx.path;
         const isCached = cache.has(cacheKey);
-        const start = isCached ? 0 : Date.now();
-        const html = isCached
-            ? cache.get(cacheKey)
-            : await appString({ body, query: ctx.query });
+        const html = isCached ? cache.get(cacheKey) : await ssrIndex({ ctx });
         if (!isCached) {
             cache.set(cacheKey, html);
+            console.log("SSR Cache Length", cache.size);
         }
         ctx.body = html;
-        const ttRenderMs = isCached ? 0 : Date.now() - start;
-        ctx.set(
-            "Server-Timing",
-            `Prerender;dur=${ttRenderMs};desc="Headless render time (ms)"`,
-        );
     };
+};
 
-    return async (ctx, next) => {
-        if (isIndexPath({ path: ctx.path })) {
-            const indexFile = readFileSync(
-                "./" + publicPath + "/index.html",
-                "utf8",
-            ); // syntax colour bug with template literal
-            await ssrResponse({ body: indexFile, ctx });
-        } else {
-            await next();
-        }
-    };
+export const SsrIndex = ({ publicPath }) => async ({ ctx }) => {
+    const start = Date.now();
+    const indexFile = readFileSync(`./${publicPath}/index.html`, "utf8");
+    const html = await appIndex({ ctx, body: indexFile });
+    const ttRenderMs = Date.now() - start;
+    ctx.set(
+        "Server-Timing",
+        `Prerender;dur=${ttRenderMs};desc="Server render time (ms)"`,
+    );
+    return html;
 };

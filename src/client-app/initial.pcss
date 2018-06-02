@@ -20,6 +20,23 @@ body {
     font-family: sans-serif;
 }
 
+.skipLink {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    color: var(--colour-foreground);
+}
+
+.skipLink:visited {
+    color: var(--colour-heading);
+}
+
+.skipLink:focus {
+    position: absolute;
+    top: 0;
+    right: auto;
+}
+
 main {
     max-width: 50em;
     margin: 0 auto;
@@ -38,21 +55,4 @@ section {
 
 label input {
     margin-left: 1em;
-}
-
-.skipLink {
-    position: absolute;
-    top: 0;
-    right: 100%;
-    color: var(--colour-foreground);
-}
-
-.skipLink:visited {
-    color: var(--colour-heading);
-}
-
-.skipLink:focus {
-    position: absolute;
-    top: 0;
-    right: auto;
 }

@@ -16,11 +16,16 @@ export const state = Object.assign(Object.create(null), {
     counters: [20, 20],
 });
 
-export const appString = async ({ body, query }) => {
+export const appIndex = async ({ ctx, body }) => {
+    const context = {
+        html: body.toString(),
+        path: ctx.path,
+        query: Object.assign(Object.create(null), ctx.query),
+        cookies: null, // TODO
+    };
     Object.assign(state, {
         // _ssr: true,
-        query,
-        title: titleRegex.exec(body)["groups"].title,
+        title: titleRegex.exec(context.html)["groups"].title,
     });
     const { accept, AppString } = SsrApp({
         state,
@@ -38,9 +43,7 @@ export const appString = async ({ body, query }) => {
         <script>
             window.dispatcher = { toReplay: [] };
         </script>
-        <section>
-            ${appString}
-        </section>
+        ${appString}
     `;
-    return body.replace(/<body></, `<body>${ssrString}<`);
+    return context.html.replace(/<body></, `<body>${ssrString}<`);
 };

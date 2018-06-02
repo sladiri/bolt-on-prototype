@@ -8,9 +8,6 @@ const pages = {
 export const pageFromPath = path => pages.default;
 
 export const appShell = props => {
-    if (typeof window === "object") {
-        import("./app-shell.pcss");
-    }
     const {
         render,
         connect,
@@ -41,14 +38,3 @@ export const renderSkipLinks = ({ connect, landMarks }) => {
         ),
     );
 };
-
-if (typeof window === "object") {
-    window["onpushstate"] = function(event) {
-        console.log("history", event.state, window["location"].href);
-        if (event.state) {
-            console.log("history changed because of pushState/replaceState");
-        } else {
-            console.log("history changed because of a page load");
-        }
-    };
-}

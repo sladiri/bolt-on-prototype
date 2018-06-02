@@ -1,3 +1,6 @@
+import { wire, bind } from "hyperhtml/esm";
+import { Connect } from "./connect";
+
 export const Dispatch = ({ actions }) => (name, handler, ...args) => {
     return async function(event) {
         await handler(...args).apply(this, [event, actions[name]]);
@@ -8,6 +11,7 @@ export const Dispatch = ({ actions }) => (name, handler, ...args) => {
 const setImmediate = func => {
     return setTimeout(func, 0);
 };
+
 export const clientPropose = ({
     accept,
     render,
@@ -63,6 +67,7 @@ export const initialRender = async ({ actions }) => {
 };
 
 const wait = delay => new Promise(res => setTimeout(res, delay));
+
 export const replayIntermediateEvents = async ({ actions }) => {
     console.assert(window["dispatcher"].toReplay, "dispatcher.toReplay");
     console.log(`replaying [${window["dispatcher"].toReplay.length}] actions`);
@@ -75,4 +80,65 @@ export const replayIntermediateEvents = async ({ actions }) => {
         await wait(500);
     }
     console.log("replaying end");
+};
+
+export const setupRouting = async () => {
+    console.assert(window, "window");
+    await import("onpushstate");
+    window["onpushstate"] = function(event) {
+        console.log("history", event.state, window["location"].href, this);
+        if (event.state) {
+            console.log("history changed because of pushState/replaceState");
+        } else {
+            console.log("history changed because of a page load");
+        }
+    };
+};
+
+export const setupSamHyperHtmlContainer = async ({
+    app,
+    state,
+    rootElement,
+    Accept,
+    Actions,
+    nextAction,
+}) => {
+    state = state || restoreSsrState({ rootElement });
+    const idComponentMap = new WeakMap();
+    const wiresMap = new Map();
+    const namespaceSet = new Set();
+    let defaultProps;
+    let props;
+    const render = ({ state, actions }) => {
+        wiresMap.clear();
+        namespaceSet.clear();
+        if (!defaultProps) {
+            actions.dispatch = Dispatch({ actions });
+            defaultProps = Object.assign(Object.create(null), {
+                _actions: actions,
+                _state: state,
+            });
+            defaultProps._connect = Connect({
+                wire,
+                defaultProps,
+                idComponentMap,
+                wiresMap,
+                namespaceSet,
+                globalState: state,
+            });
+            props = Object.assign(Object.create(null), defaultProps);
+        }
+        props._namespace = [];
+        const { title, name } = state;
+        const appString = defaultProps._connect()(app, { title, name });
+        return bind(rootElement)`${appString}`;
+    };
+    const propose = Propose({
+        accept: Accept({ state }),
+        render: () => render({ state, actions }),
+        nextAction: () => nextAction({ state, actions }),
+    });
+    const actions = Actions({ propose });
+    await setupRouting();
+    return actions;
 };
