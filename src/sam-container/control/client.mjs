@@ -82,15 +82,18 @@ export const replayIntermediateEvents = async ({ actions }) => {
     console.log("replaying end");
 };
 
-export const setupRouting = async () => {
+export const setupRouting = async ({ route }) => {
     console.assert(window, "window");
     await import("onpushstate");
-    window["onpushstate"] = function(event) {
-        console.log("history", event.state, window["location"].href, this);
+    window["onpushstate"] = async event => {
         if (event.state) {
-            console.log("history changed because of pushState/replaceState");
+            // history changed because of pushState/replaceState
+            await route({
+                oldPath: event.state,
+                location: window["location"],
+            });
         } else {
-            console.log("history changed because of a page load");
+            // history changed because of a page load
         }
     };
 };
@@ -139,6 +142,6 @@ export const setupSamHyperHtmlContainer = async ({
         nextAction: () => nextAction({ state, actions }),
     });
     const actions = Actions({ propose });
-    await setupRouting();
+    await setupRouting({ route: actions.route });
     return actions;
 };

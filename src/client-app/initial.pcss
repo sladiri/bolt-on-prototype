@@ -45,6 +45,24 @@ body {
     padding: 1.5em 1em;
 }
 
+body > div[role="navigation"] > ul {
+    list-style: none;
+    padding-left: 0;
+    display: flex;
+}
+
+body > div[role="navigation"] > ul > li {
+    margin-right: 2em;
+}
+
+a {
+    color: var(--colour-anchor);
+}
+
+a:visited {
+    color: var(--colour-anchor--visited);
+}
+
 section {
     margin-top: 2em;
     margin-bottom: 3em;

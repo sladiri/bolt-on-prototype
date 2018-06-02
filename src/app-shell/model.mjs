@@ -1,6 +1,9 @@
 export const Accept = ({ state }) => {
     return async proposal => {
         try {
+            if (proposal.route !== undefined) {
+                state.route = proposal.route;
+            }
             if (proposal.name !== undefined) {
                 state.name = proposal.name;
             }

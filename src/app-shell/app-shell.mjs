@@ -2,18 +2,21 @@ import { skipLink } from "../components/skip-link";
 import { home } from "../pages/home";
 
 const pages = {
-    default: home,
+    "/": home,
 };
 
-export const pageFromPath = path => pages.default;
+export const pageFromRoute = ({ route }) => {
+    const page = pages[route] || pages["/"];
+    return page;
+};
 
 export const appShell = props => {
     const {
         render,
         connect,
-        _state: { title, name },
+        _state: { route, title, name },
     } = props;
-    const { skips = [], page } = pageFromPath();
+    const { skips = [], page } = pageFromRoute({ route });
     const skipLinks = renderSkipLinks({ connect, skips });
     const content = connect(
         page,
@@ -22,7 +25,13 @@ export const appShell = props => {
     return render`
         <ul class="skipLinks">${skipLinks}</ul>
         <header></header>
-        <div role="navigation"></div>
+        <div role="navigation">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/app/foo">Foo</a></li>
+                <li><a href="/app/bar">Bar</a></li>
+            </ul>
+        </div>
         <div role="main">${content}</div>
         <footer></footer>
         `;

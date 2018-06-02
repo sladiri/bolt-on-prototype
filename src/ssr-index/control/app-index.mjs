@@ -7,6 +7,7 @@ import { posts } from "../../posts-data/posts";
 const wire = viper.wire;
 
 export const titleRegex = /<title>\n*(?<title>.*)\n*<\/title>/;
+export const routeRegex = /\/app\/(?<route>.+)?/;
 
 export const state = Object.assign(Object.create(null), {
     // _ssr: true,
@@ -17,15 +18,16 @@ export const state = Object.assign(Object.create(null), {
 });
 
 export const appIndex = async ({ ctx, body }) => {
-    const context = {
-        html: body.toString(),
-        path: ctx.path,
-        query: Object.assign(Object.create(null), ctx.query),
-        cookies: null, // TODO
-    };
+    let route = routeRegex.exec(ctx.path);
+    route = route ? route["groups"].route : "/";
+    const query = Object.assign(Object.create(null), ctx.query);
+    const cookies = null; // TODO
+    const html = body.toString();
     Object.assign(state, {
         // _ssr: true,
-        title: titleRegex.exec(context.html)["groups"].title,
+        route,
+        query,
+        title: titleRegex.exec(html)["groups"].title,
     });
     const { accept, AppString } = SsrApp({
         state,
@@ -45,5 +47,5 @@ export const appIndex = async ({ ctx, body }) => {
         </script>
         ${appString}
     `;
-    return context.html.replace(/<body></, `<body>${ssrString}<`);
+    return html.replace(/<body></, `<body>${ssrString}<`);
 };

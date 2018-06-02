@@ -9,6 +9,23 @@ export const _Actions = ({ propose, service }) => {
             const proposal = { name: Date.now() };
             await propose({ proposal });
         },
+        async route({ oldPath, location }) {
+            const newRoute = location.href;
+            if (oldPath === newRoute) {
+                return;
+            }
+            if (!service.routeRegex) {
+                service.routeRegex = new RegExp(
+                    `^${location.origin.replace(
+                        "/",
+                        "\\/",
+                    )}\\/app\\/(?<route>.+)?`,
+                );
+            }
+            let route = service.routeRegex.exec(newRoute);
+            route = route ? route.groups.route : "/";
+            await propose({ proposal: { route } });
+        },
         async setName({ value }) {
             if (typeof value !== "string") {
                 return;
@@ -61,6 +78,7 @@ export const Actions = ({ propose }) => {
     const actions = _Actions({
         propose,
         service: {
+            routeRegex: null,
             idsInProgress: new Map(),
         },
     });
