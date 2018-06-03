@@ -14,22 +14,22 @@ const paths = ({ outputPath }) => {
     const webroot = path.join(base, outputPath);
     const favicon = path.join(base, "icons8-socks.png");
     const src = path.join(base, "src");
-    const clientApp = path.join(src, "client-app", "client-app.mjs");
-    const clientAppCss = path.join(src, "client-app", "client-app.pcss");
+    const appClient = path.join(src, "app-client", "app-client.mjs");
+    const appClientCss = path.join(src, "app-client", "app-client.pcss");
 
     return {
         webroot,
         favicon,
         src,
-        clientApp,
-        clientAppCss,
+        appClient,
+        appClientCss,
     };
 };
 
 const config = ({ debug = false, paths, publicPath }) => {
     return {
         mode: debug ? "development" : "production",
-        entry: { index: [paths.clientAppCss, paths.clientApp] },
+        entry: { index: [paths.appClientCss, paths.appClient] },
         output: {
             pathinfo: debug,
             path: paths.webroot,
