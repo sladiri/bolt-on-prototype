@@ -4,12 +4,13 @@ import { posts } from "../components/posts";
 import { todos } from "../components/todos";
 import { countDown } from "../components/count-down";
 
-export const name = "Home";
+export const title = "Bolt-on Prototype";
+export const description = "Bolt-on Prototype Description";
 
 export const home = props => {
-    const { render, cn, title, rand } = props;
+    const { render, cn, rand } = props;
     return render`
-        <h1 id="Main" tabindex="-1">${name} of ${title}</h1>
+        <h1 id="Main" tabindex="-1">${title} Heading</h1>
         ${refreshButton(props)}
         <br />
         ${cn(sections, { rand })}
@@ -24,7 +25,8 @@ export const Home = {
         ["RefreshInput", "RefreshInput Test"],
         ["Posts", "Posts Test"],
     ],
-    name,
+    title,
+    description,
     page: props => {
         const { title, rand } = props._state;
         return props.cn(home, { title, rand });

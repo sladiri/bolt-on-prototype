@@ -1,19 +1,19 @@
 import viper from "viperhtml";
-import { appShell } from "../../app-shell/app-shell";
+import { appShell, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
 import { SsrApp } from "../../sam-container/server";
 import { posts } from "../../posts-data/posts";
 
 const wire = viper.wire;
 
-export const titleRegex = /<title>\n*(?<title>.*)\n*<\/title>/;
-export const routeRegex = /\/app\/(?<route>.+)?/;
+export const routeRegex = /^\/app\/(?<route>.+)?$/;
 
 export const state = Object.assign(Object.create(null), {
     // _ssr: true,
     route: "",
     query: Object.create(null),
     title: "",
+    description: "",
     rand: "",
     posts: [],
     todos: [],
@@ -21,16 +21,17 @@ export const state = Object.assign(Object.create(null), {
 });
 
 export const appIndex = async ({ ctx, body }) => {
-    const html = body.toString();
+    let html = body.toString();
     const { accept, AppString } = SsrApp({
         state,
         Accept,
     });
-    const title = titleRegex.exec(html).groups.title;
     const routeMatch = routeRegex.exec(ctx.path);
     const route = routeMatch ? routeMatch.groups.route : "/";
     const query = Object.assign(Object.create(null), ctx.query);
-    await accept({ route, query, title, posts });
+    const { title, description } = pages[route] || pages["/"];
+    html = html.replace("#title#", title).replace("#description#", description);
+    await accept({ route, query, title, description, posts });
     const appString = AppString(appShell, {
         title: state.title,
         rand: state.rand,

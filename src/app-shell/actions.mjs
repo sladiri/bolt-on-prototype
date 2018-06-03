@@ -14,7 +14,7 @@ export const _Actions = ({ propose, service }) => {
                 return;
             }
             const routeMatch = service.routeRegex.exec(location.pathname);
-            const route = routeMatch ? routeMatch[2] || routeMatch[0] : "/";
+            const route = routeMatch ? routeMatch[1] : "/";
             const params = new URLSearchParams(location.search);
             let query = [...params.keys()].reduce(
                 (keys, key) => keys.add(key),
@@ -78,7 +78,7 @@ export const Actions = ({ propose }) => {
     const actions = _Actions({
         propose,
         service: {
-            routeRegex: /^\/(app)?(\/.+)?/,
+            routeRegex: /^\/app\/(.+)?$/,
             idsInProgress: new Map(),
         },
     });

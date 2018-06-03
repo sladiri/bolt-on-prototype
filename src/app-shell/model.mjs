@@ -10,6 +10,9 @@ export const Accept = ({ state }) => {
             if (proposal.title !== undefined) {
                 state.title = proposal.title;
             }
+            if (proposal.description !== undefined) {
+                state.description = proposal.description;
+            }
             if (proposal.rand !== undefined) {
                 state.rand = proposal.rand;
             }

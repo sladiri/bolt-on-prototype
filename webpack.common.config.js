@@ -116,9 +116,6 @@ const config = ({ debug = false, paths, publicPath }) => {
             new Html({
                 minify: debug ? false : {},
                 // Template is generated from SSR via ViperHtml (ejs-loader)
-                templateParameters: {
-                    title: "Bolt-on Prototype",
-                },
                 meta: {
                     viewport: "width=device-width", // https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images
                     description: "Author: Sladi Ri, Length: 1 pages",

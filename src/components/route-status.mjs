@@ -1,5 +1,5 @@
 export const routeStatus = props => {
-    const { render, name } = props;
+    const { render, title } = props;
     return render`
         <div
             role="status"
@@ -7,7 +7,7 @@ export const routeStatus = props => {
             aria-atomic="true"
             class="sr-only"
         >
-            Navigated to page ${name}
+            Navigated to page: ${title}
         </div>
         `;
 };
