@@ -13,7 +13,7 @@ export const appShell = props => {
     } = props;
     const { skips = [], title, description, page } = pageFromRoute({ route });
     return render`
-        ${cn(routeStatus)}
+        ${cn(routeStatus, { title })}
         <ul class="skipLinks">${renderSkipLinks({ cn, skips })}</ul>
         <header></header>
         <!--
