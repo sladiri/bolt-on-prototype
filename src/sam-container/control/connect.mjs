@@ -51,10 +51,7 @@ export const Connect = ({
                 typeof namespace === "number" ||
                 typeof namespace === "string"
             ) {
-                console.assert(
-                    !`${namespace}`.startsWith("#"),
-                    "connect wire id",
-                ); // conflicts with namespaced-mark below
+                console.assert(!`${namespace}`.startsWith("#"), "cn wire id"); // conflicts with namespaced-mark below
                 childNamespace.push(`${namespace}`);
             }
         }
@@ -88,7 +85,7 @@ export const Connect = ({
         const { _connect } = defaultProps;
         const props = Object.assign(Object.create(defaultProps), childProps, {
             render: wire(wireReference, wireNamespace),
-            connect: _connect(childNamespace),
+            cn: _connect(childNamespace),
         });
         return component(props);
     };

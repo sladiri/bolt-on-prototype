@@ -41,14 +41,9 @@ export const _todos = props => {
     if (typeof window === "object") {
         import("./todos.pcss");
     }
-    const { render, connect, todos, updateTodo } = props;
+    const { render, cn, todos, updateTodo } = props;
     const todoItem = (todo, i) => {
-        return connect(
-            _todoItem,
-            { todo, updateTodo },
-            todo,
-            i,
-        );
+        return cn(_todoItem, { todo, updateTodo }, todo, i);
     };
     return render`
         <form>
@@ -86,8 +81,5 @@ export const todos = props => {
         todos: props._state.todos,
         updateTodo: props._actions.updateTodo,
     };
-    return props.connect(
-        _todos,
-        state,
-    );
+    return props.cn(_todos, state);
 };

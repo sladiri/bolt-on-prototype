@@ -20,7 +20,7 @@ const acceptConnection = ({ gunPeers, gunLocal }) => connection => {
     // connection.upgradeReq.headers['sec-websocket-protocol'] === (if present) protocol requested by client
     // connection.upgradeReq.url  === url request
     console.log(
-        "gun connect?",
+        "gun cn?",
         connection.upgradeReq,
         connection.upgradeReq.headers,
         connection.upgradeReq.url,

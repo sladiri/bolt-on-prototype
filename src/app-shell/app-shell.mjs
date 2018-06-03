@@ -1,8 +1,13 @@
+import { routeStatus } from "../components/route-status";
 import { skipLink } from "../components/skip-link";
-import { home } from "../pages/home";
+import { Home } from "../pages/home";
+import { Foo } from "../pages/foo";
+import { Bar } from "../pages/bar";
 
 const pages = {
-    "/": home,
+    "/": Home,
+    "/foo": Foo,
+    "/bar": Bar,
 };
 
 export const pageFromRoute = ({ route }) => {
@@ -10,36 +15,53 @@ export const pageFromRoute = ({ route }) => {
     return page;
 };
 
+let currentPage;
+
+export const focusAfterPageChangeScript = ({ render, page }) => {
+    let script;
+    if (currentPage && currentPage !== page) {
+        script = render`
+            <script>
+                document.getElementById("Main").focus();
+            </script>
+        `;
+    }
+    currentPage = page;
+    return script;
+};
+
 export const appShell = props => {
     const {
+        _wire,
         render,
-        connect,
-        _state: { route, title, name },
+        cn,
+        _state: { route },
     } = props;
-    const { skips = [], page } = pageFromRoute({ route });
-    const skipLinks = renderSkipLinks({ connect, skips });
-    const content = connect(
-        page,
-        { title, name },
-    );
+    const { skips = [], name, page } = pageFromRoute({ route });
     return render`
-        <ul class="skipLinks">${skipLinks}</ul>
+        ${cn(routeStatus, { name })}
+        <ul class="skipLinks">${renderSkipLinks({ cn, skips })}</ul>
         <header></header>
-        <div role="navigation">
+        <!--
+        a div with role would prevent a missing section heading,
+        but nobody cares
+        -->
+        <nav>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/app/foo">Foo</a></li>
+                <li><a href="/app/foo?baz=1&baz=2">Foo</a></li>
                 <li><a href="/app/bar">Bar</a></li>
             </ul>
-        </div>
-        <div role="main">${content}</div>
+        </nav>
+        <main>${page(props)}</main>
+        ${focusAfterPageChangeScript({ render: _wire(), page })}
         <footer></footer>
         `;
 };
 
-export const renderSkipLinks = ({ connect, skips }) => {
+export const renderSkipLinks = ({ cn, skips }) => {
     return skips.map(([id, label], i) =>
-        connect(
+        cn(
             props => props.render`<li>${skipLink(props)}</li>`,
             { id, label },
             null,

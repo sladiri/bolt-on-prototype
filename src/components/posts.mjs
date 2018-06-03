@@ -21,32 +21,26 @@ export const FetchPostsSSR = (...args) => {
 };
 
 export const _postSummary = props => {
-    const { render, summary, name } = props;
+    const { render, summary, rand } = props;
     return render`
-        <span class="posts posts__summary">${summary}, ${name}</span>
+        <p class="posts posts__summary">${summary}, ${rand}</p>
         `;
 };
 
 export const postSummary = props => {
     const state = {
         summary: props.summary,
-        name: props._state.name,
+        rand: props._state.rand,
     };
-    return props.connect(
-        _postSummary,
-        state,
-    );
+    return props.cn(_postSummary, state);
 };
 
 export const _postItem = props => {
-    const { render, connect, title, summary, content } = props;
+    const { render, cn, title, summary, content } = props;
     return render`
         <li class="posts posts__post">
             <p class="posts posts__title">${title}</p>
-            ${connect(
-                postSummary,
-                { summary },
-            )}
+            ${cn(postSummary, { summary })}
             <p class="posts posts__content">${content}</p>
         </li>
         `;
@@ -56,28 +50,22 @@ export const _posts = props => {
     if (typeof window === "object") {
         import("./posts.pcss");
     }
-    const { render, connect, dispatch, posts, fetchPosts } = props;
+    const { render, cn, dispatch, posts, fetchPosts } = props;
     const onClick = dispatch("fetchPosts", FetchPostsSSR, 42, 666);
     const postItem = post => {
-        return connect(
-            _postItem,
-            { ...post },
-            post,
-        );
+        return cn(_postItem, { ...post }, post);
     };
     return render`
-        <section>
-            <button onclick=${FetchPosts({ fetchPosts })}>Fetch Posts</button>
-            <button
-                onclick=${onClick}
-            >
-                Fetch Posts SSR
-            </button>
-            <button onclick=${CancelFetch({ fetchPosts })}>Cancel Fetch</button>
-            <ul class="posts">
-                ${posts.map(postItem)}
-            </ul>
-        </section>
+        <button onclick=${FetchPosts({ fetchPosts })}>Fetch Posts</button>
+        <button
+            onclick=${onClick}
+        >
+            Fetch Posts SSR
+        </button>
+        <button onclick=${CancelFetch({ fetchPosts })}>Cancel Fetch</button>
+        <ul class="posts">
+            ${posts.map(postItem)}
+        </ul>
         `;
 };
 
@@ -87,8 +75,5 @@ export const posts = props => {
         dispatch: props._actions.dispatch,
         fetchPosts: props._actions.fetchPosts,
     };
-    return props.connect(
-        _posts,
-        state,
-    );
+    return props.cn(_posts, state);
 };

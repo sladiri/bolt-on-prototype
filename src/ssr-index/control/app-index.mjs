@@ -11,31 +11,30 @@ export const routeRegex = /\/app\/(?<route>.+)?/;
 
 export const state = Object.assign(Object.create(null), {
     // _ssr: true,
-    name: "EMPTY",
+    route: "",
+    query: Object.create(null),
+    title: "",
+    rand: "",
     posts: [],
     todos: [],
     counters: [20, 20],
 });
 
 export const appIndex = async ({ ctx, body }) => {
-    let route = routeRegex.exec(ctx.path);
-    route = route ? route["groups"].route : "/";
-    const query = Object.assign(Object.create(null), ctx.query);
-    const cookies = null; // TODO
     const html = body.toString();
-    Object.assign(state, {
-        // _ssr: true,
-        route,
-        query,
-        title: titleRegex.exec(html)["groups"].title,
-    });
     const { accept, AppString } = SsrApp({
         state,
         Accept,
     });
-    await accept({ posts }); // Test server side state update
-    const { title, name } = state;
-    const appString = AppString(appShell, { title, name });
+    const title = titleRegex.exec(html).groups.title;
+    const routeMatch = routeRegex.exec(ctx.path);
+    const route = routeMatch ? routeMatch.groups.route : "/";
+    const query = Object.assign(Object.create(null), ctx.query);
+    await accept({ route, query, title, posts });
+    const appString = AppString(appShell, {
+        title: state.title,
+        rand: state.rand,
+    });
     const ssrString = wire()`
         <input
             id="app-ssr-data"

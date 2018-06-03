@@ -53,10 +53,10 @@ export const Propose = ({ accept, render, nextAction }) => {
 
 export const restoreSsrState = ({ rootElement }) => {
     const dataElement = document.getElementById("app-ssr-data");
-    console.assert(dataElement && dataElement["value"], "dataElement.value");
+    console.assert(dataElement && dataElement.value, "dataElement.value");
     const state = Object.assign(
         Object.create(null),
-        JSON.parse(dataElement["value"]),
+        JSON.parse(dataElement.value),
     );
     rootElement.removeChild(dataElement);
     return state;
@@ -90,7 +90,7 @@ export const setupRouting = async ({ route }) => {
             // history changed because of pushState/replaceState
             await route({
                 oldPath: event.state,
-                location: window["location"],
+                location: window.location,
             });
         } else {
             // history changed because of a page load
@@ -120,6 +120,7 @@ export const setupSamHyperHtmlContainer = async ({
             defaultProps = Object.assign(Object.create(null), {
                 _actions: actions,
                 _state: state,
+                _wire: wire,
             });
             defaultProps._connect = Connect({
                 wire,
@@ -132,8 +133,8 @@ export const setupSamHyperHtmlContainer = async ({
             props = Object.assign(Object.create(null), defaultProps);
         }
         props._namespace = [];
-        const { title, name } = state;
-        const appString = defaultProps._connect()(app, { title, name });
+        const { title, rand } = state;
+        const appString = defaultProps._connect()(app, { title, rand });
         return bind(rootElement)`${appString}`;
     };
     const propose = Propose({

@@ -2,17 +2,10 @@ html {
     font-size: 100%;
 }
 
-/* Safari does not like REM unit in media query */
-@media (max-width: 60em) {
-    html {
-        font-size: 80%;
-    }
+.sr-only {
+    height: 0;
+    overflow: hidden;
 }
-
-/* Gives error? */
-/* html {
-  font-size: calc(1em + 1vw);
-} */
 
 .skipLinks {
     list-style: none;
@@ -45,13 +38,14 @@ body {
     padding: 1.5em 1em;
 }
 
-body > div[role="navigation"] > ul {
+body > nav > ul {
     list-style: none;
     padding-left: 0;
+    margin: 0;
     display: flex;
 }
 
-body > div[role="navigation"] > ul > li {
+body > nav > ul > li {
     margin-right: 2em;
 }
 
@@ -75,4 +69,8 @@ h2 {
 
 label input {
     margin-left: 1em;
+}
+
+main > section > br {
+    margin: 1em 0;
 }

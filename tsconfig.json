@@ -1,6 +1,6 @@
 {
-  "include": ["src/**/*"],
-  "compilerOptions": {
-    "allowJs": true
-  }
+    "include": ["src/**/*"],
+    "compilerOptions": {
+        "target": "es2018"
+    }
 }

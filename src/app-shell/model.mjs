@@ -4,8 +4,14 @@ export const Accept = ({ state }) => {
             if (proposal.route !== undefined) {
                 state.route = proposal.route;
             }
-            if (proposal.name !== undefined) {
-                state.name = proposal.name;
+            if (proposal.query !== undefined) {
+                Object.assign(state.query, proposal.query);
+            }
+            if (proposal.title !== undefined) {
+                state.title = proposal.title;
+            }
+            if (proposal.rand !== undefined) {
+                state.rand = proposal.rand;
             }
             if (Array.isArray(proposal.posts)) {
                 for (const post of proposal.posts) {
@@ -18,9 +24,6 @@ export const Accept = ({ state }) => {
                         state.posts.push(post);
                     }
                 }
-                // state.posts = JSON.parse(
-                //     JSON.stringify(proposal.posts.concat(state.posts)),
-                // );
             }
             const { counterId, counter } = proposal;
             if (counterId !== undefined && counter !== undefined) {

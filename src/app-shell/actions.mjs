@@ -6,37 +6,37 @@ const wait = delay => value =>
 export const _Actions = ({ propose, service }) => {
     return Object.assign(Object.create(null), {
         async refresh() {
-            const proposal = { name: Date.now() };
+            const proposal = { rand: Date.now() };
             await propose({ proposal });
         },
         async route({ oldPath, location }) {
-            const newRoute = location.href;
-            if (oldPath === newRoute) {
+            if (oldPath === location.href) {
                 return;
             }
-            if (!service.routeRegex) {
-                service.routeRegex = new RegExp(
-                    `^${location.origin.replace(
-                        "/",
-                        "\\/",
-                    )}\\/app\\/(?<route>.+)?`,
-                );
-            }
-            let route = service.routeRegex.exec(newRoute);
-            route = route ? route.groups.route : "/";
-            await propose({ proposal: { route } });
+            const routeMatch = service.routeRegex.exec(location.pathname);
+            const route = routeMatch ? routeMatch[2] || routeMatch[0] : "/";
+            const params = new URLSearchParams(location.search);
+            let query = [...params.keys()].reduce(
+                (keys, key) => keys.add(key),
+                new Set(),
+            );
+            query = [...query.values()].reduce(
+                (obj, key) => Object.assign(obj, { [key]: params.getAll(key) }),
+                Object.create(null),
+            );
+            await propose({ proposal: { route, query } });
         },
         async setName({ value }) {
             if (typeof value !== "string") {
                 return;
             }
-            await propose({ proposal: { name: value } });
+            await propose({ proposal: { rand: value } });
         },
         async fetchPosts({ cancel = false } = {}) {
             const proposal = cancel
                 ? {}
                 : fetch("/posts")
-                      //   .then(wait(1000))
+                      .then(wait(1000))
                       .then(resp => resp.json())
                       .then(posts => ({ posts }));
             await propose({ proposal }, "fetchPosts");
@@ -78,7 +78,7 @@ export const Actions = ({ propose }) => {
     const actions = _Actions({
         propose,
         service: {
-            routeRegex: null,
+            routeRegex: /^\/(app)?(\/.+)?/,
             idsInProgress: new Map(),
         },
     });
