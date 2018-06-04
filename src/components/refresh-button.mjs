@@ -7,7 +7,7 @@ export const _refreshButton = props => {
 
 export const refreshButton = props => {
     const state = {
-        refresh: props._actions.refresh,
+        refresh: props.actions.refresh,
     };
     return props.cn(_refreshButton, state);
 };

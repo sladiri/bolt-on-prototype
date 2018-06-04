@@ -28,7 +28,7 @@ export const Home = {
     title,
     description,
     page: props => {
-        const { title, rand } = props._state;
+        const { title, rand } = props.state;
         return props.cn(home, { title, rand });
     },
 };
@@ -61,9 +61,9 @@ export const sections = props => {
 
 export const mapCountDowns = props => i => {
     const state = {
-        counter: props._state.counters[i],
+        counter: props.state.counters[i],
         countDown: arg => {
-            props._actions.countDown({ ...arg, counterId: i });
+            props.actions.countDown({ ...arg, counterId: i });
         },
     };
     return props.cn(countDown, state, null, i);

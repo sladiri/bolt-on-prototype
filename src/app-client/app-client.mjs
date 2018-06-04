@@ -1,7 +1,7 @@
+import { ClientApp } from "hypersam/src/client";
 import { appShell } from "../app-shell/app-shell";
 import { Actions } from "../app-shell/actions";
 import { Accept, nextAction } from "../app-shell/model";
-import { ClientApp } from "../app-container/client";
 
 ClientApp({
     app: appShell,

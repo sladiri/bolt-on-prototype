@@ -30,7 +30,7 @@ export const _postSummary = props => {
 export const postSummary = props => {
     const state = {
         summary: props.summary,
-        rand: props._state.rand,
+        rand: props.state.rand,
     };
     return props.cn(_postSummary, state);
 };
@@ -71,9 +71,8 @@ export const _posts = props => {
 
 export const posts = props => {
     const state = {
-        posts: props._state.posts,
-        dispatch: props._actions.dispatch,
-        fetchPosts: props._actions.fetchPosts,
+        posts: props.state.posts,
+        fetchPosts: props.actions.fetchPosts,
     };
     return props.cn(_posts, state);
 };

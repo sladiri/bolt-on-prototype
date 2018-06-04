@@ -78,8 +78,8 @@ export const _todos = props => {
 
 export const todos = props => {
     const state = {
-        todos: props._state.todos,
-        updateTodo: props._actions.updateTodo,
+        todos: props.state.todos,
+        updateTodo: props.actions.updateTodo,
     };
     return props.cn(_todos, state);
 };

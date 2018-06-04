@@ -13,7 +13,7 @@ export const Foo = {
     title,
     description,
     page: props => {
-        const { title } = props._state;
+        const { title } = props.state;
         return props.cn(foo, { title });
     },
 };

@@ -8,7 +8,7 @@ export const appShell = props => {
     const {
         render,
         cn,
-        _state: { route },
+        state: { route },
         _wire,
     } = props;
     const { skips = [], title, description, page } = pageFromRoute({ route });

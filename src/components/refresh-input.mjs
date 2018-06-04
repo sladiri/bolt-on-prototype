@@ -14,7 +14,7 @@ export const _refreshInput = props => {
 
 export const refreshInput = props => {
     const state = {
-        setName: props._actions.setName,
+        setName: props.actions.setName,
     };
     return props.cn(_refreshInput, state);
 };
