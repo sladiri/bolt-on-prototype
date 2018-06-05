@@ -26,7 +26,7 @@ export const appIndex = async ({ ctx, body }) => {
         app: appShell,
         Accept,
     });
-    await accept({ route, query, title, description, posts });
+    await accept({ proposal: { route, query, title, description, posts } });
     const appString = renderHTMLString();
     const index = body
         .toString()

@@ -1,5 +1,5 @@
 export const Accept = ({ state }) => {
-    return async proposal => {
+    return async ({ proposal }) => {
         try {
             if (proposal.route !== undefined) {
                 state.route = proposal.route;

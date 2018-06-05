@@ -9,23 +9,6 @@ export const _Actions = ({ propose, service }) => {
             const proposal = { rand: Date.now() };
             await propose({ proposal });
         },
-        async route({ oldPath, location }) {
-            if (oldPath === location.href) {
-                return;
-            }
-            const routeMatch = service.routeRegex.exec(location.pathname);
-            const route = routeMatch ? routeMatch[1] : "/";
-            const params = new URLSearchParams(location.search);
-            let query = [...params.keys()].reduce(
-                (keys, key) => keys.add(key),
-                new Set(),
-            );
-            query = [...query.values()].reduce(
-                (obj, key) => Object.assign(obj, { [key]: params.getAll(key) }),
-                Object.create(null),
-            );
-            await propose({ proposal: { route, query } });
-        },
         async setName({ value }) {
             if (typeof value !== "string") {
                 return;
