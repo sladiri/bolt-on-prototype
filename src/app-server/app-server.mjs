@@ -15,7 +15,7 @@ export const AppServer = ({ publicPath }) => {
     const app = new Koa();
     app.use(errorHandler);
     app.use(setXResponseTime);
-    app.use(route.get("/posts", posts));
+    app.use(route.get("/api/posts", posts));
     app.use(ssrIndex);
     app.use(mount(filePath, serve(`./${publicPath}`)));
     return app;

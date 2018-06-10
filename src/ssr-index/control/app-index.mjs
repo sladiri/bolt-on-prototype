@@ -3,7 +3,7 @@ import { appShell, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
 import { posts } from "../../posts-data/posts";
 
-export const routeRegex = /^\/app\/(?<route>.+)?$/;
+console.assert(pages.home && pages.home.page, "Routing: Home page required");
 
 export const state = Object.assign(Object.create(null), {
     route: "",
@@ -16,11 +16,11 @@ export const state = Object.assign(Object.create(null), {
     counters: [20, 20],
 });
 
+export const routeRegex = /^\/(.+)?$/;
 export const appIndex = async ({ ctx, body }) => {
-    const routeMatch = routeRegex.exec(ctx.path);
-    const route = routeMatch ? routeMatch.groups.route : "/";
+    const [, route = "home"] = routeRegex.exec(ctx.path) || [];
     const query = Object.assign(Object.create(null), ctx.query);
-    const { title, description } = pages[route] || pages["/"];
+    const { title, description } = pages[route] || pages.home;
     const { renderHTMLString, accept } = SsrApp({
         state,
         app: appShell,

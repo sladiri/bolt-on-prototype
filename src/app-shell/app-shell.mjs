@@ -1,8 +1,12 @@
 import { routeStatus } from "../components/route-status";
 import { skipLink } from "../components/skip-link";
 import { Home } from "../pages/home";
-import { Foo } from "../pages/foo";
-import { Bar } from "../pages/bar";
+import { D3Chart } from "../pages/d3-chart";
+
+export const pages = {
+    home: Home,
+    "d3-chart": D3Chart,
+};
 
 export const appShell = props => {
     const {
@@ -11,7 +15,7 @@ export const appShell = props => {
         state: { route },
         _wire,
     } = props;
-    const { skips = [], title, description, page } = pageFromRoute({ route });
+    const { skips = [], title, description, page } = pages[route] || Home;
     return render`
         ${cn(routeStatus, { title })}
         <ul class="skipLinks">${renderSkipLinks({ cn, skips })}</ul>
@@ -23,30 +27,28 @@ export const appShell = props => {
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/app/foo?baz=1&baz=2">Foo</a></li>
-                <li><a href="/app/bar">Bar</a></li>
+                <li><a href="/d3-chart">D3 Chart</a></li>
             </ul>
         </nav>
         <main>${page(props)}</main>
-        ${pageChangedScript({ render: _wire(), page, title, description })}
+        ${updateHeadScript({ render: _wire(), page, title, description })}
         <footer></footer>
         `;
 };
 
-export const pages = {
-    "/": Home,
-    foo: Foo,
-    bar: Bar,
-};
-
-export const pageFromRoute = ({ route }) => {
-    const page = pages[route] || Home;
-    return page;
+export const renderSkipLinks = ({ cn, skips }) => {
+    return skips.map(([id, label], i) =>
+        cn(
+            props => props.render`<li>${skipLink(props)}</li>`,
+            { id, label },
+            null,
+            i,
+        ),
+    );
 };
 
 let currentPage;
-
-export const pageChangedScript = ({ render, page, title, description }) => {
+export const updateHeadScript = ({ render, page, title, description }) => {
     if (!currentPage || currentPage === page) {
         currentPage = page;
         return;
@@ -61,15 +63,4 @@ export const pageChangedScript = ({ render, page, title, description }) => {
             document.getElementById("Main").focus();
         </script>
     `;
-};
-
-export const renderSkipLinks = ({ cn, skips }) => {
-    return skips.map(([id, label], i) =>
-        cn(
-            props => props.render`<li>${skipLink(props)}</li>`,
-            { id, label },
-            null,
-            i,
-        ),
-    );
 };

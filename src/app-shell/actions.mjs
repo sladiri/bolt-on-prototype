@@ -18,14 +18,16 @@ export const _Actions = ({ propose, service }) => {
         async fetchPosts({ cancel = false } = {}) {
             const proposal = cancel
                 ? {}
-                : fetch("/posts")
+                : fetch("/api/posts")
                       .then(wait(1000))
                       .then(resp => resp.json())
                       .then(posts => ({ posts }));
             await propose({ proposal }, "fetchPosts");
         },
         async countDown({ value = -1, counterId }) {
-            const { idsInProgress } = service;
+            const {
+                countDown: { idsInProgress },
+            } = service;
             const payload = { counter: value, counterId };
             if (value === null) {
                 clearTimeout(idsInProgress.get(counterId));
@@ -61,8 +63,9 @@ export const Actions = ({ propose }) => {
     const actions = _Actions({
         propose,
         service: {
-            routeRegex: /^\/app\/(.+)?$/,
-            idsInProgress: new Map(),
+            countDown: {
+                idsInProgress: new Map(),
+            },
         },
     });
     UpdateStream({ actions });

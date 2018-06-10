@@ -5,17 +5,7 @@ import { todos } from "../components/todos";
 import { countDown } from "../components/count-down";
 
 export const title = "Bolt-on Prototype";
-export const description = "Bolt-on Prototype Description";
-
-export const home = props => {
-    const { render, cn, rand } = props;
-    return render`
-        <h1 id="Main" tabindex="-1">${title} Heading</h1>
-        ${refreshButton(props)}
-        <br />
-        ${cn(sections, { rand })}
-        `;
-};
+export const description = "Bolt-on Protocol Example App";
 
 export const Home = {
     skips: [
@@ -31,6 +21,16 @@ export const Home = {
         const { title, rand } = props.state;
         return props.cn(home, { title, rand });
     },
+};
+
+export const home = props => {
+    const { render, cn, rand } = props;
+    return render`
+        <h1 id="Main" tabindex="-1">${title} Heading</h1>
+        ${refreshButton(props)}
+        <br />
+        ${cn(sections, { rand })}
+        `;
 };
 
 export const sections = props => {
