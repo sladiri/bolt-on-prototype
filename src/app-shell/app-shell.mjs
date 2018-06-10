@@ -1,13 +1,17 @@
+import { UpdateHeadScript } from "hypersam/src/update-head-script";
 import { routeStatus } from "../components/route-status";
 import { skipLink } from "../components/skip-link";
 import { Home } from "../pages/home";
+import { SamState } from "../pages/sam-state";
 import { D3Chart } from "../pages/d3-chart";
 
 export const pages = {
     home: Home,
+    "sam-state": SamState,
     "d3-chart": D3Chart,
 };
 
+const updateHeadScript = UpdateHeadScript();
 export const appShell = props => {
     const {
         render,
@@ -27,6 +31,7 @@ export const appShell = props => {
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
+                <li><a href="/sam-state">SAM State</a></li>
                 <li><a href="/d3-chart">D3 Chart</a></li>
             </ul>
         </nav>
@@ -45,22 +50,4 @@ export const renderSkipLinks = ({ cn, skips }) => {
             i,
         ),
     );
-};
-
-let currentPage;
-export const updateHeadScript = ({ render, page, title, description }) => {
-    if (!currentPage || currentPage === page) {
-        currentPage = page;
-        return;
-    }
-    currentPage = page;
-    return render`
-        <input id="page-title" value=${title} type="hidden" />
-        <input id="page-description" value=${description} type="hidden" />
-        <script>
-            document.title = document.getElementById("page-title").value;
-            document.querySelector('meta[name="description"]').content = document.getElementById("page-description").value;
-            document.getElementById("Main").focus();
-        </script>
-    `;
 };
