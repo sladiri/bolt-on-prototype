@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "Slađan Ristić",
-  "license": "MIT",
+  "license": "ISC",
   "repository": {
     "url": "https://github.com/sladiri/bolt-on-prototype"
   },
