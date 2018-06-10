@@ -4,12 +4,10 @@
 
 /public/
 
-/*.pem
+/statistics.html
 
-/bak/
+/*.pem
 
 /gundb-data.json
 
 /*.db
-
-/statistics.html
