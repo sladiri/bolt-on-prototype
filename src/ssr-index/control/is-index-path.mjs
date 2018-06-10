@@ -2,6 +2,7 @@ export const isIndexPath = ({ path }) => {
     const result =
         path.startsWith("/") &&
         !(
+            path.startsWith("/public") ||
             path.startsWith("/api") ||
             path.endsWith(".gz") ||
             path.endsWith(".mjs") ||
