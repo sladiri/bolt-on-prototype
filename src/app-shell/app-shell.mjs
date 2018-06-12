@@ -35,7 +35,7 @@ export const appShell = props => {
                 <li><a href="/d3-chart">D3 Chart</a></li>
             </ul>
         </nav>
-        <main>${page(props)}</main>
+        <main>${cn(page)}</main>
         ${updateHeadScript({ render: _wire(), page, title, description })}
         <footer></footer>
         `;

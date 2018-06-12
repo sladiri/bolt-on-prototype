@@ -6,13 +6,9 @@ export const Home = {
     title,
     description,
     page: props => {
-        return props.cn(home);
-    },
-};
-
-export const home = props => {
-    const { render } = props;
-    return render`
+        const { render } = props;
+        return render`
         <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
         `;
+    },
 };
