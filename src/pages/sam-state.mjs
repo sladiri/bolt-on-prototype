@@ -24,7 +24,7 @@ export const SamState = {
 };
 
 export const samState = props => {
-    const { render, cn, rand } = props;
+    const { render, cn, title, rand } = props;
     return render`
         <h1 id="Main" tabindex="-1">SAM State Test</h1>
         <p>Title of the page: ${title}</p>
