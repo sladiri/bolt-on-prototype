@@ -6,12 +6,12 @@ import { posts } from "./control/posts";
 import { ProductionIndex } from "../ssr-index/production-index";
 import { DevelopmentIndex } from "../ssr-index/development-index";
 
-export const AppServer = ({ publicPath }) => {
+export const AppServer = async ({ publicPath }) => {
     const isProduction = process.env.NODE_ENV === "production";
     const filePath = isProduction ? "/" : `/${publicPath}`;
     const ssrIndex = isProduction
         ? ProductionIndex({ publicPath })
-        : DevelopmentIndex();
+        : await DevelopmentIndex();
     const app = new Koa();
     app.use(errorHandler);
     app.use(setXResponseTime);

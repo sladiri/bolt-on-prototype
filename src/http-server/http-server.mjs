@@ -24,7 +24,7 @@ const serverCallback = ({ host, port }) => error => {
 };
 
 (async () => {
-    const app = AppServer({ publicPath: "public" });
+    const app = await AppServer({ publicPath: "public" });
     const appServer = http2.createSecureServer({ key, cert }, app.callback());
     const appServerOptions = { host, port: appPort };
     appServer.listen(appServerOptions, serverCallback(appServerOptions));
