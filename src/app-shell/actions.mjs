@@ -1,19 +1,9 @@
-import PouchDB from "pouchdb";
-
-export const _Actions = ({ propose, service }) => {
+export const Actions = ({ propose, service }) => {
+    console.assert(service && service.db, "Actions require DB service");
     return Object.assign(Object.create(null), {
         async foo() {
             const info = await service.db.info();
             console.log(info);
         },
     });
-};
-
-export const Actions = ({ propose }) => {
-    const db = new PouchDB(`${window.location.origin}/api/couch/kittens`);
-    const actions = _Actions({
-        propose,
-        service: { db },
-    });
-    return actions;
 };

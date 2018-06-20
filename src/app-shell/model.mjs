@@ -1,4 +1,4 @@
-export const Accept = ({ state }) => {
+export const Accept = ({ state, service }) => {
     return async ({ proposal }) => {
         try {
             if (proposal.route !== undefined) {
