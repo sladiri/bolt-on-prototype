@@ -35,7 +35,7 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.1.0",
     "http2-proxy": "^4.2.10",
-    "hypersam": "0.0.27",
+    "hypersam": "0.0.29",
     "jsverify": "^0.8.3",
     "koa": "^2.5.1",
     "koa-mount": "^3.0.0",
