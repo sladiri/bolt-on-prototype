@@ -6,7 +6,7 @@ export const Actions = ({ propose, service }) => {
         console.assert(db, "Actions require DB service");
     };
     return Object.assign(Object.create(null), {
-        async foo() {
+        async dbInfo() {
             await ensureDB();
             const info = await db.info();
             console.log(info);

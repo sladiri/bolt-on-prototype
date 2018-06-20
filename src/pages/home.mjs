@@ -6,10 +6,18 @@ export const Home = {
     title,
     description,
     page: props => {
-        const { render } = props;
-        return render`
-            <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
-            <button onclick=${props.actions.foo}>PouchDB Info</button>
-            `;
+        const {
+            cn,
+            actions: { dbInfo },
+        } = props;
+        return cn(home, { dbInfo });
     },
+};
+
+export const home = props => {
+    const { render, dbInfo } = props;
+    return render`
+        <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
+        <button onclick=${dbInfo}>PouchDB Info</button>
+        `;
 };

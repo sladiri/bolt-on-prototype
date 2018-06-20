@@ -25,7 +25,7 @@ export const appShell = props => {
                 <li><a href="/">Home</a></li>
             </ul>
         </nav>
-        <main>${cn(page)}</main>
+        <main>${page(props)}</main>
         ${cn(updateHeadScript, { page, title, description })}
         <footer></footer>
         `;
