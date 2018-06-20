@@ -1,7 +1,7 @@
 import Koa from "koa";
 import mount from "koa-mount";
-import { couchDbProxy } from "./entity/couchdb";
-import { Files } from "./entity/files";
+import { couchDbProxy } from "./control/couchdb";
+import { Files } from "./control/files";
 import { ProductionIndex } from "../ssr-index/production-index";
 import { DevelopmentIndex } from "../ssr-index/development-index";
 
