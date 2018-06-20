@@ -1,5 +1,6 @@
 import Koa from "koa";
 import mount from "koa-mount";
+import compress from "koa-compress";
 import { couchDbProxy } from "./control/couchdb";
 import { Files } from "./control/files";
 import { ProductionIndex } from "../ssr-index/production-index";
@@ -17,6 +18,9 @@ export const AppServer = async ({ publicPath }) => {
     const app = new Koa();
     app.use(errorHandler);
     app.use(setXResponseTime);
+    if (isProduction) {
+        app.use(compress());
+    }
     app.use(couchDb);
     app.use(ssrIndex);
     app.use(files);

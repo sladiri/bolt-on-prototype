@@ -5,7 +5,6 @@ const Favicons = require("favicons-webpack-plugin");
 const MiniCssExtract = require("mini-css-extract-plugin");
 const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
-const Compression = require("compression-webpack-plugin");
 const PreloadHtml = require("preload-webpack-plugin");
 const Minify = require("babel-minify-webpack-plugin");
 
@@ -127,7 +126,6 @@ const config = ({ debug = false, paths, publicPath }) => {
                           { mangle: { topLevel: true } },
                           { test: /\.js($|\?)|\.mjs($|\?)/i },
                       ),
-                      new Compression(),
                       new Visualiser({ filename: "statistics.html" }),
                   ],
         ),
