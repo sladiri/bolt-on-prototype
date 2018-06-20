@@ -1,7 +1,6 @@
 import { SsrApp } from "hypersam/src/server";
 import { appShell, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
-import { posts } from "../../posts-data/posts";
 
 console.assert(pages.home && pages.home.page, "Routing: Home page required");
 
@@ -10,10 +9,6 @@ export const state = Object.assign(Object.create(null), {
     query: Object.create(null),
     title: "",
     description: "",
-    rand: "",
-    posts: [],
-    todos: [],
-    counters: [20, 20],
 });
 
 export const routeRegex = /^\/(.+)?$/;
@@ -26,7 +21,7 @@ export const appIndex = async ({ ctx, body }) => {
         app: appShell,
         Accept,
     });
-    await accept({ proposal: { route, query, title, description, posts } });
+    await accept({ proposal: { route, query, title, description } });
     const appString = renderHTMLString();
     const index = body
         .toString()

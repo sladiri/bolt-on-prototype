@@ -1,73 +1,19 @@
-import { UpdateStream } from "./control/update-stream";
-
-const wait = delay => value =>
-    new Promise(res => setTimeout(() => res(value), delay));
+import PouchDB from "pouchdb";
 
 export const _Actions = ({ propose, service }) => {
     return Object.assign(Object.create(null), {
-        async refresh() {
-            const proposal = { rand: Date.now() };
-            await propose({ proposal });
-        },
-        async setName({ value }) {
-            if (typeof value !== "string") {
-                return;
-            }
-            await propose({ proposal: { rand: value } });
-        },
-        async fetchPosts({ cancel = false } = {}) {
-            const proposal = cancel
-                ? {}
-                : fetch("/api/posts")
-                      .then(wait(1000))
-                      .then(resp => resp.json())
-                      .then(posts => ({ posts }));
-            await propose({ proposal }, "fetchPosts");
-        },
-        async countDown({ value = -1, counterId }) {
-            const {
-                countDown: { idsInProgress },
-            } = service;
-            const payload = { counter: value, counterId };
-            if (value === null) {
-                clearTimeout(idsInProgress.get(counterId));
-                await propose({
-                    proposal: payload,
-                    nameSpace: `countDown${counterId}`,
-                });
-                idsInProgress.delete(counterId);
-                return;
-            }
-            if (idsInProgress.has(counterId)) {
-                return;
-            }
-            idsInProgress.set(
-                counterId,
-                setTimeout(async () => {
-                    await propose({
-                        proposal: payload,
-                        nameSpace: `countDown${counterId}`,
-                    });
-                    idsInProgress.delete(counterId);
-                }, 1000),
-            );
-        },
-        async updateTodo({ id, ...attrs }) {
-            const proposal = { todoId: id, ...attrs };
-            await propose({ proposal });
+        async foo() {
+            const info = await service.db.info();
+            console.log(info);
         },
     });
 };
 
 export const Actions = ({ propose }) => {
+    const db = new PouchDB(`${window.location.origin}/api/couch/kittens`);
     const actions = _Actions({
         propose,
-        service: {
-            countDown: {
-                idsInProgress: new Map(),
-            },
-        },
+        service: { db },
     });
-    UpdateStream({ actions });
     return actions;
 };

@@ -8,7 +8,8 @@ export const Home = {
     page: props => {
         const { render } = props;
         return render`
-        <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
-        `;
+            <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
+            <button onclick=${props.actions.foo}>PouchDB Info</button>
+            `;
     },
 };

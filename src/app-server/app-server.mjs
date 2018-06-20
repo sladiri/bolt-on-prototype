@@ -1,23 +1,26 @@
 import Koa from "koa";
 import route from "koa-route";
 import mount from "koa-mount";
-import serve from "koa-static";
-import { posts } from "./control/posts";
+import { couchDbProxy } from "./entity/couchdb";
+import { Files } from "./entity/files";
 import { ProductionIndex } from "../ssr-index/production-index";
 import { DevelopmentIndex } from "../ssr-index/development-index";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const AppServer = async ({ publicPath }) => {
-    const isProduction = process.env.NODE_ENV === "production";
-    const filePath = isProduction ? "/" : `/${publicPath}`;
+    const couchDb = mount("/api/couch", couchDbProxy);
+    const filesPath = isProduction ? "/" : `/${publicPath}`;
+    const files = route.get(filesPath, Files({ publicPath }));
     const ssrIndex = isProduction
         ? ProductionIndex({ publicPath })
         : await DevelopmentIndex();
     const app = new Koa();
     app.use(errorHandler);
     app.use(setXResponseTime);
-    app.use(route.get("/api/posts", posts));
+    app.use(couchDb);
+    app.use(files);
     app.use(ssrIndex);
-    app.use(mount(filePath, serve(`./${publicPath}`)));
     return app;
 };
 

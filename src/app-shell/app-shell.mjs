@@ -2,13 +2,9 @@ import { UpdateHeadScript } from "hypersam/src/update-head-script";
 import { routeStatus } from "../components/route-status";
 import { skipLink } from "../components/skip-link";
 import { Home } from "../pages/home";
-import { SamState } from "../pages/sam-state";
-import { D3Chart } from "../pages/d3-chart";
 
 export const pages = {
     home: Home,
-    "sam-state": SamState,
-    "d3-chart": D3Chart,
 };
 
 const updateHeadScript = UpdateHeadScript();
@@ -24,15 +20,9 @@ export const appShell = props => {
         ${cn(routeStatus, { title })}
         <ul class="skipLinks">${renderSkipLinks({ cn, skips })}</ul>
         <header></header>
-        <!--
-        Nav and Main sections have missing headngs.
-        Using Divs with roles would "fix" it, but nobody cares anyway.
-        -->
         <nav>
             <ul>
                 <li><a href="/">Home</a></li>
-                <li><a href="/sam-state">SAM State</a></li>
-                <li><a href="/d3-chart">D3 Chart</a></li>
             </ul>
         </nav>
         <main>${cn(page)}</main>
