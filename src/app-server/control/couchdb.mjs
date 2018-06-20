@@ -1,10 +1,6 @@
 import proxy from "http2-proxy";
 
-const protocol = "http";
-const hostname = "localhost";
-const port = 5984;
-
-export const couchDbProxy = async ctx => {
+export const couchDbProxy = ({ protocol, hostname, port }) => async ctx => {
     await new Promise((resolve, reject) => {
         try {
             proxy.web(

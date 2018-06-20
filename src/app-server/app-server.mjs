@@ -7,9 +7,14 @@ import { ProductionIndex } from "../ssr-index/production-index";
 import { DevelopmentIndex } from "../ssr-index/development-index";
 
 const isProduction = process.env.NODE_ENV === "production";
+const couchOptions = {
+    protocol: "http",
+    hostname: "localhost",
+    port: 5984,
+};
 
 export const AppServer = async ({ publicPath }) => {
-    const couchDb = mount("/api/couch", couchDbProxy);
+    const couchDb = mount("/api/couch", couchDbProxy(couchOptions));
     const filesPath = isProduction ? "/" : `/${publicPath}`;
     const files = mount(filesPath, Files({ publicPath }));
     const ssrIndex = isProduction

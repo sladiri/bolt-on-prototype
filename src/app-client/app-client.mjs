@@ -2,11 +2,14 @@ import { ClientApp } from "hypersam/src/client";
 import { appShell } from "../app-shell/app-shell";
 import { Actions } from "../app-shell/actions";
 import { Accept, nextAction } from "../app-shell/model";
+import { Service } from "../app-shell/service";
+
+const dbName = "kittens";
+const dbPath = `${window.location.origin}/api/couch/${dbName}`;
 
 const service = async () => {
     const { default: PouchDB } = await import("pouchdb");
-    const db = new PouchDB(`${window.location.origin}/api/couch/kittens`);
-    return { db };
+    return Service({ PouchDB, dbPath });
 };
 
 ClientApp({
