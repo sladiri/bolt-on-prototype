@@ -46,11 +46,7 @@ const config = ({ debug = false, paths, publicPath }) => {
                         loader: "babel-loader",
                         options: {
                             cacheDirectory: debug,
-                            plugins: [
-                                "@babel/plugin-syntax-dynamic-import",
-                                "@babel/plugin-proposal-function-bind",
-                                "@babel/plugin-proposal-object-rest-spread",
-                            ],
+                            plugins: ["@babel/plugin-syntax-dynamic-import"],
                             presets: [
                                 [
                                     "@babel/preset-env",
