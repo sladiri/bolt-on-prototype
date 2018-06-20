@@ -1,5 +1,4 @@
 import Koa from "koa";
-import route from "koa-route";
 import mount from "koa-mount";
 import { couchDbProxy } from "./entity/couchdb";
 import { Files } from "./entity/files";
@@ -11,7 +10,7 @@ const isProduction = process.env.NODE_ENV === "production";
 export const AppServer = async ({ publicPath }) => {
     const couchDb = mount("/api/couch", couchDbProxy);
     const filesPath = isProduction ? "/" : `/${publicPath}`;
-    const files = route.get(filesPath, Files({ publicPath }));
+    const files = mount(filesPath, Files({ publicPath }));
     const ssrIndex = isProduction
         ? ProductionIndex({ publicPath })
         : await DevelopmentIndex();
@@ -19,8 +18,8 @@ export const AppServer = async ({ publicPath }) => {
     app.use(errorHandler);
     app.use(setXResponseTime);
     app.use(couchDb);
-    app.use(files);
     app.use(ssrIndex);
+    app.use(files);
     return app;
 };
 
