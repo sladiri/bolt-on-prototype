@@ -16,7 +16,7 @@ export const state = Object.assign(Object.create(null), {
 const protocol = "http";
 const hostname = "localhost";
 const port = 5984;
-const dbName = "kittens";
+const dbName = "bolton";
 const dbPath = `${protocol}://${hostname}:${port}/${dbName}`;
 const service = () => {
     return Service({ PouchDB, dbPath });

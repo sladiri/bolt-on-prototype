@@ -4,7 +4,7 @@ import { Actions } from "../app-shell/actions";
 import { Accept, nextAction } from "../app-shell/model";
 import { Service } from "../app-shell/service";
 
-const dbName = "kittens";
+const dbName = "bolton";
 const dbPath = `${window.location.origin}/api/couch/${dbName}`;
 
 const service = async () => {
