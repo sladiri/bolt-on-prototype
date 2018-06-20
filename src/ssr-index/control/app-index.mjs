@@ -11,7 +11,7 @@ export const state = Object.assign(Object.create(null), {
     description: "",
 });
 
-export const service = { db: null };
+export const service = () => ({ db: {} }); // TODO: connect to DB here?
 
 export const ssrOptions = { state, app, Accept, service };
 
