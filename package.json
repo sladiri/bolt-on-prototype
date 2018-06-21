@@ -45,7 +45,6 @@
     "postcss-cssnext": "^3.1.0",
     "postcss-loader": "^2.1.5",
     "pouchdb": "^6.4.3",
-    "preload-webpack-plugin": "^3.0.0-beta.1",
     "prettier": "^1.13.5",
     "ramda": "^0.25.0",
     "rimraf": "^2.6.2",

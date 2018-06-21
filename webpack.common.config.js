@@ -1,11 +1,9 @@
 const path = require("path");
 const Html = require("html-webpack-plugin");
 const Favicons = require("favicons-webpack-plugin");
-// https://hackernoon.com/a-tale-of-webpack-4-and-how-to-finally-configure-it-in-the-right-way-4e94c8e7e5c1
 const MiniCssExtract = require("mini-css-extract-plugin");
 const postcssCssnext = require("postcss-cssnext");
 const Visualiser = require("webpack-visualizer-plugin");
-const PreloadHtml = require("preload-webpack-plugin");
 const Minify = require("babel-minify-webpack-plugin");
 
 const paths = ({ outputPath }) => {
@@ -121,7 +119,7 @@ const config = ({ debug = false, paths, publicPath }) => {
             debug
                 ? []
                 : [
-                      new PreloadHtml(),
+                      //   new PreloadHtml(),
                       new Minify(
                           { mangle: { topLevel: true } },
                           { test: /\.js($|\?)|\.mjs($|\?)/i },
