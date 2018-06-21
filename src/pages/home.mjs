@@ -8,16 +8,20 @@ export const Home = {
     page: props => {
         const {
             cn,
-            actions: { dbInfo },
+            state: { busy, foo },
+            actions: { dbInfo, fooIncrement },
         } = props;
-        return cn(home, { dbInfo });
+        return cn(home, { busy, foo, dbInfo, fooIncrement });
     },
 };
 
 export const home = props => {
-    const { render, dbInfo } = props;
+    const { render, busy, foo, dbInfo, fooIncrement } = props;
     return render`
         <h1 id="Main" tabindex="-1">Bolt-on Protocol Prototype App</h1>
         <button onclick=${dbInfo}>PouchDB Info</button>
+        <h1 id="Foo" tabindex="-1">Foo</h1>
+        <span>${foo}</span>
+        <button onclick=${fooIncrement}>Foo +1</button>
         `;
 };

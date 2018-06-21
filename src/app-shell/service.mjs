@@ -1,15 +1,36 @@
-export const Service = ({ PouchDB, dbPath, dbName }) => {
-    const db = new PouchDB(`${dbPath}/${dbName}`);
-    console.assert(db, "Service ensureDb db");
-    let ensured = false;
+import { Shim } from "../bolt-on-shim/bolt-on-shim";
+
+export const Service = ({ PouchDB, dbPath, dbName, shimId, tick }) => {
+    const remoteDb = new PouchDB(`${dbPath}/${dbName}`);
+    console.assert(remoteDb, "Service ensureDb remoteDb");
+    let dbEnsured = false;
     const ensureDb = async () => {
-        if (ensured) {
-            return db;
+        if (dbEnsured) {
+            return remoteDb;
         }
-        const info = await db.info();
-        console.assert(info && info.db_name === dbName, "Service CouchDB name");
-        ensured = true;
-        return db;
+        const { db_name, adapter } = (await remoteDb.info()) || {};
+        console.assert(db_name === dbName, "Service db name");
+        console.log(
+            `Service: PouchDB connected to [${db_name}] via [${adapter}]`,
+        );
+        dbEnsured = true;
+        return remoteDb;
     };
-    return { ensureDb };
+    const localDbName = `${dbName}_local-store`;
+    const localDb = new PouchDB(localDbName);
+    let shim;
+    const ensureShim = async () => {
+        if (shim) {
+            return shim;
+        }
+        const { db_name, adapter } = (await localDb.info()) || {};
+        console.assert(db_name === localDbName, "Service localDb name");
+        console.log(
+            `Service: PouchDB connected to [${db_name}] via [${adapter}]`,
+        );
+        const remoteDb = await ensureDb();
+        shim = Shim({ remoteDb, localDb, shimId, tick });
+        return shim;
+    };
+    return { ensureDb, ensureShim };
 };

@@ -1,5 +1,5 @@
-export const Actions = ({ propose, service }) => {
-    console.assert(propose && typeof propose === "function", "Actions propose");
+export const Actions = ({ service }) => {
+    console.assert(typeof service === "function", "Actions service");
     const ensureService = (() => {
         let ensured;
         return async () => {
@@ -10,18 +10,25 @@ export const Actions = ({ propose, service }) => {
                 service && typeof service === "function",
                 "Actions service",
             );
-            const { ensureDb } = await service();
+            const { ensureDb, ensureShim } = await service();
             console.assert(ensureDb, "Actions ensureDb");
             db = await ensureDb();
+            shim = await ensureShim();
             ensured = true;
         };
     })();
     let db;
-    return Object.assign(Object.create(null), {
-        async dbInfo() {
-            await ensureService();
-            const info = await db.info();
-            console.log(info);
-        },
-    });
+    let shim;
+    let foo = 1;
+    return Object.seal(
+        Object.assign(Object.create(null), {
+            dbInfo: () => async () => {
+                await ensureService();
+            },
+            fooIncrement: propose => async () => {
+                await propose({ foo });
+                foo += 1;
+            },
+        }),
+    );
 };

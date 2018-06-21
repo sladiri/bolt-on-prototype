@@ -4,25 +4,26 @@ Show Bolt-on example for my master-thesis.
 
 ## Quick Start
 
-*   `npm run build` creates static assets
-*   `npm start` serves the assets
+-   `npm run build` creates static assets
+-   `npm start` serves the assets
 
 ## Bolt-on protocol
 
-*   [paper](http://www.bailis.org/papers/bolton-sigmod2013.pdf)
+-   [paper](http://www.bailis.org/papers/bolton-sigmod2013.pdf)
+-   [code exmaple]()
 
 ## SAM pattern
 
-*   [home](http://sam.js.org/)
-*   An action proposes an update and the model accepts or rejects it (ie. a
+-   [home](http://sam.js.org/)
+-   An action proposes an update and the model accepts or rejects it (ie. a
     defined Step).
-*   The model updates and view updates are clearly separated (model and
+-   The model updates and view updates are clearly separated (model and
     state-representation).
 
 ## HyperHTML with Server Side Rendering
 
-*   [HyperHTML](https://viperhtml.js.org/) updates the DOM efficiently
-*   It supports server side rendering. While the page is parsing client-side code, event handlers, for example buttons, record actions to be replayed when the client app is ready.
+-   [HyperHTML](https://viperhtml.js.org/) updates the DOM efficiently
+-   It supports server side rendering. While the page is parsing client-side code, event handlers, for example buttons, record actions to be replayed when the client app is ready.
 
 ## VS Code Launch Config
 
@@ -41,29 +42,21 @@ Show Bolt-on example for my master-thesis.
 
 ## TODO
 
-*   [ ] Bolt-on with Shim
-    *   [ ] Shim algorithm
-        *   [x] Ensure that meta-data is valid on save
-            *   [x] Dependency must not have greater clock than new item.
-        *   [ ] Pessimistic Shim
-        *   [ ] Property-based tests
-            *   [ ] Happened-before
-                *   [x] Simple property based tests
-                *   [ ] Improve property for vector clock happened-before
-            *   [ ] is covered
-        *   [ ] Optimistic Shim
-            *   [ ] Implement polling Shim from Bailis' paper
-            *   [ ] Implement Shim using PouchDB's change-events
-        *   [ ] Optimistic or Pessimistic via argument
-    *   [ ] Bounded size of Shim (affects Shim performance)
-    *   [x] Co-locate with Browser
-    *   [ ] Co-locate with server partition
-    *   [ ] Ensure unique Shim ID
-*   [x] SAM pattern
-    *   [x] Propose
-    *   [x] Accept
-    *   [x] Next-Action-Predicate
-    *   [x] launcher example with "external clock"
-        *   [x] SAFE container with action cancellation
-*   [ ] Use function-tree for actions
-        [home](https://github.com/cerebral/cerebral/tree/next/packages/node_modules/function-tree)
+-   [ ] Optimistic polling Shim from Bailis' paper
+-   [ ] Optimistic Shim using PouchDB's change-events
+-   [ ] Pessimistic Shim
+-   Co-locate Shim with:
+    -   [ ] browser
+    -   [ ] server
+-   App exmples:
+    -   [ ] Twitter-like message tree
+    -   [ ] Tv Shows [blog post](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/)
+    -   [ ] Monitoring tool
+-   SAM Pattern:
+    -   [ ] (Optimistic) Shim updates call actions
+    -   [ ] Cancel actions via Shim
+-   Property-based tests:
+    -   [ ] Happened-before
+    -   [ ] Is-covered
+-   [ ] Bounded size of Shim (affects Shim performance)
+-   [ ] Write Shim code in Typescript?

@@ -1,23 +1,22 @@
-export const Accept = ({ state, service }) => {
-    assertState({ state });
+export const Accept = ({ service }) => {
+    console.assert(typeof service === "function", "Accept service");
     const ensureService = (() => {
         let ensured;
         return async () => {
             if (ensured) {
                 return;
             }
-            console.assert(
-                service && typeof service === "function",
-                "Model service",
-            );
-            const { ensureDb } = await service();
-            console.assert(ensureDb, "Model ensureDb");
+            const { ensureDb, ensureShim } = await service();
+            console.assert(ensureDb, "Accept ensureDb");
             db = await ensureDb();
+            shim = await ensureShim();
             ensured = true;
         };
     })();
     let db;
-    return async ({ proposal }) => {
+    let shim;
+    return async ({ state, proposal }) => {
+        assertState({ state });
         await ensureService();
         try {
             if (proposal.route !== undefined) {
@@ -32,8 +31,84 @@ export const Accept = ({ state, service }) => {
             if (proposal.description !== undefined) {
                 state.description = proposal.description;
             }
+            if (Number.isSafeInteger(proposal.foo)) {
+                state.foo = proposal.foo;
+
+                if (!(await shim.get({ key: "parent" }))) {
+                    const parentToStore = { key: "parent", value: 42 };
+                    await shim.put(parentToStore);
+                    const parentStored = await shim.get({
+                        key: parentToStore.key,
+                    });
+                    const parentToStore2 = { key: "parent2", value: 666 };
+                    await shim.put(parentToStore2);
+                    const parentStored2 = await shim.get({
+                        key: parentToStore2.key,
+                    });
+                    const after = new Set([parentStored, parentStored2]);
+                    const childToStore = { key: "child", value: 123, after };
+                    // debugger;
+                    await shim.put(childToStore);
+                    const childStored = await shim.get({
+                        key: childToStore.key,
+                    });
+                    const childToStore2 = {
+                        key: "child",
+                        value: childStored.value,
+                        after: new Set([childStored]),
+                    };
+                    console.log("-----", childToStore2);
+                    await shim.put(childToStore2);
+                    const childStored2 = await shim.get({
+                        key: childToStore2.key,
+                    });
+                    console.log(
+                        "parentStored.clock",
+                        parentStored.clock,
+                        "\nparentStored.deps",
+                        [...parentStored.deps.all().entries()].map(
+                            ([key, v]) => ({
+                                key,
+                                clock: [...v.clock.entries()],
+                            }),
+                        ),
+                        "\nparentStored.deps/parent.clock",
+                        parentStored.deps.all().get("parent").clock,
+                    );
+                    console.log(
+                        "childStored.clock",
+                        childStored.clock,
+                        "\nchildStored.deps",
+                        [...childStored.deps.all().entries()].map(
+                            ([key, v]) => ({
+                                key,
+                                clock: [...v.clock.entries()],
+                            }),
+                        ),
+                        "\nchildStored.deps/parent.clock",
+                        childStored.deps.all().get("parent").clock,
+                        "\nchildStored.deps/child.clock",
+                        childStored.deps.all().get("child").clock,
+                    );
+                    console.log(
+                        "childStored2.clock",
+                        childStored2.clock,
+                        "\nchildStored2.deps",
+                        [...childStored2.deps.all().entries()].map(
+                            ([key, v]) => ({
+                                key,
+                                clock: [...v.clock.entries()],
+                            }),
+                        ),
+                        "\nchildStored2.deps/parent.clock",
+                        childStored2.deps.all().get("parent").clock,
+                        "\nchildStored2.deps/child.clock",
+                        childStored2.deps.all().get("child").clock,
+                    );
+                }
+            }
         } catch (error) {
-            console.error("Acceptor error", error);
+            console.error("accept error", error);
             throw error;
         }
     };
@@ -52,5 +127,9 @@ export const assertState = ({ state }) => {
     console.assert(
         typeof state.description === "string",
         "Model state.description",
+    );
+    console.assert(
+        state.busy === true || state.busy === false,
+        "Model state.busy",
     );
 };
