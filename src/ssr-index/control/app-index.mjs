@@ -1,5 +1,5 @@
 import { SsrApp } from "hypersam/src/server";
-import PouchDB from "pouchdb-node";
+import PouchDB from "pouchdb";
 import { appShell as app, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
 import { Service } from "../../app-shell/service";
