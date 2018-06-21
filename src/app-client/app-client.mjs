@@ -4,21 +4,36 @@ import { Actions } from "../app-shell/actions";
 import { Accept, nextAction } from "../app-shell/model";
 import { Service } from "../app-shell/service";
 
+const dbPath = `${window.location.origin}/api/couch`;
 const dbName = "bolton";
-const dbPath = `${window.location.origin}/api/couch/${dbName}`;
 
-const service = async () => {
-    const { default: PouchDB } = await import("pouchdb");
-    return Service({ PouchDB, dbPath });
-};
+export const service = (() => {
+    let ensured;
+    let _service;
+    return async () => {
+        if (!ensured) {
+            const { default: PouchDB } = await import("pouchdb");
+            _service = Service({ PouchDB, dbPath, dbName });
+            ensured = true;
+        }
+        return _service;
+    };
+})();
 
-ClientApp({
+export const clientAppOptions = {
     app: appShell,
     rootElement: document.body,
     Accept,
     Actions,
     nextAction,
     service,
-}).catch(error => {
-    console.error("App error", error);
-});
+};
+
+(async () => {
+    try {
+        await ClientApp(clientAppOptions);
+    } catch (error) {
+        console.error("App error", error);
+        alert(error.message);
+    }
+})();

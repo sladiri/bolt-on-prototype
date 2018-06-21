@@ -1,13 +1,24 @@
 export const Accept = ({ state, service }) => {
     assertState({ state });
-    console.assert(service, "Model requires service");
+    const ensureService = (() => {
+        let ensured;
+        return async () => {
+            if (ensured) {
+                return;
+            }
+            console.assert(
+                service && typeof service === "function",
+                "Model service",
+            );
+            const { ensureDb } = await service();
+            console.assert(ensureDb, "Model ensureDb");
+            db = await ensureDb();
+            ensured = true;
+        };
+    })();
     let db;
-    const ensureDB = async () => {
-        db = db || (await service()).db;
-        console.assert(db, "Model requires DB service");
-    };
     return async ({ proposal }) => {
-        await ensureDB();
+        await ensureService();
         try {
             if (proposal.route !== undefined) {
                 state.route = proposal.route;
@@ -31,21 +42,15 @@ export const Accept = ({ state, service }) => {
 export const nextAction = ({ state, actions }) => {};
 
 export const assertState = ({ state }) => {
-    console.assert(state, "Model requires state");
-    console.assert(
-        typeof state.route === "string",
-        "Model requires state.route",
-    );
+    console.assert(state, "Model state");
+    console.assert(typeof state.route === "string", "Model state.route");
     console.assert(
         typeof state.query === "object" && state.query !== null,
-        "Model requires state.query",
+        "Model state.query",
     );
-    console.assert(
-        typeof state.title === "string",
-        "Model requires state.title",
-    );
+    console.assert(typeof state.title === "string", "Model state.title");
     console.assert(
         typeof state.description === "string",
-        "Model requires state.description",
+        "Model state.description",
     );
 };

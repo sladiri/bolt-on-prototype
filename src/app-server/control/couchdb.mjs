@@ -2,23 +2,19 @@ import proxy from "http2-proxy";
 
 export const couchDbProxy = ({ protocol, hostname, port }) => async ctx => {
     await new Promise((resolve, reject) => {
-        try {
-            proxy.web(
-                ctx.req,
-                ctx.res,
-                {
-                    protocol,
-                    hostname,
-                    port,
-                    onReq: mapPathToDbName({ path: ctx.path }),
-                },
-                error => {
-                    error ? reject(error) : resolve();
-                },
-            );
-        } catch (error) {
-            reject(error);
-        }
+        proxy.web(
+            ctx.req,
+            ctx.res,
+            {
+                protocol,
+                hostname,
+                port,
+                onReq: mapPathToDbName({ path: ctx.path }),
+            },
+            error => {
+                error ? reject(error) : resolve();
+            },
+        );
     });
 };
 

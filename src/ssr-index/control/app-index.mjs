@@ -4,7 +4,7 @@ import { appShell as app, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
 import { Service } from "../../app-shell/service";
 
-console.assert(pages.home && pages.home.page, "Routing: Home page required");
+console.assert(pages.home && pages.home.page, "Routing: Home page");
 
 export const state = Object.assign(Object.create(null), {
     route: "",
@@ -13,15 +13,22 @@ export const state = Object.assign(Object.create(null), {
     description: "",
 });
 
-const protocol = "http";
-const hostname = "localhost";
-const port = 5984;
-const dbName = "bolton";
-const dbPath = `${protocol}://${hostname}:${port}/${dbName}`;
-const service = () => {
-    return Service({ PouchDB, dbPath });
-};
-
+export const protocol = "http:";
+export const hostname = "localhost";
+export const port = 5984;
+export const dbPath = `${protocol}//${hostname}:${port}`;
+export const dbName = "bolton";
+export const service = (() => {
+    let ensured;
+    let _service;
+    return async () => {
+        if (!ensured) {
+            _service = Service({ PouchDB, dbPath, dbName });
+            ensured = true;
+        }
+        return _service;
+    };
+})();
 export const ssrOptions = { state, app, Accept, service };
 
 export const routeRegex = /^\/(.+)?$/;
