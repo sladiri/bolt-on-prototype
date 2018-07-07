@@ -2,17 +2,20 @@ import test from "tape";
 import { FakeStore } from "../store/store-fake-in-memory";
 import { Shim } from "./bolt-on-shim";
 
-test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
-    const localDb = new Map();
-    const ecdsDb = new Map();
-
+const getShim = ({
+    localDb = new Map(),
+    ecdsDb = new Map(),
+    shimId = "a",
+    tick = 10,
+}) => {
     const localStore = FakeStore({ db: localDb });
     const ecdsStore = FakeStore({ db: ecdsDb });
-
-    const shimId = "a";
-    const tick = 10;
-
     const shim = Shim({ localStore, ecdsStore, shimId, tick });
+    return shim;
+};
+
+test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
+    const shim = getShim({});
 
     const parentToStore = { key: "parent", value: 42 };
     await shim.upsert(parentToStore);
@@ -30,17 +33,34 @@ test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
     t.end();
 });
 
+test("shim - stored.clock happens after upsert(stored).clock", async t => {
+    const shim = getShim({});
+
+    const toStore = { key: "test", value: 42 };
+    await shim.upsert(toStore);
+    const stored = await shim.get({
+        key: toStore.key,
+    });
+
+    const toUpsert = { key: "test", value: 666 };
+    await shim.upsert(toUpsert);
+    const upserted = await shim.get({
+        key: toUpsert.key,
+    });
+
+    t.equal(
+        stored.clock.compare({
+            clock: upserted.clock,
+        }).happensBefore,
+        true,
+    );
+    t.equal(upserted.value, 666);
+
+    t.end();
+});
+
 test("shim - dep.clock === stored.deps(dep.key).clock", async t => {
-    const localDb = new Map();
-    const ecdsDb = new Map();
-
-    const localStore = FakeStore({ db: localDb });
-    const ecdsStore = FakeStore({ db: ecdsDb });
-
-    const shimId = "a";
-    const tick = 10;
-
-    const shim = Shim({ localStore, ecdsStore, shimId, tick });
+    const shim = getShim({});
 
     const parentToStore = { key: "parent", value: 42 };
     await shim.upsert(parentToStore);
