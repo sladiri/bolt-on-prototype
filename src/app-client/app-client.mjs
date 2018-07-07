@@ -40,15 +40,3 @@ export const service = (() => {
         alert(error.message);
     }
 })();
-
-(async function tests() {
-    try {
-        const { default: log } = await import("tap-browser-console-color");
-        log.patch();
-        console.log("\n");
-        await import("../bolt-on-shim/bolt-on-shim.test.mjs");
-    } catch (error) {
-        console.error("tests error", error);
-        alert(error.message);
-    }
-})();
