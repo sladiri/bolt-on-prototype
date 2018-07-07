@@ -1,4 +1,3 @@
-import { Store } from "./control/store-pouchdb";
 import { Resolver, applyAllPossible } from "./control/resolver";
 import {
     Dependency,
@@ -10,15 +9,14 @@ import {
     assertWrapped,
     Wrapped,
     serialiseWrapped,
+    deserialiseWrapped,
 } from "./control/wrapped-value";
 
-export const Shim = ({ remoteDb, localDb, shimId, tick }) => {
-    console.assert(remoteDb, "Shim remoteDb");
-    console.assert(localDb, "Shim localDb");
+export const Shim = ({ ecdsStore, localStore, shimId, tick }) => {
+    console.assert(ecdsStore, "Shim ecdsStore");
+    console.assert(localStore, "Shim localStore");
     console.assert(shimId, "Shim shimId");
     console.assert(Number.isSafeInteger(tick), "Shim tick");
-    const localStore = Store({ db: localDb });
-    const ecdsStore = Store({ db: remoteDb });
     const tickObj = { value: tick };
     // TODO: Tune Get with max-ECDS-reads
     const get = GetPessimistic({ ecdsStore, localStore });
@@ -37,10 +35,11 @@ export const GetOptimistic = ({ ecdsStore, localStore }) => {
         console.assert(key, "shim.getOptimistic key");
         try {
             resolver.watchKey({ key });
-            const wrapped = await localStore.get({ key });
-            if (!wrapped) {
+            const stored = await localStore.get({ key });
+            if (!stored) {
                 return;
             }
+            const wrapped = deserialiseWrapped({ stored });
             assertWrapped({ wrapped });
             return wrapped;
         } catch (error) {
@@ -55,26 +54,31 @@ export const GetPessimistic = ({ ecdsStore, localStore }) => async ({
 }) => {
     console.assert(key, "shim.getPessimistic key");
     try {
-        const toBuffer = await ecdsStore.get({ key });
-        if (!toBuffer) {
-            const local = await localStore.get({ key });
-            if (local) {
-                assertWrapped({ wrapped: local });
-                return local;
+        const toBufferStored = await ecdsStore.get({ key });
+        if (!toBufferStored) {
+            const localStored = await localStore.get({ key });
+            if (localStored) {
+                const localWrapped = deserialiseWrapped({
+                    stored: localStored,
+                });
+                assertWrapped({ wrapped: localWrapped });
+                return localWrapped;
             }
             return;
         }
-        assertWrapped({ wrapped: toBuffer });
-        const bufferedWrites = new Map([[key, toBuffer]]);
+        const toBufferWrapped = deserialiseWrapped({ stored: toBufferStored });
+        assertWrapped({ wrapped: toBufferWrapped });
+        const bufferedWrites = new Map([[key, toBufferWrapped]]);
         await applyAllPossible({
             ecdsStore,
             localStore,
             bufferedWrites,
         });
         // Localstore should have value now?
-        const covered = await localStore.get({ key });
-        assertWrapped({ wrapped: covered });
-        return covered;
+        const coveredStored = await localStore.get({ key });
+        const coveredWrapped = deserialiseWrapped({ stored: coveredStored });
+        assertWrapped({ wrapped: coveredWrapped });
+        return coveredWrapped;
     } catch (error) {
         console.error(error);
         debugger;
@@ -120,9 +124,9 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
             value,
             deps,
         });
-        const serialised = serialiseWrapped({ wrapped: toStore }); // Optimisation
-        await ecdsStore.put({ key, serialised });
-        await localStore.put({ key, serialised });
+        const serialised = serialiseWrapped({ wrapped: toStore });
+        await ecdsStore.put({ key, value: serialised });
+        await localStore.put({ key, value: serialised });
         return toStore;
     } catch (error) {
         console.error(error);

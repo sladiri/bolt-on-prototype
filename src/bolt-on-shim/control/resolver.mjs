@@ -1,4 +1,8 @@
-import { assertWrapped } from "./wrapped-value";
+import {
+    assertWrapped,
+    serialiseWrapped,
+    deserialiseWrapped,
+} from "./wrapped-value";
 import { assertDependency, assertClock } from "./dependencies";
 
 // Asynchronously applies updates to local reads for optimistic local reads
@@ -48,10 +52,11 @@ export const ResolveLoop = ({
             isOK = true;
             console.log("resolve");
             for (const key of optimisticKeysToCheck.values()) {
-                const wrapped = await ecdsStore.get({ key });
-                if (!wrapped) {
+                const stored = await ecdsStore.get({ key });
+                if (!stored) {
                     continue;
                 }
+                const wrapped = deserialiseWrapped({ stored });
                 assertWrapped({ wrapped });
                 bufferedWrites.set(key, wrapped);
             }
@@ -105,7 +110,8 @@ export const applyAllPossible = async ({
             for (const wrapped of writesToApply.values()) {
                 assertWrapped({ wrapped });
                 const { key } = wrapped;
-                await localStore.put({ key, value: wrapped });
+                const serialised = serialiseWrapped({ wrapped });
+                await localStore.put({ key, value: serialised });
                 bufferedWrites.delete(key);
                 changed = true;
             }
@@ -149,9 +155,10 @@ export const attemptToCover = async ({
             assertClock({ clock });
         }
     }
-    const local = await localStore.get({ key: writeToCheck.key });
-    if (local) {
+    const localStored = await localStore.get({ key: writeToCheck.key });
+    if (localStored) {
         // see if we've already applied this one
+        const local = deserialiseWrapped({ stored: localStored });
         assertWrapped({ wrapped: local });
         const causality = local.clock.compare({ clock: writeToCheck.clock });
         if (causality.happensAfter || causality.equal) {
@@ -163,11 +170,12 @@ export const attemptToCover = async ({
         if (depKey === writeToCheck.key) {
             continue;
         }
-        const depLocal = await localStore.get({ key: depKey });
+        const depLocalStored = await localStore.get({ key: depKey });
         const depRemote = writeToCheck.deps.get({ key: depKey });
         assertWrapped({ wrapped: depRemote });
-        if (depLocal) {
+        if (depLocalStored) {
             // if we've already applied this write or a write that will overwrite this write, we're good
+            const depLocal = deserialiseWrapped({ stored: depLocalStored });
             assertWrapped({ wrapped: depLocal });
             const causality = depLocal.clock.compare({
                 clock: depRemote.clock,
@@ -224,10 +232,13 @@ export const attemptToCover = async ({
             }
         }
         // now try to read from the underlying store ...
-        const newlyReadWrite = await ecdsStore.get({ key: depKey });
-        if (!newlyReadWrite) {
+        const newlyReadWriteStored = await ecdsStore.get({ key: depKey });
+        if (!newlyReadWriteStored) {
             return false;
         }
+        const newlyReadWrite = deserialiseWrapped({
+            stored: newlyReadWriteStored,
+        });
         assertWrapped({ wrapped: newlyReadWrite });
         const causality = newlyReadWrite.clock.compare({
             clock: depRemote.clock,
