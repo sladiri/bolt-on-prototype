@@ -110,7 +110,6 @@ export const Dependency = ({ clock }) => {
                         "dependency.mergeClock depClock",
                     );
                     for (const [key, tick] of clock.entries()) {
-                        debugger;
                         if (_clock.has(key)) {
                             const maxValue = Math.max(_clock.get(key), tick);
                             _clock.set(key, maxValue);
