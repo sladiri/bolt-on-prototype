@@ -34,6 +34,11 @@ const config = ({ debug = false, paths, publicPath }) => {
             publicPath,
         },
         optimization: debug ? undefined : { splitChunks: { chunks: "all" } },
+        node: debug
+            ? {
+                  fs: "empty", // Tape in browser
+              }
+            : undefined,
         module: {
             rules: [
                 {

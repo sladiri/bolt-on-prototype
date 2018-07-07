@@ -117,7 +117,6 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
         }
         dependency.setClockTick({ shimId, tick: tick.value });
         tick.value += 1;
-        console.log("a", key, value, [...dependency.clock.entries()]);
         deps.put({ key, dependency });
         const toStore = Wrapped({
             key,
