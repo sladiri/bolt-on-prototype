@@ -170,14 +170,16 @@ export const attemptToCover = async ({
         if (depKey === writeToCheck.key) {
             continue;
         }
-        const depLocalStored = await localStore.get({ key: depKey });
+        const wrappedLocalStored = await localStore.get({ key: depKey });
         const depRemote = writeToCheck.deps.get({ key: depKey });
-        assertWrapped({ wrapped: depRemote });
-        if (depLocalStored) {
+        assertDependency({ dependency: depRemote });
+        if (wrappedLocalStored) {
             // if we've already applied this write or a write that will overwrite this write, we're good
-            const depLocal = deserialiseWrapped({ stored: depLocalStored });
-            assertWrapped({ wrapped: depLocal });
-            const causality = depLocal.clock.compare({
+            const wrappedLocal = deserialiseWrapped({
+                stored: wrappedLocalStored,
+            });
+            assertWrapped({ wrapped: wrappedLocal });
+            const causality = wrappedLocal.clock.compare({
                 clock: depRemote.clock,
             });
             if (!causality.happensBefore) {

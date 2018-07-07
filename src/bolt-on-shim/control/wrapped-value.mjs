@@ -56,6 +56,7 @@ export const Wrapped = ({ key, value, deps }) => {
             },
         }),
     );
+    assertDeps({ deps: wrapped.deps, wrapped });
     return wrapped;
 };
 
@@ -63,7 +64,7 @@ export const assertWrapped = ({ wrapped }) => {
     console.assert(wrapped, "assertWrapped wrapped");
     const { key, deps } = wrapped;
     console.assert(typeof key === "string", "assertWrapped wrapped.key");
-    assertDeps({ deps });
+    assertDeps({ deps, wrapped });
 };
 
 export const serialiseWrapped = ({ wrapped }) => {

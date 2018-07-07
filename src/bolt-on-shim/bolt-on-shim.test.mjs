@@ -25,9 +25,7 @@ test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
 
     const parentToStore = { key: "parent", value: 42 };
     await shim.upsert(parentToStore);
-    const parentStored = await shim.get({
-        key: parentToStore.key,
-    });
+    const parentStored = await shim.get({ key: parentToStore.key });
 
     t.ok(
         parentStored.clock.compare({
@@ -43,15 +41,11 @@ test("shim - stored.clock happens after upsert(stored).clock", async t => {
 
     const toStore = { key: "test", value: 42 };
     await shim.upsert(toStore);
-    const stored = await shim.get({
-        key: toStore.key,
-    });
+    const stored = await shim.get({ key: toStore.key });
 
     const toUpsert = { key: "test", value: 666 };
     await shim.upsert(toUpsert);
-    const upserted = await shim.get({
-        key: toUpsert.key,
-    });
+    const upserted = await shim.get({ key: toUpsert.key });
 
     t.ok(
         stored.clock.compare({
@@ -81,9 +75,7 @@ test("shim - dep.clock === stored.deps(dep.key).clock", async t => {
     const after = new Set([parentStored, parent2Stored]);
     const childToStore = { key: "child", value: 123, after };
     await shim.upsert(childToStore);
-    const childStored = await shim.get({
-        key: childToStore.key,
-    });
+    const childStored = await shim.get({ key: childToStore.key });
 
     t.ok(
         parentStored.clock.compare({
@@ -193,6 +185,42 @@ test("shim - returns from ECDS store", async t => {
     t.ok(stored.key === key);
     t.ok(stored.value === value);
     t.ok(stored.clock.compare({ clock }).equal);
+
+    t.end();
+});
+
+test("shim - GET applies newer writes from ECDS", async t => {
+    const localDb = new Map();
+    const ecdsDb = new Map();
+    const shimId = "a";
+    const tick = 10;
+    const shim = getShim({ localDb, ecdsDb, shimId, tick });
+
+    const parentToStore = { key: "parent", value: 42 };
+    await shim.upsert(parentToStore);
+    const parentStored = await shim.get({ key: parentToStore.key });
+
+    const childToStore = {
+        key: "child",
+        value: 666,
+        after: new Set([parentStored]),
+    };
+    await shim.upsert(childToStore);
+    const childStored1 = await shim.get({
+        key: childToStore.key,
+    });
+
+    const childObj = JSON.parse(serialiseWrapped({ wrapped: childStored1 }));
+    childObj.value = 123;
+    childObj.depsObj.child.clockObj.a = "12";
+    ecdsDb.set(childToStore.key, JSON.stringify(childObj));
+
+    const childStored2 = await shim.get({
+        key: childToStore.key,
+    });
+
+    t.equal(childStored2.value, 123);
+    t.equal(childStored2.clock.get(shimId), 12);
 
     t.end();
 });
