@@ -1,6 +1,12 @@
 import test from "tape";
 import { FakeStore } from "../store/store-fake-in-memory";
 import { Shim } from "./bolt-on-shim";
+import { Dependency, Dependencies } from "./control/dependencies";
+import {
+    Wrapped,
+    serialiseWrapped,
+    deserialiseWrapped,
+} from "./control/wrapped-value";
 
 const getShim = ({
     localDb = new Map(),
@@ -23,11 +29,10 @@ test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
         key: parentToStore.key,
     });
 
-    t.equal(
+    t.ok(
         parentStored.clock.compare({
             clock: parentStored.deps.all().get("parent").clock,
         }).equal,
-        true,
     );
 
     t.end();
@@ -48,11 +53,10 @@ test("shim - stored.clock happens after upsert(stored).clock", async t => {
         key: toUpsert.key,
     });
 
-    t.equal(
+    t.ok(
         stored.clock.compare({
             clock: upserted.clock,
         }).happensBefore,
-        true,
     );
     t.equal(upserted.value, 666);
 
@@ -81,19 +85,114 @@ test("shim - dep.clock === stored.deps(dep.key).clock", async t => {
         key: childToStore.key,
     });
 
-    t.equal(
+    t.ok(
         parentStored.clock.compare({
             clock: childStored.deps.all().get("parent").clock,
         }).equal,
-        true,
     );
 
-    t.equal(
+    t.ok(
         parent2Stored.clock.compare({
             clock: childStored.deps.all().get("parent2").clock,
         }).equal,
-        true,
     );
+
+    t.end();
+});
+
+test("shim - wraps key/value", async t => {
+    const shimId = "a";
+    const tick = 10;
+    const key = "test";
+    const value = 123;
+    const deps = Dependencies({ after: new Set() });
+    const clock = new Map([[shimId, tick]]);
+    const dependency = Dependency({ clock });
+    dependency.setClockTick({ shimId, tick });
+    deps.put({ key, dependency });
+
+    const wrapped = Wrapped({ key, value, deps });
+    t.ok(wrapped.key === key);
+    t.ok(wrapped.value === value);
+    t.ok(wrapped.clock.compare({ clock }).equal);
+
+    t.end();
+});
+
+test("shim - serialises wrapped", async t => {
+    const shimId = "a";
+    const tick = 10;
+
+    const key = "test";
+    const value = 123;
+    const deps = Dependencies({ after: new Set() });
+    const clock = new Map([[shimId, tick]]);
+    const dependency = Dependency({ clock });
+    dependency.setClockTick({ shimId, tick });
+    deps.put({ key, dependency });
+
+    const wrapped = Wrapped({ key, value, deps });
+    const serialised = serialiseWrapped({ wrapped });
+
+    t.ok(typeof serialised === "string");
+
+    const deserialised = deserialiseWrapped({ stored: serialised });
+
+    t.equal(serialised, serialiseWrapped({ wrapped: deserialised }));
+
+    t.end();
+});
+
+test("shim - returns from local store", async t => {
+    const localDb = new Map();
+    const ecdsDb = new Map();
+    const shimId = "a";
+    const tick = 10;
+
+    const shim = getShim({ localDb, ecdsDb, shimId, tick });
+    const key = "test";
+    const value = 123;
+    const deps = Dependencies({ after: new Set() });
+    const clock = new Map([[shimId, tick]]);
+    const dependency = Dependency({ clock });
+    dependency.setClockTick({ shimId, tick });
+    deps.put({ key, dependency });
+
+    const wrapped = Wrapped({ key, value, deps });
+    const serialised = serialiseWrapped({ wrapped });
+    localDb.set(key, serialised);
+
+    const stored = await shim.get({ key });
+    t.ok(stored.key === key);
+    t.ok(stored.value === value);
+    t.ok(stored.clock.compare({ clock }).equal);
+
+    t.end();
+});
+
+test("shim - returns from ECDS store", async t => {
+    const localDb = new Map();
+    const ecdsDb = new Map();
+    const shimId = "a";
+    const tick = 10;
+    const shim = getShim({ localDb, ecdsDb, shimId, tick });
+
+    const key = "test";
+    const value = 123;
+    const deps = Dependencies({ after: new Set() });
+    const clock = new Map([[shimId, tick]]);
+    const dependency = Dependency({ clock });
+    dependency.setClockTick({ shimId, tick });
+    deps.put({ key, dependency });
+
+    const toStore = Wrapped({ key, value, deps });
+    const serialised = serialiseWrapped({ wrapped: toStore });
+    ecdsDb.set(key, serialised);
+
+    const stored = await shim.get({ key });
+    t.ok(stored.key === key);
+    t.ok(stored.value === value);
+    t.ok(stored.clock.compare({ clock }).equal);
 
     t.end();
 });

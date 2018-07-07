@@ -23,6 +23,17 @@
             "env": {
                 "NODE_ENV": "production"
             }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test",
+            "program":
+                "${workspaceFolder}/src/bolt-on-shim/control/dependencies_merge_clock.test.mjs",
+            "runtimeArgs": ["--experimental-modules"],
+            "env": {
+                "NODE_ENV": "development"
+            }
         }
     ]
 }

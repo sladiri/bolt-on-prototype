@@ -118,11 +118,7 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
         dependency.setClockTick({ shimId, tick: tick.value });
         tick.value += 1;
         deps.put({ key, dependency });
-        const toStore = Wrapped({
-            key,
-            value,
-            deps,
-        });
+        const toStore = Wrapped({ key, value, deps });
         const serialised = serialiseWrapped({ wrapped: toStore });
         await ecdsStore.put({ key, value: serialised });
         await localStore.put({ key, value: serialised });

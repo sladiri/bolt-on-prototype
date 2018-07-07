@@ -75,16 +75,18 @@ export const serialiseWrapped = ({ wrapped }) => {
             depsObj: serialiseDeps({ deps: wrapped.deps }),
         }),
     );
-    return toStore;
+    return JSON.stringify(toStore);
 };
 
 export const deserialiseWrapped = ({ stored }) => {
+    console.assert(typeof stored === "string", "typeof stored === 'string'");
+    const storedObj = JSON.parse(stored);
     console.assert(
-        typeof stored === "object" && stored !== null,
-        "deserialiseWrapped typeof stored === 'object' && stored !== null",
+        typeof storedObj === "object" && storedObj !== null,
+        "deserialiseWrapped typeof storedObj === 'object' && storedObj !== null",
     );
-    const { key, value, depsObj } = stored;
-    console.assert(typeof key === "string", "deserialise stored.key");
+    const { key, value, depsObj } = storedObj;
+    console.assert(typeof key === "string", "deserialise storedObj.key");
     console.assert(
         typeof depsObj === "object" && depsObj !== null,
         "deserialiseWrapped typeof depsObj === 'object' && depsObj !== null",
