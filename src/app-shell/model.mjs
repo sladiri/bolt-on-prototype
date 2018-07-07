@@ -36,29 +36,27 @@ export const Accept = ({ service }) => {
 
                 if (!(await shim.get({ key: "parent" }))) {
                     const parentToStore = { key: "parent", value: 42 };
-                    await shim.put(parentToStore);
+                    await shim.upsert(parentToStore);
                     const parentStored = await shim.get({
                         key: parentToStore.key,
                     });
                     const parentToStore2 = { key: "parent2", value: 666 };
-                    await shim.put(parentToStore2);
+                    await shim.upsert(parentToStore2);
                     const parentStored2 = await shim.get({
                         key: parentToStore2.key,
                     });
                     const after = new Set([parentStored, parentStored2]);
                     const childToStore = { key: "child", value: 123, after };
                     // debugger;
-                    await shim.put(childToStore);
+                    await shim.upsert(childToStore);
                     const childStored = await shim.get({
                         key: childToStore.key,
                     });
                     const childToStore2 = {
                         key: "child",
-                        value: childStored.value,
-                        after: new Set([childStored]),
+                        value: 456,
                     };
-                    console.log("-----", childToStore2);
-                    await shim.put(childToStore2);
+                    await shim.upsert(childToStore2);
                     const childStored2 = await shim.get({
                         key: childToStore2.key,
                     });

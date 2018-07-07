@@ -21,12 +21,12 @@ export const Shim = ({ remoteDb, localDb, shimId, tick }) => {
     const ecdsStore = Store({ db: remoteDb });
     const tickObj = { value: tick };
     // TODO: Tune Get with max-ECDS-reads
+    const get = GetPessimistic({ ecdsStore, localStore });
+    // const get = GetOptimistic({ ecdsStore, localStore });
+    const put = Put({ ecdsStore, localStore, shimId, tick: tickObj });
+    const upsert = Upsert({ get, put });
     const shim = Object.seal(
-        Object.assign(Object.create(null), {
-            // get: GetOptimistic({ ecdsStore, localStore }),
-            get: GetPessimistic({ ecdsStore, localStore }),
-            put: Put({ ecdsStore, localStore, shimId, tick: tickObj }),
-        }),
+        Object.assign(Object.create(null), { get, put, upsert }),
     );
     return shim;
 };
@@ -128,5 +128,25 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
         console.error(error);
         debugger;
         tick.value -= 1;
+    }
+};
+
+export const Upsert = ({ get, put }) => async ({ key, value, after }) => {
+    console.assert(typeof key === "string", "shim.put key");
+    try {
+        const stored = await get({ key });
+        if (!stored) {
+            return put({ key, value, after });
+        }
+        assertWrapped({ wrapped: stored });
+        const toStore = {
+            key,
+            value,
+            after: new Set([stored]),
+        };
+        return put(toStore);
+    } catch (error) {
+        console.error(error);
+        debugger;
     }
 };
