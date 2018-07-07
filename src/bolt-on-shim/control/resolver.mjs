@@ -102,8 +102,9 @@ export const applyAllPossible = async ({
                 bufferedWrites,
                 writesToApply,
             });
-            // Without optimisations, this should never be false?
-            console.assert(isCovered, "applyAllPossible isCovered");
+            console.debug(
+                `applyAllPossible: hiden write for key=[${buffered.key}]`,
+            );
             if (!isCovered) {
                 continue;
             }
