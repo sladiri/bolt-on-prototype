@@ -34,6 +34,7 @@ export const Accept = ({ service }) => {
             if (Number.isSafeInteger(proposal.foo)) {
                 state.foo = proposal.foo;
             }
+            shim.upsert({ key: "state", value: state });
         } catch (error) {
             console.error("accept error", error);
             throw error;
