@@ -324,13 +324,13 @@ test("shim - GET hides writes which are not covered", async t => {
         const tick = 10;
         const shim = getShim({ ecdsDb, shimId, tick });
 
-        const parentToStore = { key: "parent", value: 42 };
+        const parentToStore = { key: "parent", value: "parent A" };
         await shim.upsert(parentToStore);
         const parentStored = await shim.get({ key: parentToStore.key });
 
         const childToStore = {
             key: "child",
-            value: 666,
+            value: "child A",
             after: new Set([parentStored]),
         };
         await shim.upsert(childToStore);
@@ -341,7 +341,7 @@ test("shim - GET hides writes which are not covered", async t => {
         const childObj = JSON.parse(
             serialiseWrapped({ wrapped: childStored1 }),
         );
-        childObj.value = 123;
+        childObj.value = "child B";
         childObj.depsObj.parent.clockObj.a = "12";
         childObj.depsObj.child.clockObj.a = "13";
         ecdsDb.set(childToStore.key, JSON.stringify(childObj));
@@ -350,8 +350,26 @@ test("shim - GET hides writes which are not covered", async t => {
             key: childToStore.key,
         });
 
-        t.equal(childStored2.value, 666);
+        t.equal(childStored2.value, "child A");
         t.equal(childStored2.clock.get(shimId), 11);
+
+        const parentObj = JSON.parse(
+            serialiseWrapped({ wrapped: parentStored }),
+        );
+        parentObj.value = "parent B";
+        parentObj.depsObj.parent.clockObj.a = "12";
+        ecdsDb.set(parentToStore.key, JSON.stringify(parentObj));
+
+        const parentStored2 = await shim.get({ key: parentToStore.key });
+        t.equal(parentStored2.value, "parent B");
+        t.equal(parentStored2.clock.get(shimId), 12);
+
+        const childStored3 = await shim.get({
+            key: childToStore.key,
+        });
+
+        t.equal(childStored3.value, "child B");
+        t.equal(childStored3.clock.get(shimId), 13);
 
         t.end();
     } catch (error) {
