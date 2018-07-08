@@ -130,7 +130,11 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
     }
 };
 
-export const Upsert = ({ get, put }) => async ({ key, value, after }) => {
+export const Upsert = ({ get, put }) => async ({
+    key,
+    value,
+    after = new Set(),
+}) => {
     console.assert(typeof key === "string", "shim.put key");
     try {
         const stored = await get({ key });
@@ -141,7 +145,7 @@ export const Upsert = ({ get, put }) => async ({ key, value, after }) => {
         const toStore = {
             key,
             value,
-            after: new Set([stored]),
+            after: new Set([...after.values(), stored]),
         };
         return put(toStore);
     } catch (error) {
