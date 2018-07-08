@@ -51,6 +51,7 @@ The app reads and writes to the Shim through a model, according to the **S**tate
 -   Shim implementation
     -   [x] Pessimistic
     -   [ ] Optimistic Shim
+-   [ ] Local Shim size in browser - reset possible?
 -   Co-locate Shim with:
     -   [ ] browser
     -   [ ] server
