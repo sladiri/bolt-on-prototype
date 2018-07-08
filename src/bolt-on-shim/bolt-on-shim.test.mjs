@@ -24,6 +24,7 @@ test("shim - wraps key/value", async t => {
     try {
         const shimId = "a";
         const tick = 10;
+
         const key = "test";
         const value = 123;
         const deps = Dependencies({ after: new Set() });
@@ -74,11 +75,10 @@ test("shim - serialises wrapped", async t => {
 test("shim - returns from local store", async t => {
     try {
         const localDb = new Map();
-        const ecdsDb = new Map();
         const shimId = "a";
         const tick = 10;
 
-        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+        const shim = getShim({ localDb, shimId, tick });
         const key = "test";
         const value = 123;
         const deps = Dependencies({ after: new Set() });
@@ -104,11 +104,10 @@ test("shim - returns from local store", async t => {
 
 test("shim - returns from ECDS store", async t => {
     try {
-        const localDb = new Map();
         const ecdsDb = new Map();
         const shimId = "a";
         const tick = 10;
-        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+        const shim = getShim({ ecdsDb, shimId, tick });
 
         const key = "test";
         const value = 123;
@@ -219,11 +218,9 @@ test("shim - dep.clock === stored.deps(dep.key).clock", async t => {
 
 test("shim - PUT increments clock tick", async t => {
     try {
-        const localDb = new Map();
-        const ecdsDb = new Map();
         const shimId = "a";
         const tick = 10;
-        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+        const shim = getShim({ shimId, tick });
 
         const parentToStore = { key: "parent", value: 42 };
         await shim.upsert(parentToStore);
@@ -250,11 +247,10 @@ test("shim - PUT increments clock tick", async t => {
 
 test("shim - GET applies newer writes from ECDS", async t => {
     try {
-        const localDb = new Map();
         const ecdsDb = new Map();
         const shimId = "a";
         const tick = 10;
-        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+        const shim = getShim({ ecdsDb, shimId, tick });
 
         const parentToStore = { key: "parent", value: 42 };
         await shim.upsert(parentToStore);
@@ -292,11 +288,10 @@ test("shim - GET applies newer writes from ECDS", async t => {
 
 test("shim - GET hides writes which are not covered", async t => {
     try {
-        const localDb = new Map();
         const ecdsDb = new Map();
         const shimId = "a";
         const tick = 10;
-        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+        const shim = getShim({ ecdsDb, shimId, tick });
 
         const parentToStore = { key: "parent", value: 42 };
         await shim.upsert(parentToStore);
