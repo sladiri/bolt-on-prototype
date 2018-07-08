@@ -254,7 +254,7 @@ export const deserialiseDependency = ({ stored }) => {
     return dependency;
 };
 
-export const assertDeps = ({ deps, wrapped }) => {
+export const assertDeps = ({ deps, referenceKey }) => {
     console.assert(
         typeof deps === "object" && deps !== null,
         "assertDeps typeof deps === 'object' && deps !== null",
@@ -272,21 +272,21 @@ export const assertDeps = ({ deps, wrapped }) => {
         "assertDeps typeof deps.put === 'function'",
     );
     console.assert(
-        // Do not assertWrapped, avoid endless loop.
-        wrapped ? wrapped.clock instanceof Map : !wrapped,
-        "assertDeps wrapped ? wrapped.clock instanceof Map : !wrapped",
+        // Optimise check and re-use iteration through deps here.
+        referenceKey ? typeof referenceKey === "string" : !referenceKey,
+        "assertDeps typeof referenceKey === 'string' : !referenceKey",
     );
     for (const dependency of deps.all().values()) {
         assertDependency({ dependency });
-        if (!wrapped) {
+        if (!referenceKey) {
             continue;
         }
-        const causality = wrapped.clock.compare({
+        const causality = deps.get({ key: referenceKey }).clock.compare({
             clock: dependency.clock,
         });
         console.assert(
             !causality.happensBefore,
-            "assertDeps !wrapped.clock.happensBefore(dep.clock)",
+            "assertDeps !reference.clock.happensBefore(dep.clock)",
         );
     }
 };

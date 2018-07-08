@@ -8,7 +8,7 @@ import {
 
 export const Wrapped = ({ key, value, deps }) => {
     console.assert(typeof key === "string", "Wrapped key");
-    assertDeps({ deps });
+    assertDeps({ deps, referenceKey: key });
     const valueJson = JSON.stringify(value); // Ensures serialisation in stores!
     const _deps = deserialiseDeps({
         stored: serialiseDeps({ deps }),
@@ -56,7 +56,6 @@ export const Wrapped = ({ key, value, deps }) => {
             },
         }),
     );
-    assertDeps({ deps: wrapped.deps, wrapped });
     return wrapped;
 };
 

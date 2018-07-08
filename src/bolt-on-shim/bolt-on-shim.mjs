@@ -97,24 +97,36 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
     );
     console.assert(typeof key === "string", "shim.put key");
     console.assert(after instanceof Set, "shim.put after");
-    try {
-        const deps = Dependencies({ after });
-        const dependency = Dependency({ clock: new Map() });
-        // TODO deps?
-        for (const wrapped of after.values()) {
-            if (wrapped === undefined) {
-                continue; // Convenience
-            }
-            assertWrapped({ wrapped });
-            if (wrapped.key === key) {
-                const dep = wrapped.deps.get({ key });
-                assertDependency({ dependency: dep });
-                const { clock } = dep;
-                assertClock({ clock });
-                dependency.mergeClock({ clock });
-            }
+    const stored = await localStore.get({ key });
+    if (stored) {
+        const current = deserialiseWrapped({ stored });
+        assertWrapped({ wrapped: current });
+        const newDep = Dependency({ clock: new Map([[shimId, tick.value]]) });
+        const causality = newDep.clock.compare({
+            clock: current.deps.get({ key }).clock,
+        });
+        console.assert(
+            !causality.happensBefore,
+            "shim.put !newDep.clock.happensBefore(stored.clock)",
+        );
+    }
+    const deps = Dependencies({ after });
+    const dependency = Dependency({ clock: new Map() });
+    for (const wrapped of after.values()) {
+        if (wrapped === undefined) {
+            continue; // Convenience
         }
-        dependency.setClockTick({ shimId, tick: tick.value });
+        assertWrapped({ wrapped });
+        if (wrapped.key === key) {
+            const dep = wrapped.deps.get({ key });
+            assertDependency({ dependency: dep });
+            const { clock } = dep;
+            assertClock({ clock });
+            dependency.mergeClock({ clock });
+        }
+    }
+    dependency.setClockTick({ shimId, tick: tick.value });
+    try {
         tick.value += 1;
         deps.put({ key, dependency });
         const toStore = Wrapped({ key, value, deps });
