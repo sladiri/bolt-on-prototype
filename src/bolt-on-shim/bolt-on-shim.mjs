@@ -74,7 +74,6 @@ export const GetPessimistic = ({ ecdsStore, localStore }) => async ({
             localStore,
             bufferedWrites,
         });
-        // Localstore should have value now?
         const coveredStored = await localStore.get({ key });
         const coveredWrapped = deserialiseWrapped({ stored: coveredStored });
         assertWrapped({ wrapped: coveredWrapped });
