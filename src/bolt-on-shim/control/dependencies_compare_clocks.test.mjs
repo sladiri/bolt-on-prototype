@@ -2,6 +2,7 @@ import test from "tape";
 import jsc from "jsverify";
 import R from "ramda";
 import { compareClocks } from "./dependencies";
+import { clockGen } from "./clock-gen";
 
 test("compareClocks - equal", t => {
     try {
@@ -11,6 +12,24 @@ test("compareClocks - equal", t => {
         clock = new Map([["a", 2], ["b", 3]]);
         causality = compareClocks({ clock, reference: clock });
         t.equal(causality.equal, true);
+
+        t.end();
+    } catch (error) {
+        t.end(error);
+    }
+});
+
+test("compareClocks - equal / generative tests", t => {
+    try {
+        const property = jsc.forall(clockGen, x => {
+            const clock = new Map(x);
+            const causality = compareClocks({ clock, reference: clock });
+
+            t.ok(causality.equal);
+
+            return causality.equal;
+        });
+        jsc.check(property);
 
         t.end();
     } catch (error) {
@@ -82,6 +101,41 @@ test("compareClocks - happensBefore https://www.youtube.com/watch?v=jD4ECsieFbE"
     }
 });
 
+test("compareClocks - happensBefore / generative tests", t => {
+    try {
+        const clocks = jsc.suchthat(
+            jsc.tuple([clockGen, clockGen]),
+            ([c, ref]) => {
+                return c.reduce((acc, [id, tick]) => {
+                    if (!acc) {
+                        return acc;
+                    }
+                    const refWrite = ref.find(x => x[0] === id);
+                    if (!refWrite) {
+                        return false;
+                    }
+                    const smaller = tick < refWrite[1];
+                    return acc && smaller;
+                }, true);
+            },
+        );
+        const property = jsc.forall(clocks, ([x, y]) => {
+            const clock = new Map(x);
+            const reference = new Map(y);
+            const causality = compareClocks({ clock, reference });
+
+            t.ok(causality.happensBefore);
+
+            return causality.happensBefore;
+        });
+        jsc.check(property);
+
+        t.end();
+    } catch (error) {
+        t.end(error);
+    }
+});
+
 test("compareClocks - happensAfter", t => {
     try {
         let clock;
@@ -97,6 +151,41 @@ test("compareClocks - happensAfter", t => {
         reference = new Map([["a", 1]]);
         causality = compareClocks({ clock, reference });
         t.equal(causality.happensAfter, true);
+
+        t.end();
+    } catch (error) {
+        t.end(error);
+    }
+});
+
+test("compareClocks - happensAfter / generative tests", t => {
+    try {
+        const clocks = jsc.suchthat(
+            jsc.tuple([clockGen, clockGen]),
+            ([c, ref]) => {
+                return ref.reduce((acc, [id, tick]) => {
+                    if (!acc) {
+                        return acc;
+                    }
+                    const write = c.find(x => x[0] === id);
+                    if (!write) {
+                        return false;
+                    }
+                    const smaller = tick < write[1];
+                    return acc && smaller;
+                }, true);
+            },
+        );
+        const property = jsc.forall(clocks, ([x, y]) => {
+            const clock = new Map(x);
+            const reference = new Map(y);
+            const causality = compareClocks({ clock, reference });
+
+            t.ok(causality.happensAfter);
+
+            return causality.happensAfter;
+        });
+        jsc.check(property);
 
         t.end();
     } catch (error) {
@@ -163,35 +252,24 @@ test("compareClocks - concurrent https://www.youtube.com/watch?v=jD4ECsieFbE", t
     }
 });
 
-test("compareClocks - happensBefore / generative tests", async t => {
+test("compareClocks - concurrent / generative tests", t => {
     try {
-        const clock = jsc.suchthat(
-            jsc
-                .array(jsc.tuple([jsc.asciichar, jsc.integer]))
-                .smap(R.uniqWith((x, y) => x[0] === y[0]), R.identity),
-            arr => arr.length > 0,
+        const clocks = jsc.suchthat(
+            jsc.tuple([clockGen, clockGen]),
+            ([x, y]) => {
+                const xIds = x.map(t => t[0]);
+                const yIds = y.map(t => t[0]);
+                return R.intersection(xIds, yIds).length === 0;
+            },
         );
-        const clocks = jsc.suchthat(jsc.tuple([clock, clock]), ([c, ref]) => {
-            return c.reduce((acc, [id, tick]) => {
-                if (!acc) {
-                    return acc;
-                }
-                const refWrite = ref.find(x => x[0] === id);
-                if (!refWrite) {
-                    return false;
-                }
-                const smaller = tick < refWrite[1];
-                return acc && smaller;
-            }, true);
-        });
         const property = jsc.forall(clocks, ([x, y]) => {
             const clock = new Map(x);
             const reference = new Map(y);
             const causality = compareClocks({ clock, reference });
 
-            t.ok(causality.happensBefore);
+            t.ok(causality.concurrent);
 
-            return causality.happensBefore;
+            return causality.concurrent;
         });
         jsc.check(property);
 

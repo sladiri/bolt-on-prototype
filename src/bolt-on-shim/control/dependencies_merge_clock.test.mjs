@@ -2,6 +2,7 @@ import test from "tape";
 import jsc from "jsverify";
 import R from "ramda";
 import { compareClocks, Dependency } from "./dependencies";
+import { clockGen } from "./clock-gen";
 
 test("mergeClock - clock is private copy", t => {
     try {
@@ -104,23 +105,20 @@ test("mergeClock - mutates only target", t => {
     }
 });
 
-test("mergeClock - generative tests", async t => {
+test("mergeClock - generative tests", t => {
     try {
-        const clock = jsc.suchthat(
-            jsc
-                .array(jsc.tuple([jsc.asciichar, jsc.integer]))
-                .smap(R.uniqWith((x, y) => x[0] === y[0]), R.identity),
-            arr => arr.length > 0,
+        const clocks = jsc.suchthat(
+            jsc.tuple([clockGen, clockGen]),
+            ([x, y]) => {
+                const xIds = x.map(t => t[0]);
+                const yIds = y.map(t => t[0]);
+                return (
+                    R.intersection(xIds, yIds).length /
+                        Math.max(xIds.length, yIds.length) >
+                    0.5
+                );
+            },
         );
-        const clocks = jsc.suchthat(jsc.tuple([clock, clock]), ([x, y]) => {
-            const xIds = x.map(t => t[0]);
-            const yIds = y.map(t => t[0]);
-            return (
-                R.intersection(xIds, yIds).length /
-                    Math.max(xIds.length, yIds.length) >
-                0.5
-            );
-        });
         const property = jsc.forall(clocks, ([x, y]) => {
             const dep1 = Dependency({ clock: new Map(x) });
             const dep2 = Dependency({ clock: new Map(y) });
