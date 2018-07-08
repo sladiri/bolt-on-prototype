@@ -132,6 +132,37 @@ test("shim - returns from ECDS store", async t => {
     }
 });
 
+test("shim - applies from ECDS store to local store", async t => {
+    try {
+        const localDb = new Map();
+        const ecdsDb = new Map();
+        const shimId = "a";
+        const tick = 10;
+        const shim = getShim({ localDb, ecdsDb, shimId, tick });
+
+        const key = "test";
+        const value = 123;
+        const deps = Dependencies({ after: new Set() });
+        const clock = new Map([[shimId, tick]]);
+        const dependency = Dependency({ clock });
+        dependency.setClockTick({ shimId, tick });
+        deps.put({ key, dependency });
+
+        const toStore = Wrapped({ key, value, deps });
+        const serialised = serialiseWrapped({ wrapped: toStore });
+        ecdsDb.set(key, serialised);
+
+        await shim.get({ key });
+        const storedLocal = localDb.get(key);
+
+        t.equal(serialised, storedLocal);
+
+        t.end();
+    } catch (error) {
+        t.end(error);
+    }
+});
+
 test("shim - stored.clock === stored.deps(stored.key).clock", async t => {
     try {
         const shim = getShim({});
