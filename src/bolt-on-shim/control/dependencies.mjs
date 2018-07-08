@@ -146,8 +146,14 @@ export const compareClocks = ({ clock, reference }) => {
     let later = false;
     const toCheck = new Set([...reference.keys(), ...clock.keys()]);
     for (const shimId of toCheck.values()) {
-        const ourTick = clock.get(shimId) || Number.MIN_SAFE_INTEGER;
-        const theirTick = reference.get(shimId) || Number.MIN_SAFE_INTEGER;
+        let ourTick = clock.get(shimId);
+        if (!Number.isSafeInteger(ourTick)) {
+            ourTick = Number.MIN_SAFE_INTEGER;
+        }
+        let theirTick = reference.get(shimId);
+        if (!Number.isSafeInteger(theirTick)) {
+            theirTick = Number.MIN_SAFE_INTEGER;
+        }
         console.assert(Number.isSafeInteger(ourTick));
         console.assert(Number.isSafeInteger(theirTick));
         if (ourTick < theirTick) {
