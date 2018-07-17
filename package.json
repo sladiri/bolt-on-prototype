@@ -17,9 +17,9 @@
     "test": "node -r esm ./src/tape-runner.mjs **/*.test.mjs | faucet"
   },
   "dependencies": {
-    "@babel/core": "^7.0.0-beta.53",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0-beta.53",
-    "@babel/preset-env": "^7.0.0-beta.53",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
     "artillery": "^1.6.0-22",
     "babel-eslint": "^8.2.6",
     "babel-loader": "^8.0.0-beta.4",
@@ -56,10 +56,10 @@
     "rxjs": "^6.2.2",
     "tailwindcss": "^0.6.4",
     "tape": "^4.9.1",
-    "tslint": "^5.10.0",
+    "tslint": "^5.11.0",
     "typescript": "^2.9.2",
     "webpack": "^4.16.1",
-    "webpack-cli": "^3.0.8",
+    "webpack-cli": "^3.1.0",
     "webpack-visualizer-plugin": "^0.1.11"
   },
   "devDependencies": {}
