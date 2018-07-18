@@ -376,3 +376,115 @@ test("shim - GET hides writes which are not covered", async t => {
         t.end(error);
     }
 });
+
+// import jsc from "jsverify";
+// import R from "ramda";
+// import { clockGen } from "./control/clock-gen";
+
+// test("shim - generative tests", async t => {
+//     try {
+//         const ecdsDb = new Map();
+//         const shimId = "a";
+//         const tick = 10;
+//         const shim = getShim({ ecdsDb, shimId, tick });
+
+//         const parentToStore = { key: "parent", value: 42 };
+//         await shim.upsert(parentToStore);
+//         const parentStored = await shim.get({ key: parentToStore.key });
+
+//         const childToStore = {
+//             key: "child",
+//             value: 666,
+//             after: new Set([parentStored]),
+//         };
+//         await shim.upsert(childToStore);
+//         const childStored1 = await shim.get({
+//             key: childToStore.key,
+//         });
+
+//         const childObj = JSON.parse(
+//             serialiseWrapped({ wrapped: childStored1 }),
+//         );
+//         childObj.value = 123;
+//         childObj.depsObj.child.clockObj.a = "12";
+//         ecdsDb.set(childToStore.key, JSON.stringify(childObj));
+
+//         const childStored2 = await shim.get({
+//             key: childToStore.key,
+//         });
+
+//         t.equal(childStored2.value, 123);
+//         t.equal(childStored2.clock.get(shimId), 12);
+
+//         //
+
+//         const randomVectorClocks = () =>
+//             // @ts-ignore
+//             jsc.bless({
+//                 generator: () => {
+//                     const result = {
+//                         A: {},
+//                         B: {},
+//                     };
+//                     let index = 0;
+//                     const size = jsc.random(
+//                         minSize,
+//                         Math.pow(sizeBase, maxKeyLength),
+//                     );
+//                     while (index < size) {
+//                         const key = jsc.asciinestring.generator(maxKeyLength);
+//                         const valA = jsc.random(minA, maxA);
+//                         const valB = jsc.random(minB, maxB);
+//                         if (!result[key]) {
+//                             const writeA = sparseA
+//                                 ? jsc.random(0, 1) === 0
+//                                 : true;
+//                             if (writeA) {
+//                                 result.A[key] = valA;
+//                             }
+//                             const writeB = sparseB
+//                                 ? jsc.random(0, 1) === 0
+//                                 : true;
+//                             if (writeB) {
+//                                 result.B[key] = valB;
+//                             }
+//                             index += 1;
+//                         }
+//                     }
+//                     return result;
+//                 },
+//             });
+
+//         t.equal(
+//             jsc.checkForall(randomVectorClocks(), ({ A }) => {
+//                 return !happenedBefore({ clockRef: A, clock: A });
+//             }),
+//             true,
+//         );
+
+//         //
+
+//         const clocks = jsc.suchthat(
+//             jsc.tuple([clockGen, clockGen]),
+//             ([x, y]) => {
+//                 const xIds = x.map(t => t[0]);
+//                 const yIds = y.map(t => t[0]);
+//                 return R.intersection(xIds, yIds).length === 0;
+//             },
+//         );
+//         const property = jsc.forall(clocks, async ([x, y]) => {
+//             const clock = new Map(x);
+//             const reference = new Map(y);
+//             const causality = compareClocks({ clock, reference });
+
+//             t.ok(causality.concurrent);
+
+//             return causality.concurrent;
+//         });
+//         await jsc.check(property);
+
+//         t.end();
+//     } catch (error) {
+//         t.end(error);
+//     }
+// });
