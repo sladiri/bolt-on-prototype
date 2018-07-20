@@ -70,3 +70,4 @@ The app reads and writes to the Shim through a model, according to the **S**tate
 -   [ ] Write Shim code in Typescript?
 -   [ ] Use PouchDB's change-events for Shim?
 -   [ ] Service provides unique Shim-IDs
+-   [ ] Use TypeScript
