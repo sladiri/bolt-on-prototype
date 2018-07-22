@@ -115,7 +115,7 @@ test("mergeClock - generative tests", t => {
                 return (
                     R.intersection(xIds, yIds).length /
                         Math.max(xIds.length, yIds.length) >
-                    0.5
+                    0.4
                 );
             },
         );
@@ -135,12 +135,9 @@ test("mergeClock - generative tests", t => {
                 },
                 true,
             );
-            t.ok(equal);
-
             return equal;
         });
-        jsc.check(property);
-
+        t.equal(jsc.check(property), true);
         t.end();
     } catch (error) {
         t.end(error);

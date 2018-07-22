@@ -12,7 +12,6 @@ test("compareClocks - equal", t => {
         clock = new Map([["a", 2], ["b", 3]]);
         causality = compareClocks({ clock, reference: clock });
         t.equal(causality.equal, true);
-
         t.end();
     } catch (error) {
         t.end(error);
@@ -24,13 +23,9 @@ test("compareClocks - equal / generative tests", t => {
         const property = jsc.forall(clockGen, x => {
             const clock = new Map(x);
             const causality = compareClocks({ clock, reference: clock });
-
-            t.ok(causality.equal);
-
             return causality.equal;
         });
-        jsc.check(property);
-
+        t.equal(jsc.check(property), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -123,13 +118,9 @@ test("compareClocks - happensBefore / generative tests", t => {
             const clock = new Map(x);
             const reference = new Map(y);
             const causality = compareClocks({ clock, reference });
-
-            t.ok(causality.happensBefore);
-
             return causality.happensBefore;
         });
-        jsc.check(property);
-
+        t.equal(jsc.check(property), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -180,13 +171,9 @@ test("compareClocks - happensAfter / generative tests", t => {
             const clock = new Map(x);
             const reference = new Map(y);
             const causality = compareClocks({ clock, reference });
-
-            t.ok(causality.happensAfter);
-
             return causality.happensAfter;
         });
-        jsc.check(property);
-
+        t.equal(jsc.check(property), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -266,13 +253,9 @@ test("compareClocks - concurrent / generative tests", t => {
             const clock = new Map(x);
             const reference = new Map(y);
             const causality = compareClocks({ clock, reference });
-
-            t.ok(causality.concurrent);
-
             return causality.concurrent;
         });
-        jsc.check(property);
-
+        t.equal(jsc.check(property), true);
         t.end();
     } catch (error) {
         t.end(error);
