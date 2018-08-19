@@ -303,8 +303,8 @@ export const assertDependency = ({ dependency }) => {
         "assertDependency typeof dependency === 'object' && dependency !== null",
     );
     console.assert(
-        typeof dependency.clock === "object" && dependency.clock !== null,
-        "assertDependency typeof dependency.clock === 'object' && dependency.clock !== null",
+        dependency.clock instanceof Map,
+        "assertDependency dependency.clock instanceof Map",
     );
     console.assert(
         typeof dependency.mergeClock === "function",

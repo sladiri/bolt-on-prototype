@@ -102,10 +102,10 @@ export const applyAllPossible = async ({
                 bufferedWrites,
                 writesToApply,
             });
-            console.debug(
-                `applyAllPossible: hidden write for key=[${buffered.key}]`,
-            );
             if (!isCovered) {
+                console.debug(
+                    `applyAllPossible: hidden write for key=[${buffered.key}]`,
+                );
                 continue;
             }
             for (const wrapped of writesToApply.values()) {
