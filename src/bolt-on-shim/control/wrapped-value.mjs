@@ -8,6 +8,7 @@ import {
 
 export const Wrapped = ({ key, value, deps }) => {
     console.assert(typeof key === "string", "Wrapped key");
+    console.assert(value !== undefined, "Wrapped value");
     assertDeps({ deps, referenceKey: key });
     const valueJson = JSON.stringify(value); // Ensures serialisation in stores!
     const _deps = deserialiseDeps({
