@@ -105,6 +105,8 @@ test("mergeClock - mutates only target", t => {
     }
 });
 
+const jscOptions = { tests: 1000, quiet: true };
+
 test("mergeClock - generative tests", t => {
     try {
         const clocks = jsc.suchthat(
@@ -137,7 +139,7 @@ test("mergeClock - generative tests", t => {
             );
             return equal;
         });
-        t.equal(jsc.check(property), true);
+        t.equal(jsc.check(property, jscOptions), true);
         t.end();
     } catch (error) {
         t.end(error);

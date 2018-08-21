@@ -18,6 +18,8 @@ test("compareClocks - equal", t => {
     }
 });
 
+const jscOptions = { tests: 1000, quiet: true };
+
 test("compareClocks - equal / generative tests", t => {
     try {
         const property = jsc.forall(clockGen, x => {
@@ -25,7 +27,7 @@ test("compareClocks - equal / generative tests", t => {
             const causality = compareClocks({ clock, reference: clock });
             return causality.equal;
         });
-        t.equal(jsc.check(property), true);
+        t.equal(jsc.check(property, jscOptions), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -120,7 +122,7 @@ test("compareClocks - happensBefore / generative tests", t => {
             const causality = compareClocks({ clock, reference });
             return causality.happensBefore;
         });
-        t.equal(jsc.check(property), true);
+        t.equal(jsc.check(property, jscOptions), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -173,7 +175,7 @@ test("compareClocks - happensAfter / generative tests", t => {
             const causality = compareClocks({ clock, reference });
             return causality.happensAfter;
         });
-        t.equal(jsc.check(property), true);
+        t.equal(jsc.check(property, jscOptions), true);
         t.end();
     } catch (error) {
         t.end(error);
@@ -255,7 +257,7 @@ test("compareClocks - concurrent / generative tests", t => {
             const causality = compareClocks({ clock, reference });
             return causality.concurrent;
         });
-        t.equal(jsc.check(property), true);
+        t.equal(jsc.check(property, jscOptions), true);
         t.end();
     } catch (error) {
         t.end(error);
