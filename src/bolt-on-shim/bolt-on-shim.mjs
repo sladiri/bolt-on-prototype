@@ -64,7 +64,7 @@ export const GetPessimistic = ({ ecdsStore, localStore }) => async ({
                 assertWrapped({ wrapped: localWrapped });
                 return localWrapped;
             }
-            return;
+            return null;
         }
         const toBufferWrapped = deserialiseWrapped({ stored: toBufferStored });
         assertWrapped({ wrapped: toBufferWrapped });
