@@ -28,8 +28,7 @@
             "type": "node",
             "request": "launch",
             "name": "Test",
-            "program":
-                "${workspaceFolder}/src/bolt-on-shim/bolt-on-shim.test.mjs",
+            "program": "${workspaceFolder}/src/bolt-on-shim/bolt-on-shim.test.mjs",
             "runtimeArgs": ["--experimental-modules"],
             "env": {
                 "NODE_ENV": "development"

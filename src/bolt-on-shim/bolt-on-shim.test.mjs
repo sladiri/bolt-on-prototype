@@ -77,7 +77,7 @@ const Money = ({ Currency, Amount }) => {
 // #endregion
 
 test("Money", t => {
-    const options = { tests: 100 };
+    const options = { tests: 10000 };
     // #region correctnes
     const validCurrency = jsc.elements(["EUR", "USD", "GBP"]);
 
@@ -219,25 +219,46 @@ const wrap = ([shimId, tick, key, value]) => {
     return { clock, wrapped };
 };
 
-const jscOptions = { tests: 100, quiet: false };
+const jscOptions = { tests: 10000, quiet: false };
 
-test("shim - returns from local store / generative tests", async t => {
+test("shim - returns from local-store or ECDS / generative", async t => {
+    const compareStored = async ({ db, shim, shimId, tick, key, value }) => {
+        const { wrapped } = wrap([shimId, tick, key, value]);
+        const serialised = serialiseWrapped({ wrapped });
+        db.set(key, serialised);
+
+        const stored = await shim.get({ key });
+
+        return serialised === serialiseWrapped({ wrapped: stored });
+    };
+
     try {
         const property = jsc.forall(
             jsc.tuple([shimId, tick, key, value]),
             async ([shimId, tick, key, value]) => {
-                const db = new Map();
-                const shim = getShim({ localDb: db, shimId, tick });
+                const dbLocal = new Map();
+                const shimLocal = getShim({ localDb: dbLocal, shimId, tick });
 
-                const { clock, wrapped } = wrap([shimId, tick, key, value]);
-                const serialised = serialiseWrapped({ wrapped });
-                db.set(key, serialised);
+                const dbEcds = new Map();
+                const shimEcds = getShim({ ecdsDb: dbEcds, shimId, tick });
 
-                const stored = await shim.get({ key });
                 return (
-                    stored.key === key &&
-                    JSON.stringify(stored.value) === JSON.stringify(value) &&
-                    stored.clock.compare({ clock }).equal
+                    (await compareStored({
+                        db: dbLocal,
+                        shim: shimLocal,
+                        shimId,
+                        tick,
+                        key,
+                        value,
+                    })) &&
+                    (await compareStored({
+                        db: dbEcds,
+                        shim: shimEcds,
+                        shimId,
+                        tick,
+                        key,
+                        value,
+                    }))
                 );
             },
         );
@@ -249,87 +270,7 @@ test("shim - returns from local store / generative tests", async t => {
     }
 });
 
-test("shim - returns from ECDS store / generative tests", async t => {
-    try {
-        const property = jsc.forall(
-            jsc.tuple([shimId, tick, key, value]),
-            async ([shimId, tick, key, value]) => {
-                const db = new Map();
-                const shim = getShim({ ecdsDb: db, shimId, tick });
-
-                const { clock, wrapped } = wrap([shimId, tick, key, value]);
-                const serialised = serialiseWrapped({ wrapped });
-                db.set(key, serialised);
-
-                const stored = await shim.get({ key });
-                return (
-                    stored.key === key &&
-                    JSON.stringify(stored.value) === JSON.stringify(value) &&
-                    stored.clock.compare({ clock }).equal
-                );
-            },
-        );
-        t.equal(await jsc.check(property, jscOptions), true);
-
-        t.end();
-    } catch (error) {
-        t.end(error);
-    }
-});
-
-test("shim - applies from ECDS store to local store / generative tests", async t => {
-    try {
-        const property = jsc.forall(
-            jsc.tuple([shimId, tick, key, value]),
-            async ([shimId, tick, key, value]) => {
-                const localDb = new Map();
-                const ecdsDb = new Map();
-                const shim = getShim({ localDb, ecdsDb, shimId, tick });
-
-                const { wrapped: toStore } = wrap([shimId, tick, key, value]);
-
-                const serialised = serialiseWrapped({ wrapped: toStore });
-                ecdsDb.set(key, serialised);
-
-                await shim.get({ key });
-                const storedLocal = localDb.get(key);
-
-                return serialised === storedLocal;
-            },
-        );
-        t.equal(await jsc.check(property, jscOptions), true);
-
-        t.end();
-    } catch (error) {
-        t.end(error);
-    }
-});
-
-test("shim - stored.clock === stored.deps(stored.key).clock / generative tests", async t => {
-    try {
-        const property = jsc.forall(
-            jsc.tuple([shimId, tick, key, value]),
-            async ([shimId, tick, key, value]) => {
-                const shim = getShim({ shimId, tick });
-
-                const parentToStore = { key, value };
-                await shim.upsert(parentToStore);
-                const parentStored = await shim.get({ key: parentToStore.key });
-
-                return parentStored.clock.compare({
-                    clock: parentStored.deps.all().get(key).clock,
-                }).equal;
-            },
-        );
-        t.equal(await jsc.check(property, jscOptions), true);
-
-        t.end();
-    } catch (error) {
-        t.end(error);
-    }
-});
-
-test("shim - stored.clock happens after upsert(stored).clock and values are updated / generative tests", async t => {
+test("shim - UPSERT advances clock and value is updated / generative", async t => {
     try {
         const property = jsc.forall(
             jsc.tuple([shimId, tick, key, value, value]),
@@ -345,9 +286,9 @@ test("shim - stored.clock happens after upsert(stored).clock and values are upda
                 const upserted = await shim.get({ key });
 
                 return (
-                    stored.clock.compare({
-                        clock: upserted.clock,
-                    }).happensBefore &&
+                    upserted.clock.compare({
+                        clock: stored.clock,
+                    }).happensAfter &&
                     JSON.stringify(upserted.value) === JSON.stringify(valueB)
                 );
             },
@@ -360,49 +301,7 @@ test("shim - stored.clock happens after upsert(stored).clock and values are upda
     }
 });
 
-test("shim - PUT increments clock tick / generative tests", async t => {
-    try {
-        const property = jsc.forall(
-            jsc.tuple([shimId, tick, key, key, value, value]),
-            async ([
-                shimId,
-                tick,
-                keyParent,
-                keyChild,
-                valueParent,
-                valueChild,
-            ]) => {
-                const shim = getShim({ shimId, tick });
-
-                const parentToStore = { key: keyParent, value: valueParent };
-                await shim.upsert(parentToStore);
-                const parentStored = await shim.get({ key: keyParent });
-
-                const childToStore = {
-                    key: keyChild,
-                    value: valueChild,
-                    after: new Set([parentStored]),
-                };
-                await shim.upsert(childToStore);
-                const childStored = await shim.get({
-                    key: keyChild,
-                });
-
-                return (
-                    parentStored.clock.get(shimId) === tick &&
-                    childStored.clock.get(shimId) === tick + 1
-                );
-            },
-        );
-        t.equal(await jsc.check(property, jscOptions), true);
-
-        t.end();
-    } catch (error) {
-        t.end(error);
-    }
-});
-
-test("shim - dep.clock === stored.deps(dep.key).clock / generative tests", async t => {
+test("shim - dep.clock === stored.deps(dep.key).clock / generative", async t => {
     try {
         const property = jsc.forall(
             jsc.suchthat(
@@ -461,57 +360,149 @@ test("shim - dep.clock === stored.deps(dep.key).clock / generative tests", async
     }
 });
 
-test("shim - GET applies newer writes from ECDS / generative tests", async t => {
+test("shim - ECDS update applies new items to local-store / generative", async t => {
+    const areMissing = async ({ localDb, shim, keyValuePairs }) => {
+        let ok = true;
+        for (const [key] of keyValuePairs) {
+            const missing = await shim.get({ key });
+            const missingLocally = localDb.get(key);
+
+            if (!(missing === null && missingLocally === undefined)) {
+                console.log("\n\nareMissing\n", key, missing, missingLocally);
+            }
+            ok = ok && missing === null && missingLocally === undefined;
+        }
+        return ok;
+    };
+
+    const areApplied = async ({
+        shimId,
+        tick,
+        localDb,
+        ecdsDb,
+        shim,
+        keyValuePairs,
+    }) => {
+        let ok = true;
+        let foo = [];
+        for (const [key, value] of keyValuePairs) {
+            foo.push([key, value]);
+            const preShim = await shim.get({ key });
+            const preShimValue = preShim ? preShim.value : undefined;
+            const preLocalValue = JSON.parse(
+                localDb.get(key) || '{"value":"NOPE"}',
+            ).value;
+            const preEcdsValue = JSON.parse(
+                ecdsDb.get(key) || '{"value":"NOPE"}',
+            ).value;
+
+            const { wrapped: toStore } = wrap([shimId, tick, key, value]);
+            tick += 1;
+
+            const serialised = serialiseWrapped({ wrapped: toStore });
+            ecdsDb.set(key, serialised);
+
+            const stored = await shim.get({ key });
+            const storedLocal = localDb.get(key);
+
+            if (
+                !(
+                    serialised === storedLocal &&
+                    serialised === serialiseWrapped({ wrapped: stored })
+                )
+            ) {
+                console.log(
+                    "\nwhat",
+                    preShimValue,
+                    preLocalValue,
+                    preEcdsValue,
+                    value,
+                    foo,
+                );
+            }
+
+            ok =
+                ok &&
+                serialised === storedLocal &&
+                serialised === serialiseWrapped({ wrapped: stored });
+        }
+        return ok;
+    };
+
     try {
         const property = jsc.forall(
-            jsc.suchthat(
-                jsc.tuple([shimId, tick, key, key, value, value, value]),
-                ([, , keyParent, keyChild, , , ,]) =>
-                    R.uniq([keyParent, keyChild]).length === 2,
-            ),
-            async ([
-                shimId,
-                tick,
-                keyParent,
-                keyChild,
-                valueParent,
-                valueChild,
-                valueNew,
-            ]) => {
+            jsc.tuple([shimId, tick, jsc.nearray(jsc.tuple([key, value]))]),
+            async ([shimId, tick, keyValuePairs]) => {
+                const localDb = new Map();
+                const ecdsDb = new Map();
+                const shim = getShim({ localDb, ecdsDb, shimId, tick });
+                let ok =
+                    (await areMissing({ localDb, shim, keyValuePairs })) &&
+                    (await areApplied({
+                        shimId,
+                        tick,
+                        localDb,
+                        ecdsDb,
+                        shim,
+                        keyValuePairs,
+                    }));
+                return ok;
+            },
+        );
+        t.equal(await jsc.check(property, jscOptions), true);
+
+        t.end();
+    } catch (error) {
+        t.end(error);
+    }
+});
+
+test("shim - ECDS update applies new writes to local-store / generative", async t => {
+    try {
+        const property = jsc.forall(
+            jsc.tuple([shimId, tick, key, value, jsc.nearray(value)]),
+            async ([shimId, tick, key, value, valuesNew]) => {
                 const ecdsDb = new Map();
                 const shim = getShim({ ecdsDb, shimId, tick });
 
-                const parentToStore = { key: keyParent, value: valueParent };
-                await shim.upsert(parentToStore);
-                const parentStored = await shim.get({ key: keyParent });
-
-                const childToStore = {
-                    key: keyChild,
-                    value: valueChild,
-                    after: new Set([parentStored]),
-                };
+                const childToStore = { key, value };
                 await shim.upsert(childToStore);
-                const childStored1 = await shim.get({
-                    key: keyChild,
-                });
+                const childStored = await shim.get({ key });
 
-                const childObj = JSON.parse(
-                    serialiseWrapped({ wrapped: childStored1 }),
-                );
-                childObj.value = valueNew;
-                childObj.depsObj[keyChild].clockObj[shimId] = `${tick + 2}`;
+                let ok = true;
+                let tickDelta = 2;
 
-                ecdsDb.set(keyChild, JSON.stringify(childObj));
+                for (const valueNew of valuesNew) {
+                    const childObj = JSON.parse(
+                        serialiseWrapped({ wrapped: childStored }),
+                    );
+                    childObj.value = valueNew;
+                    childObj.depsObj[key].clockObj[shimId] = `${tick +
+                        tickDelta}`;
+                    tickDelta += 1;
 
-                const childStored2 = await shim.get({
-                    key: keyChild,
-                });
+                    ecdsDb.set(key, JSON.stringify(childObj));
 
-                return (
-                    JSON.stringify(childStored2.value) ===
-                        JSON.stringify(valueNew) &&
-                    childStored2.clock.get(shimId) === tick + 2
-                );
+                    const childStoredWithUpdate = await shim.get({ key });
+
+                    const valueIsUpdated =
+                        JSON.stringify(childStoredWithUpdate.value) ===
+                        JSON.stringify(valueNew);
+                    const clockIsUpdated =
+                        `${childStoredWithUpdate.clock.get(shimId)}` ===
+                        childObj.depsObj[key].clockObj[shimId];
+                    const storedHappensBefore = childStored.clock.compare({
+                        clock: childStoredWithUpdate.clock,
+                    }).happensBefore;
+
+                    ok =
+                        ok &&
+                        valueIsUpdated &&
+                        clockIsUpdated &&
+                        storedHappensBefore;
+                }
+
+                return ok;
             },
         );
         t.equal(await jsc.check(property, jscOptions), true);
@@ -720,7 +711,7 @@ test("shim - GET applies newer writes from ECDS / generative tests", async t => 
 // import R from "ramda";
 // import { clockGen } from "./control/clock-gen";
 
-// test("shim - generative tests", async t => {
+// test("shim - generative", async t => {
 //     try {
 //         const ecdsDb = new Map();
 //         const shimId = "a";

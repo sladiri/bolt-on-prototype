@@ -63,7 +63,7 @@ The app reads and writes to the Shim through a model, according to the **S**tate
     -   [ ] (Optimistic) Shim updates call actions
     -   [ ] Cancel actions via Shim
 -   Property-based tests:
-    -   [ ] Happened-before
+    -   [x] Causal relation
     -   [ ] Is-covered
 -   [ ] Bounded size of Shim (affects Shim performance)
 -   [ ] Performance optimisations for Shim

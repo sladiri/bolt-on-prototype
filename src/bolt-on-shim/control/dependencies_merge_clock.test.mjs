@@ -1,8 +1,7 @@
 import test from "tape";
 import jsc from "jsverify";
-import R from "ramda";
 import { compareClocks, Dependency } from "./dependencies";
-import { clockGen } from "./clock-gen";
+import { clocksConcurrent } from "./clock-gen";
 
 test("mergeClock - clock is private copy", t => {
     try {
@@ -105,23 +104,11 @@ test("mergeClock - mutates only target", t => {
     }
 });
 
-const jscOptions = { tests: 1000, quiet: true };
+const jscOptions = { tests: 10000, quiet: true };
 
-test("mergeClock - generative tests", t => {
+test("mergeClock - generative", t => {
     try {
-        const clocks = jsc.suchthat(
-            jsc.tuple([clockGen, clockGen]),
-            ([x, y]) => {
-                const xIds = x.map(t => t[0]);
-                const yIds = y.map(t => t[0]);
-                return (
-                    R.intersection(xIds, yIds).length /
-                        Math.max(xIds.length, yIds.length) >
-                    0.4
-                );
-            },
-        );
-        const property = jsc.forall(clocks, ([x, y]) => {
+        const property = jsc.forall(clocksConcurrent, ([x, y]) => {
             const dep1 = Dependency({ clock: new Map(x) });
             const dep2 = Dependency({ clock: new Map(y) });
             dep1.mergeClock({ clock: dep2.clock });
