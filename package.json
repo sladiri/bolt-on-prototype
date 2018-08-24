@@ -14,7 +14,7 @@
     "start": "cross-env NODE_ENV=production node --experimental-modules ./src/http-server/http-server.mjs",
     "prebuild": "rimraf ./public",
     "build": "cross-env NODE_ENV=production webpack",
-    "test": "node -r esm ./src/tape-runner.mjs **/*.test.mjs | faucet"
+    "test": "node -r esm ./src/tape-runner.mjs ./src/**/*.test.mjs | faucet"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-beta.55",

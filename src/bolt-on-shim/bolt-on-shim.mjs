@@ -153,10 +153,15 @@ export const Upsert = ({ get, put }) => async ({
             return put({ key, value, after });
         }
         assertWrapped({ wrapped: stored });
+        const parentSet = new Set([...after.values(), stored]);
+        for (const [key] of stored.deps.all()) {
+            const parent = await get({ key });
+            parentSet.add(parent);
+        }
         const toStore = {
             key,
             value,
-            after: new Set([...after.values(), stored]),
+            after: parentSet,
         };
         return put(toStore);
     } catch (error) {

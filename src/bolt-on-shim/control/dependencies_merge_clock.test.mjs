@@ -104,7 +104,7 @@ test("mergeClock - mutates only target", t => {
     }
 });
 
-const jscOptions = { tests: 10000, quiet: true };
+const jscOptions = { tests: 1000, quiet: true };
 
 test("mergeClock - generative", t => {
     try {
