@@ -3,7 +3,7 @@ import jsc from "jsverify";
 import { compareClocks } from "./dependencies";
 import { clock, clocksHappensBefore, clocksConcurrent } from "./clock-gen";
 
-const jscOptions = { tests: 1000, quiet: false };
+const jscOptions = { tests: 100, quiet: false };
 
 test("compareClocks - equal / generative", t => {
     try {

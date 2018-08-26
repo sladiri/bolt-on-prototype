@@ -2,14 +2,10 @@ import test from "tape";
 import jsc from "jsverify";
 import jscCommands from "jsverify-commands"; // removed babel-polyfill from src
 
+const jscOptions = { tests: 100, quiet: false };
+
 test("jsverify commands test - Die Hard problem", async t => {
     try {
-        const property = jsc.forall(jsc.integer, async x => {
-            const ok = (await Promise.resolve(Number.isInteger(x))) === true;
-            return ok;
-        });
-        t.equal(await jsc.check(property), true);
-
         const FillBig = class {
             check(model) {
                 return model.big < 5;
@@ -109,6 +105,7 @@ test("jsverify commands test - Die Hard problem", async t => {
                 },
             });
         // const teardown = () => {};
+
         let retries = 0;
         while (retries < 10) {
             try {

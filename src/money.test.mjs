@@ -67,7 +67,7 @@ const Money = ({ Currency, Amount }) => {
 // #endregion
 
 test("Money", t => {
-    const options = { tests: 1000 };
+    const options = { tests: 100 };
     // #region correctnes
     const validCurrency = jsc.elements(["EUR", "USD", "GBP"]);
 
