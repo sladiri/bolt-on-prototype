@@ -103,7 +103,13 @@ export const applyAllPossible = async ({
                 bufferedWrites,
                 writesToApply,
             });
-            if (!isCovered) {
+            if (
+                !isCovered &&
+                process &&
+                process.env &&
+                process.env.NODE_ENV &&
+                process.env.NODE_ENV.toLowerCase() === "debug"
+            ) {
                 console.debug(
                     `applyAllPossible: hidden write for key=[${buffered.key}]`,
                 );

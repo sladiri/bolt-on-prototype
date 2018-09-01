@@ -11,6 +11,9 @@ import {
 } from "./control/wrapped-value";
 
 const shuffler = R.curry((random, list) => {
+    if (list.length < 2) {
+        return list;
+    }
     const len = list.length;
     let idx = -1;
     let position;
@@ -22,6 +25,8 @@ const shuffler = R.curry((random, list) => {
     }
     return result;
 });
+
+const pickRandom = list => shuffler(Math.random, list)[0];
 
 const getShim = ({
     localDb = undefined,
@@ -688,16 +693,46 @@ const AsyncTestHelper = async (t, promise) => {
     t.end();
 };
 
+const logSample = ({ property, numRuns, short = false }) => {
+    const shortRegex = /^.*\(/m;
+    for (const [commands] of fc.sample(property, { numRuns })) {
+        console.log("Sample =============");
+        for (const command of commands) {
+            let string = command["cmd"].toString();
+            if (short) {
+                const match = string.match(shortRegex);
+                if (match && typeof match[0] === "string") {
+                    string = match[0].trim();
+                    string = string.substr(0, string.length - 1);
+                }
+            }
+            console.log(string);
+        }
+        console.log("");
+    }
+};
+
 const compareValues = ({ value: a }, { value: b }) => {
     return JSON.stringify(a) === JSON.stringify(b);
 };
 
-const Upsert = class {
-    constructor({ key, value, after = new Map() }) {
+const filterParentKeys = ({ key, savedKeys, parentIndices }) => {
+    if (parentIndices[0] === -1) {
+        return savedKeys.filter(k => k !== key);
+    }
+    if (parentIndices[0] === -2) {
+        return [];
+    }
+    return parentIndices
+        .map(i => savedKeys[i])
+        .filter(k => k !== key && k !== undefined);
+};
+
+const Create = class {
+    constructor({ key, value, parentIndices }) {
         this.key = key;
         this.value = value;
-        this.after = after;
-        this.upserted = null;
+        this.parentIndices = parentIndices;
     }
     check(model) {
         return (
@@ -705,54 +740,46 @@ const Upsert = class {
         );
     }
     async run(model, shim) {
-        model.keys.add(this.key);
-        model.tick += 1;
-        assert(Number.isSafeInteger(model.tick));
+        // console.log("Create", model.shimId);
+        const { key, value, parentIndices } = this;
+        const { childParents, parentChildren } = model;
+        const savedKeys = [...model.keys.values()];
+        const parentKeys = filterParentKeys({
+            key,
+            savedKeys,
+            parentIndices,
+        }).filter(k => !model.hiddenEcdsUpdates.has(k));
 
-        const { key, value, after } = this;
+        childParents.set(key, new Set());
+        const after = new Map();
+        for (const parentKey of parentKeys) {
+            const parent = await shim.get({ key: parentKey });
+            after.set(parentKey, parent);
+            childParents.get(key).add(parentKey);
+            if (!parentChildren.get(parentKey)) {
+                parentChildren.set(parentKey, new Set());
+            }
+            parentChildren.get(parentKey).add(key);
+        }
+
+        model.keys.add(key);
+        model.tick += 1;
+
         await shim.upsert({ key, value, after });
 
-        this.upserted = await shim.get({ key });
-        assert(compareValues(this.upserted, this));
-    }
-    // toString() {
-    //     return `
-    //         upsert(
-    //             key=${JSON.stringify(this.key)}
-    //             value=${JSON.stringify(this.value)}
-    //         )`;
-    // }
-};
+        const upserted = await shim.get({ key });
+        assert(compareValues(upserted, this));
 
-const UpsertWithParents = class extends Upsert {
-    constructor(args) {
-        super(args);
-        this.parentIndices = args.parentIndices;
-    }
-    check(model) {
-        return super.check(model);
-    }
-    async run(model, shim) {
-        const keys = [...model.keys.values()];
-        const validKeys = this.parentIndices
-            .map(i => keys[i])
-            .filter(i => i !== undefined);
-        for (const parentKey of validKeys) {
+        const child = await shim.get({ key });
+        for (const parentKey of parentKeys) {
             const parent = await shim.get({ key: parentKey });
-            this.after.set(parentKey, parent);
+            const causality = child.clock.compare({ clock: parent.clock });
+            assert(!causality.happensBefore);
         }
-        await super.run(model, shim);
-        // NOPE Shim already checks this
-        // const child = await shim.get({ key: this.key });
-        // for (const parentKey of validKeys) {
-        //     const parent = await shim.get({ key: parentKey });
-        //     const causality = parent.clock.compare({ clock: child.clock });
-        //     assert(causality.happensAfter || causality.equal);
-        // }
     }
     toString() {
         return `
-            upsertWithParents(
+            create(
                 key=${JSON.stringify(this.key)}
                 value=${JSON.stringify(this.value)}
                 parentIndices=[${[...this.parentIndices]}]
@@ -760,54 +787,268 @@ const UpsertWithParents = class extends Upsert {
     }
 };
 
-const ShimId = fc.asciiString(1, 1);
-const Tick = fc.integer().filter(x => Number.isSafeInteger(x + 1));
-const Key = fc.asciiString(1, 1);
-const Value = fc.oneof(
-    fc.tuple(
-        fc.asciiString(),
-        fc.integer(),
-        fc.constant([]),
-        fc.constant({}),
-        fc.constant(null),
-    ),
-);
+const Update = class {
+    constructor({ value, index, parentIndices }) {
+        this.value = value;
+        this.index = index;
+        this.parentIndices = parentIndices;
+    }
+    check(model) {
+        return (
+            model.keys.size > this.index + 1 &&
+            Number.isSafeInteger(model.tick + 1)
+        );
+    }
+    async run(model, shim) {
+        // console.log("Update", model.shimId);
+        const { value, parentIndices } = this;
+        const { parentChildren } = model;
+        const savedKeys = [...model.keys.values()];
+        const key = savedKeys[this.index];
 
-test("shim - UPSERT / stateful property", async t => {
-    const ShimModel = class {
-        constructor({ shimId, tick }) {
-            this.shimId = shimId;
-            this.tick = tick;
-            this.keys = new Set();
+        if (model.hiddenEcdsUpdates.has(key)) {
+            return;
         }
-    };
 
-    const maxCommands = 10;
+        const parentKeys = filterParentKeys({
+            key,
+            savedKeys,
+            parentIndices,
+        }).filter(k => !model.hiddenEcdsUpdates.has(k));
+
+        const after = new Map();
+        for (const parentKey of parentKeys) {
+            const parent = await shim.get({ key: parentKey });
+            after.set(parentKey, parent);
+            model.childParents.get(key).add(parentKey);
+            if (!parentChildren.get(parentKey)) {
+                parentChildren.set(parentKey, new Set());
+            }
+            model.parentChildren.get(parentKey).add(key);
+        }
+
+        model.tick += 1;
+
+        await shim.upsert({ key, value, after });
+
+        const upserted = await shim.get({ key });
+        assert(compareValues(upserted, this));
+
+        const child = await shim.get({ key });
+        for (const parentKey of model.childParents.get(key).values()) {
+            const parent = await shim.get({ key: parentKey });
+            const causality = child.clock.compare({ clock: parent.clock });
+            assert(!causality.happensBefore);
+        }
+    }
+    toString() {
+        return `
+            update(
+                value=${JSON.stringify(this.value)}
+                index=${this.index}
+                parentIndices=[${[...this.parentIndices]}]
+            )`;
+    }
+};
+
+const UpdateEcds = class {
+    constructor({ value, index, parentIndices }) {
+        this.value = value;
+        this.index = index;
+        this.parentIndices = parentIndices;
+    }
+    check(model) {
+        return (
+            model.keys.size > this.index + 1 &&
+            Number.isSafeInteger(model.tick + 1)
+        );
+    }
+    async run(model, shim) {
+        const { value } = this;
+        const { shimId, localDb, ecdsDb } = model;
+
+        const key = [...model.keys.values()][this.index];
+
+        if (model.hiddenEcdsUpdates.has(key)) {
+            return;
+        }
+        // console.log("UpdateEcds", model.shimId);
+
+        const ecdsObj = JSON.parse(ecdsDb.get(key));
+
+        ecdsObj.value = value;
+        const storedClockTick = Number.parseInt(
+            ecdsObj.depsObj[key].clockObj[shimId],
+        );
+        ecdsObj.depsObj[key].clockObj[shimId] = `${storedClockTick + 1}`;
+
+        ecdsDb.set(key, JSON.stringify(ecdsObj));
+
+        const updated = await shim.get({ key });
+        assert(compareValues(updated, this));
+
+        const storedLocal = JSON.parse(localDb.get(key));
+        assert(compareValues(storedLocal, this));
+    }
+    toString() {
+        return `
+            updateEcds(
+                value=${JSON.stringify(this.value)}
+                index=${this.index}
+                parentIndices=[${[...this.parentIndices]}]
+            )`;
+    }
+};
+
+const UpdateEcdsUncovered = class {
+    constructor({ value, index, parentIndices }) {
+        this.value = value;
+        this.index = index;
+        this.parentIndices = parentIndices;
+    }
+    check(model) {
+        return (
+            model.childParents.size > this.index + 1 &&
+            Number.isSafeInteger(model.tick + 1)
+        );
+    }
+    async run(model, shim) {
+        const { value } = this;
+        const { shimId, localDb, ecdsDb, parentChildren } = model;
+
+        const key = [...model.childParents.keys()][this.index];
+        if (model.hiddenEcdsUpdates.has(key)) {
+            return;
+        }
+
+        const ecdsChild = JSON.parse(ecdsDb.get(key));
+
+        const parentKeys = Object.keys(ecdsChild.depsObj).filter(
+            k => k !== key && !model.hiddenEcdsUpdates.has(k),
+        );
+        if (parentKeys.length === 0) {
+            return;
+        }
+        model.hiddenEcdsUpdates.add(key);
+
+        for (const parentKey of parentKeys) {
+            model.hiddenEcdsUpdates.add(parentKey);
+            const ecdsTickParent = Number.parseInt(
+                ecdsChild.depsObj[parentKey].clockObj[shimId],
+            );
+            const nextTickParent = ecdsTickParent + 100; // Why is +1 not enough?
+            ecdsChild.depsObj[parentKey].clockObj[shimId] = `${nextTickParent}`;
+        }
+
+        const ecdsTickChild = Number.parseInt(
+            ecdsChild.depsObj[key].clockObj[shimId],
+        );
+        ecdsChild.depsObj[key].clockObj[shimId] = `${ecdsTickChild + 100}`;
+        const sameNewValue = compareValues(ecdsChild, this);
+        ecdsChild.value = value;
+
+        ecdsDb.set(key, JSON.stringify(ecdsChild));
+
+        const stored = await shim.get({ key });
+
+        if (!(!compareValues(stored, this) || sameNewValue)) {
+            debugger;
+        }
+
+        assert(!compareValues(stored, this) || sameNewValue);
+    }
+    toString() {
+        return `
+            updateEcdsUncovered(
+                value=${JSON.stringify(this.value)}
+                index=${this.index}
+                parentIndices=[${[...this.parentIndices]}]
+            )`;
+    }
+};
+
+// const ShimId = fc.asciiString(1, 1);
+const ShimId = fc.constant("SHIM_A");
+const Tick = fc.integer().filter(x => Number.isSafeInteger(x + 1));
+const Key = fc.asciiString(1, 2);
+const Value = fc.unicodeJsonObject();
+const ParentIndicesFac = ({ maxNumCommands, maxNumParents }) =>
+    fc.oneof(
+        fc.set(fc.nat(maxNumCommands), maxNumParents),
+        fc.set(fc.constant(-1)), // all
+        fc.set(fc.constant(-2)), // none
+    );
+
+const ShimModel = class {
+    constructor({ shimId, tick, localDb, ecdsDb }) {
+        this.shimId = shimId;
+        this.tick = tick;
+        this.localDb = localDb;
+        this.ecdsDb = ecdsDb;
+        this.keys = new Set();
+        this.childParents = new Map();
+        this.parentChildren = new Map();
+        this.hiddenEcdsUpdates = new Set();
+    }
+};
+
+test.only("shim / stateful property", async t => {
+    const maxNumCommands = 50;
+    const maxNumParents = 3;
+
+    const ParentIndices = ParentIndicesFac({ maxNumCommands, maxNumParents });
 
     const allCommands = [
         fc
-            .tuple(Key, Value, fc.set(fc.nat(maxCommands)))
+            .tuple(Key, Value, ParentIndices)
             .map(([key, value, parentIndices]) => {
-                return new UpsertWithParents({ key, value, parentIndices });
+                return new Create({ key, value, parentIndices });
+            }),
+        fc
+            .tuple(Value, fc.nat(maxNumCommands), ParentIndices)
+            .map(([value, index, parentIndices]) => {
+                return new Update({ value, index, parentIndices });
+            }),
+        fc
+            .tuple(Value, fc.nat(maxNumCommands), ParentIndices)
+            .map(([value, index, parentIndices]) => {
+                return new UpdateEcds({ value, index, parentIndices });
+            }),
+        fc
+            .tuple(Value, fc.nat(maxNumCommands), ParentIndices)
+            .map(([value, index, parentIndices]) => {
+                return new UpdateEcdsUncovered({ value, index, parentIndices });
             }),
         // fc.constant(new Size()),
     ];
 
-    const promise = fc.assert(
-        fc.asyncProperty(
-            fc.commands(allCommands, maxCommands),
-            ShimId,
-            Tick,
-            (cmds, shimId, tick) => {
-                const model = new ShimModel({ shimId, tick });
-                const real = getShim({ shimId, tick });
-                return fc.asyncModelRun(() => ({ model, real }), cmds);
-            },
-        ),
-        { numRuns: 100 },
+    const property = fc.asyncProperty(
+        fc.commands(allCommands, maxNumCommands),
+        ShimId,
+        Tick,
+        async (cmds, shimId, tick) => {
+            const localDb = new Map();
+            const ecdsDb = new Map();
+            const model = new ShimModel({ shimId, tick, localDb, ecdsDb });
+            const real = getShim({ shimId, tick, localDb, ecdsDb });
+            return fc.asyncModelRun(() => ({ model, real }), cmds);
+        },
     );
 
-    await AsyncTestHelper(t, promise);
+    // logSample({ property, numRuns: 500, short: true });
+
+    await AsyncTestHelper(
+        t,
+        fc.assert(
+            property,
+            { numRuns: 1000, verbose: false },
+            // {
+            //     seed: 1535909509562,
+            //     path:
+            //         "201:4:3:4:4:4:4:8:9:10:9:9:9:9:9:9:9:9:13:14:15:14:14:14:14:15:20:20:21:21:23:24:23:23:24:27:28:27:27:27:27:28:28:33:32:32:34:34:22",
+            // },
+        ),
+    );
 });
 
 // #endregion
