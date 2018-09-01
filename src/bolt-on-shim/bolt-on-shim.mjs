@@ -94,7 +94,7 @@ export const GetPessimistic = ({ ecdsStore, localStore }) => async ({
 export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
     key,
     value,
-    after = new Set(),
+    after = new Map(),
 }) => {
     assert(
         typeof tick === "object" &&
@@ -103,6 +103,7 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
         "shim.put Number.isSafeInteger(tick.value)",
     );
     assert(typeof key === "string", "shim.put typeof key === 'string'");
+    assert(after instanceof Map, "shim.put after instanceof Map");
     const stored = await localStore.get({ key });
     if (stored) {
         const current = deserialiseWrapped({ stored });
@@ -150,7 +151,7 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
 export const Upsert = ({ get, put }) => async ({
     key,
     value,
-    after = new Set(),
+    after = new Map(),
 }) => {
     assert(typeof key === "string", "shim.put typeof key === 'string'");
     try {
@@ -159,16 +160,12 @@ export const Upsert = ({ get, put }) => async ({
             return put({ key, value, after });
         }
         assertWrapped({ wrapped: stored });
-        const parentSet = new Set([...after.values(), stored]);
-        for (const [key] of stored.deps.all()) {
-            const parent = await get({ key });
-            parentSet.add(parent);
+        const parents = new Map([...after.entries(), [key, stored]]);
+        for (const [depKey] of stored.deps.all()) {
+            const parent = await get({ key: depKey });
+            parents.set(depKey, parent);
         }
-        const toStore = {
-            key,
-            value,
-            after: parentSet,
-        };
+        const toStore = { key, value, after: parents };
         return put(toStore);
     } catch (error) {
         console.error(error);

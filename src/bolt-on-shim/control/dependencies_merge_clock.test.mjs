@@ -3,6 +3,8 @@ import jsc from "jsverify";
 import { compareClocks, Dependency } from "./dependencies";
 import { clocksConcurrent } from "./clock-gen";
 
+const jscOptions = { tests: 100, quiet: true };
+
 test("mergeClock - clock is private copy", t => {
     try {
         let clock;
@@ -104,9 +106,7 @@ test("mergeClock - mutates only target", t => {
     }
 });
 
-const jscOptions = { tests: 100, quiet: true };
-
-test("mergeClock - generative", t => {
+test("mergeClock / property", t => {
     try {
         const property = jsc.forall(clocksConcurrent, ([x, y]) => {
             const dep1 = Dependency({ clock: new Map(x) });

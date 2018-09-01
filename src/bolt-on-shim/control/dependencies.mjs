@@ -86,8 +86,8 @@ export const Dependency = ({ clock }) => {
                             compare: ({ clock }) => {
                                 assertClock({ clock });
                                 const causality = compareClocks({
-                                    clock: clockCopy,
-                                    reference: clock,
+                                    reference: clockCopy,
+                                    clock,
                                 });
                                 assertCausality({ causality });
                                 return causality;
@@ -137,18 +137,18 @@ export const Dependency = ({ clock }) => {
     return dependency;
 };
 
-export const compareClocks = ({ clock, reference }) => {
-    assertClock({ clock });
+export const compareClocks = ({ reference, clock }) => {
     assertClock({ clock: reference });
+    assertClock({ clock });
     let earlier = false;
     let later = false;
     const toCheck = new Set([...reference.keys(), ...clock.keys()]);
     for (const shimId of toCheck.values()) {
-        let ourTick = clock.get(shimId);
+        let ourTick = reference.get(shimId);
         if (!Number.isSafeInteger(ourTick)) {
             ourTick = Number.MIN_SAFE_INTEGER;
         }
-        let theirTick = reference.get(shimId);
+        let theirTick = clock.get(shimId);
         if (!Number.isSafeInteger(theirTick)) {
             theirTick = Number.MIN_SAFE_INTEGER;
         }
@@ -258,6 +258,7 @@ export const deserialiseDependency = ({ stored }) => {
     return dependency;
 };
 
+export const assertDeps = ({ deps, childKey = undefined }) => {
     assert(
         typeof deps === "object" && deps !== null,
         "assertDeps typeof deps === 'object' && deps !== null",
@@ -276,20 +277,20 @@ export const deserialiseDependency = ({ stored }) => {
     );
     assert(
         // Optimise check and re-use iteration through deps here.
-        referenceKey ? typeof referenceKey === "string" : !referenceKey,
-        "assertDeps typeof referenceKey === 'string' : !referenceKey",
+        childKey ? typeof childKey === "string" : childKey === undefined,
+        "assertDeps childKey ? typeof childKey === 'string' : childKey === undefined",
     );
+    if (!childKey) {
+        return;
+    }
+    const childClock = deps.get({ key: childKey }).clock;
     for (const dependency of deps.all().values()) {
         assertDependency({ dependency });
-        if (!referenceKey) {
-            continue;
-        }
-        const causality = deps.get({ key: referenceKey }).clock.compare({
-            clock: dependency.clock,
-        });
-        console.assert(
+        const parentClock = dependency.clock;
+        const causality = childClock.compare({ clock: parentClock });
+        assert(
             !causality.happensBefore,
-            "assertDeps !reference.clock.happensBefore(dep.clock)",
+            "assertDeps !childClock.clock.happensBefore(parentClock)",
         );
     }
 };

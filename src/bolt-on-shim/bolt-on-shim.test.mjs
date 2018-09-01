@@ -23,40 +23,12 @@ const shuffler = R.curry((random, list) => {
     return result;
 });
 
-// const serialisable_ = jsc.oneof([
-//     jsc.integer,
-//     jsc.asciinestring,
-//     jsc.constant([]),
-//     jsc.constant({}),
-//     jsc.constant(null),
-// ]);
-// const shimId_ = jsc.asciinestring;
-// const tick_ = jsc.suchthat(jsc.nat, x => Number.isSafeInteger(x + 1));
-// const key_ = jsc.asciinestring;
-// const value_ = serialisable_;
-// const keyValuePairs_ = jsc.suchthat(
-//     jsc.suchthat(
-//         jsc.nearray(jsc.tuple([key_, value_])),
-//         keyValuePairs =>
-//             R.uniq(keyValuePairs.map(([k]) => k)).length ===
-//             keyValuePairs.length,
-//     ),
-//     keyValuePairs => keyValuePairs.length > 0,
-// );
-// const keyValuePairsWithParents_ = jsc.suchthat(
-//     jsc.tuple([shimId_, tick_, keyValuePairs_]),
-//     ([, tick, keyValuePairs]) =>
-//         Number.isSafeInteger(tick + keyValuePairs.length),
-// );
-
-// const keyValuePairsWithParentsWithValues_ = jsc.suchthat(
-//     jsc.tuple([keyValuePairsWithParents_, jsc.array(value_)]),
-//     ([[, tick, keyValuePairs], valuesNew]) =>
-//         Number.isSafeInteger(tick + keyValuePairs.length + valuesNew.length),
-// );
-
-const getShim = ({ localDb, ecdsDb, shimId = "a", tick = 10 }) => {
-    [...arguments];
+const getShim = ({
+    localDb = undefined,
+    ecdsDb = undefined,
+    shimId = "a",
+    tick = 1,
+}) => {
     const localStore = FakeStore({ db: localDb });
     const ecdsStore = FakeStore({ db: ecdsDb });
     const shim = Shim({ localStore, ecdsStore, shimId, tick });
@@ -102,9 +74,43 @@ const wrapAndStoreParents = async ({ shim, shimId, tick, keyValuePairs }) => {
     return { key, wrapped };
 };
 
-const jscOptions = { tests: 100, quiet: false };
+// #region
 
-// test("shim - returns from local-store or ECDS / generative", async t => {
+// const serialisable_ = jsc.oneof([
+//     jsc.integer,
+//     jsc.asciinestring,
+//     jsc.constant([]),
+//     jsc.constant({}),
+//     jsc.constant(null),
+// ]);
+// const shimId_ = jsc.asciinestring;
+// const tick_ = jsc.suchthat(jsc.nat, x => Number.isSafeInteger(x + 1));
+// const key_ = jsc.asciinestring;
+// const value_ = serialisable_;
+// const keyValuePairs_ = jsc.suchthat(
+//     jsc.suchthat(
+//         jsc.nearray(jsc.tuple([key_, value_])),
+//         keyValuePairs =>
+//             R.uniq(keyValuePairs.map(([k]) => k)).length ===
+//             keyValuePairs.length,
+//     ),
+//     keyValuePairs => keyValuePairs.length > 0,
+// );
+// const keyValuePairsWithParents_ = jsc.suchthat(
+//     jsc.tuple([shimId_, tick_, keyValuePairs_]),
+//     ([, tick, keyValuePairs]) =>
+//         Number.isSafeInteger(tick + keyValuePairs.length),
+// );
+
+// const keyValuePairsWithParentsWithValues_ = jsc.suchthat(
+//     jsc.tuple([keyValuePairsWithParents_, jsc.array(value_)]),
+//     ([[, tick, keyValuePairs], valuesNew]) =>
+//         Number.isSafeInteger(tick + keyValuePairs.length + valuesNew.length),
+// );
+
+// const jscOptions = { tests: 100, quiet: false };
+
+// test("shim - returns from local-store or ECDS / property", async t => {
 //     const compareStored = async ({ db, shim, shimId, tick, keyValuePairs }) => {
 //         const { key, wrapped } = await wrapAndStoreParents({
 //             shim,
@@ -156,7 +162,7 @@ const jscOptions = { tests: 100, quiet: false };
 //     }
 // });
 
-// test("shim - ECDS new keys applied to local-store / generative", async t => {
+// test("shim - ECDS new keys applied to local-store / property", async t => {
 //     try {
 //         const property = jsc.forall(
 //             keyValuePairsWithParents_,
@@ -203,7 +209,7 @@ const jscOptions = { tests: 100, quiet: false };
 //     }
 // });
 
-// test("shim - UPSERT advances clock and value is updated / generative", async t => {
+// test("shim - UPSERT advances clock and value is updated / property", async t => {
 //     try {
 //         const property = jsc.forall(
 //             keyValuePairsWithParentsWithValues_,
@@ -243,7 +249,7 @@ const jscOptions = { tests: 100, quiet: false };
 //     }
 // });
 
-// test("shim - ECDS updated values applied to local-store / generative", async t => {
+// test("shim - ECDS updated values applied to local-store / property", async t => {
 //     try {
 //         const property = jsc.forall(
 //             keyValuePairsWithParentsWithValues_,
@@ -294,7 +300,7 @@ const jscOptions = { tests: 100, quiet: false };
 //     }
 // });
 
-// test("shim - GET hides writes which are not covered / generative", async t => {
+// test("shim - GET hides writes which are not covered / property", async t => {
 //     const setDepWriteNotCovered = async ({
 //         ecdsDb,
 //         shim,
@@ -568,6 +574,8 @@ const jscOptions = { tests: 100, quiet: false };
 //     }
 // });
 
+// #endregion
+
 import fc from "fast-check";
 import assert from "assert";
 
@@ -584,7 +592,7 @@ test("shim - fast-check simple", async t => {
     }
 });
 
-test.only("shim - fast-check model", async t => {
+test("shim - fast-check model", async t => {
     try {
         const List = class {
             constructor() {
@@ -653,11 +661,11 @@ test.only("shim - fast-check model", async t => {
         ];
 
         const result = await fc.assert(
-            fc.asyncProperty(fc.commands(allCommands, 5), cmds => {
+            fc.asyncProperty(fc.commands(allCommands, 10), cmds => {
                 const s = () => ({ model: Model(), real: new List() });
                 return fc.asyncModelRun(s, cmds);
             }),
-            { numRuns: 1 },
+            { numRuns: 100 },
         );
         t.equal(result, undefined);
         t.end();
@@ -666,3 +674,140 @@ test.only("shim - fast-check model", async t => {
         t.end(true);
     }
 });
+
+// #region Model-based
+
+const AsyncTestHelper = async (t, promise) => {
+    let result;
+    try {
+        result = (await promise) === undefined;
+    } catch (error) {
+        console.error(error);
+    }
+    t.ok(result);
+    t.end();
+};
+
+const compareValues = ({ value: a }, { value: b }) => {
+    return JSON.stringify(a) === JSON.stringify(b);
+};
+
+const Upsert = class {
+    constructor({ key, value, after = new Map() }) {
+        this.key = key;
+        this.value = value;
+        this.after = after;
+        this.upserted = null;
+    }
+    check(model) {
+        return (
+            Number.isSafeInteger(model.tick + 1) && !model.keys.has(this.key)
+        );
+    }
+    async run(model, shim) {
+        model.keys.add(this.key);
+        model.tick += 1;
+        assert(Number.isSafeInteger(model.tick));
+
+        const { key, value, after } = this;
+        await shim.upsert({ key, value, after });
+
+        this.upserted = await shim.get({ key });
+        assert(compareValues(this.upserted, this));
+    }
+    // toString() {
+    //     return `
+    //         upsert(
+    //             key=${JSON.stringify(this.key)}
+    //             value=${JSON.stringify(this.value)}
+    //         )`;
+    // }
+};
+
+const UpsertWithParents = class extends Upsert {
+    constructor(args) {
+        super(args);
+        this.parentIndices = args.parentIndices;
+    }
+    check(model) {
+        return super.check(model);
+    }
+    async run(model, shim) {
+        const keys = [...model.keys.values()];
+        const validKeys = this.parentIndices
+            .map(i => keys[i])
+            .filter(i => i !== undefined);
+        for (const parentKey of validKeys) {
+            const parent = await shim.get({ key: parentKey });
+            this.after.set(parentKey, parent);
+        }
+        await super.run(model, shim);
+        // NOPE Shim already checks this
+        // const child = await shim.get({ key: this.key });
+        // for (const parentKey of validKeys) {
+        //     const parent = await shim.get({ key: parentKey });
+        //     const causality = parent.clock.compare({ clock: child.clock });
+        //     assert(causality.happensAfter || causality.equal);
+        // }
+    }
+    toString() {
+        return `
+            upsertWithParents(
+                key=${JSON.stringify(this.key)}
+                value=${JSON.stringify(this.value)}
+                parentIndices=[${[...this.parentIndices]}]
+            )`;
+    }
+};
+
+const ShimId = fc.asciiString(1, 1);
+const Tick = fc.integer().filter(x => Number.isSafeInteger(x + 1));
+const Key = fc.asciiString(1, 1);
+const Value = fc.oneof(
+    fc.tuple(
+        fc.asciiString(),
+        fc.integer(),
+        fc.constant([]),
+        fc.constant({}),
+        fc.constant(null),
+    ),
+);
+
+test("shim - UPSERT / stateful property", async t => {
+    const ShimModel = class {
+        constructor({ shimId, tick }) {
+            this.shimId = shimId;
+            this.tick = tick;
+            this.keys = new Set();
+        }
+    };
+
+    const maxCommands = 10;
+
+    const allCommands = [
+        fc
+            .tuple(Key, Value, fc.set(fc.nat(maxCommands)))
+            .map(([key, value, parentIndices]) => {
+                return new UpsertWithParents({ key, value, parentIndices });
+            }),
+        // fc.constant(new Size()),
+    ];
+
+    const promise = fc.assert(
+        fc.asyncProperty(
+            fc.commands(allCommands, maxCommands),
+            ShimId,
+            Tick,
+            (cmds, shimId, tick) => {
+                const model = new ShimModel({ shimId, tick });
+                const real = getShim({ shimId, tick });
+                return fc.asyncModelRun(() => ({ model, real }), cmds);
+            },
+        ),
+        { numRuns: 100 },
+    );
+
+    await AsyncTestHelper(t, promise);
+});
+
+// #endregion

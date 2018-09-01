@@ -5,7 +5,7 @@ import { clock, clocksHappensBefore, clocksConcurrent } from "./clock-gen";
 
 const jscOptions = { tests: 100, quiet: false };
 
-test("compareClocks - equal / generative", t => {
+test("compareClocks - equal / property", t => {
     try {
         const property = jsc.forall(clock, keyValuePairs => {
             const clock = new Map(keyValuePairs);
@@ -19,44 +19,45 @@ test("compareClocks - equal / generative", t => {
     }
 });
 
-test("compareClocks - happensBefore https://www.youtube.com/watch?v=jD4ECsieFbE", t => {
+test("compareClocks - happensBefore", t => {
+    // https://www.youtube.com/watch?v=jD4ECsieFbE
     try {
         let clock;
         let reference;
         let causality;
 
-        clock = new Map([["a", 1]]);
-        reference = new Map([["a", 2]]);
-        causality = compareClocks({ clock, reference });
-        t.equal(causality.happensBefore, true);
-
+        reference = new Map([["a", 1]]);
         clock = new Map([["a", 2]]);
-        reference = new Map([["a", 2], ["b", 2], ["c", 1]]);
-        causality = compareClocks({ clock, reference });
+        causality = compareClocks({ reference, clock });
         t.equal(causality.happensBefore, true);
 
-        clock = new Map([["a", 1]]);
-        reference = new Map([["a", 2], ["b", 2], ["c", 1]]);
-        causality = compareClocks({ clock, reference });
-        t.equal(causality.happensBefore, true);
-
-        clock = new Map([["c", 1]]);
-        reference = new Map([["a", 2], ["b", 3], ["c", 1]]);
-        causality = compareClocks({ clock, reference });
-        t.equal(causality.happensBefore, true);
-
+        reference = new Map([["a", 2]]);
         clock = new Map([["a", 2], ["b", 2], ["c", 1]]);
-        reference = new Map([["a", 5], ["b", 3], ["c", 3]]);
         causality = compareClocks({ clock, reference });
         t.equal(causality.happensBefore, true);
 
-        clock = new Map([["c", 1]]);
-        reference = new Map([["a", 5], ["b", 3], ["c", 3]]);
+        reference = new Map([["a", 1]]);
+        clock = new Map([["a", 2], ["b", 2], ["c", 1]]);
         causality = compareClocks({ clock, reference });
         t.equal(causality.happensBefore, true);
 
-        clock = new Map([["a", 3]]);
-        reference = new Map([["a", 5], ["b", 3], ["c", 3]]);
+        reference = new Map([["c", 1]]);
+        clock = new Map([["a", 2], ["b", 3], ["c", 1]]);
+        causality = compareClocks({ clock, reference });
+        t.equal(causality.happensBefore, true);
+
+        reference = new Map([["a", 2], ["b", 2], ["c", 1]]);
+        clock = new Map([["a", 5], ["b", 3], ["c", 3]]);
+        causality = compareClocks({ clock, reference });
+        t.equal(causality.happensBefore, true);
+
+        reference = new Map([["c", 1]]);
+        clock = new Map([["a", 5], ["b", 3], ["c", 3]]);
+        causality = compareClocks({ clock, reference });
+        t.equal(causality.happensBefore, true);
+
+        reference = new Map([["a", 3]]);
+        clock = new Map([["a", 5], ["b", 3], ["c", 3]]);
         causality = compareClocks({ clock, reference });
         t.equal(causality.happensBefore, true);
 
@@ -66,14 +67,14 @@ test("compareClocks - happensBefore https://www.youtube.com/watch?v=jD4ECsieFbE"
     }
 });
 
-test("compareClocks - happensBefore / generative", t => {
+test("compareClocks - happensBefore / property", t => {
     try {
         const property = jsc.forall(
             clocksHappensBefore,
-            ([clock, reference]) => {
+            ([reference, clock]) => {
                 const causality = compareClocks({
-                    clock: new Map(clock),
                     reference: new Map(reference),
+                    clock: new Map(clock),
                 });
                 return causality.happensBefore;
             },
@@ -85,7 +86,8 @@ test("compareClocks - happensBefore / generative", t => {
     }
 });
 
-test("compareClocks - concurrent https://www.youtube.com/watch?v=jD4ECsieFbE", t => {
+test("compareClocks - concurrent", t => {
+    // https://www.youtube.com/watch?v=jD4ECsieFbE
     try {
         let clock;
         let reference;
@@ -107,7 +109,7 @@ test("compareClocks - concurrent https://www.youtube.com/watch?v=jD4ECsieFbE", t
     }
 });
 
-test("compareClocks - concurrent / generative", t => {
+test("compareClocks - concurrent / property", t => {
     try {
         const property = jsc.forall(clocksConcurrent, ([clock, reference]) => {
             const causality = compareClocks({
