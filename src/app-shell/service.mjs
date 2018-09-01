@@ -1,16 +1,17 @@
+import assert from "assert";
 import { StorePouchDb } from "../store/store-pouchdb";
 import { Shim } from "../bolt-on-shim/bolt-on-shim";
 
 export const Service = ({ PouchDB, dbPath, dbName, shimId, tick }) => {
     const remoteDb = new PouchDB(`${dbPath}/${dbName}`);
-    console.assert(remoteDb, "Service ensureDb remoteDb");
+    assert(remoteDb, "Service ensureDb remoteDb");
     let dbEnsured = false;
     const ensureDb = async () => {
         if (dbEnsured) {
             return remoteDb;
         }
         const { db_name, adapter } = (await remoteDb.info()) || {};
-        console.assert(db_name === dbName, "Service db name");
+        assert(db_name === dbName, "Service db name");
         console.log(
             `Service: PouchDB connected to [${db_name}] via [${adapter}]`,
         );
@@ -25,7 +26,7 @@ export const Service = ({ PouchDB, dbPath, dbName, shimId, tick }) => {
             return shim;
         }
         const { db_name, adapter } = (await localDb.info()) || {};
-        console.assert(db_name === localDbName, "Service localDb name");
+        assert(db_name === localDbName, "Service localDb name");
         console.log(
             `Service: PouchDB connected to [${db_name}] via [${adapter}]`,
         );

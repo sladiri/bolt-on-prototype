@@ -1,3 +1,4 @@
+import assert from "assert";
 import { Resolver, applyAllPossible } from "./control/resolver";
 import {
     Dependency,
@@ -13,10 +14,10 @@ import {
 } from "./control/wrapped-value";
 
 export const Shim = ({ ecdsStore, localStore, shimId, tick }) => {
-    console.assert(ecdsStore, "Shim ecdsStore");
-    console.assert(localStore, "Shim localStore");
-    console.assert(shimId, "Shim shimId");
-    console.assert(Number.isSafeInteger(tick), "Shim tick");
+    assert(ecdsStore, "Shim ecdsStore");
+    assert(localStore, "Shim localStore");
+    assert(typeof shimId === "string", "Shim typeof shimId === 'string'");
+    assert(Number.isSafeInteger(tick), "Shim Number.isSafeInteger(tick)");
     const tickObj = { value: tick };
     // TODO: Tune Get with max-ECDS-reads
     const get = GetPessimistic({ ecdsStore, localStore });
@@ -32,7 +33,10 @@ export const Shim = ({ ecdsStore, localStore, shimId, tick }) => {
 export const GetOptimistic = ({ ecdsStore, localStore }) => {
     const resolver = Resolver({ ecdsStore, localStore });
     return async ({ key }) => {
-        console.assert(key, "shim.getOptimistic key");
+        assert(
+            typeof key === "string",
+            "shim.getOptimistic typeof key === 'string'",
+        );
         try {
             resolver.watchKey({ key });
             const stored = await localStore.get({ key });
@@ -52,7 +56,10 @@ export const GetOptimistic = ({ ecdsStore, localStore }) => {
 export const GetPessimistic = ({ ecdsStore, localStore }) => async ({
     key,
 }) => {
-    console.assert(key, "shim.getPessimistic key");
+    assert(
+        typeof key === "string",
+        "shim.getPessimistic typeof key === 'string'",
+    );
     try {
         const toBufferStored = await ecdsStore.get({ key });
         if (!toBufferStored) {
@@ -89,14 +96,13 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
     value,
     after = new Set(),
 }) => {
-    console.assert(
+    assert(
         typeof tick === "object" &&
             tick !== null &&
             Number.isSafeInteger(tick.value),
-        "shim.put tick",
+        "shim.put Number.isSafeInteger(tick.value)",
     );
-    console.assert(typeof key === "string", "shim.put key");
-    console.assert(after instanceof Set, "shim.put after");
+    assert(typeof key === "string", "shim.put typeof key === 'string'");
     const stored = await localStore.get({ key });
     if (stored) {
         const current = deserialiseWrapped({ stored });
@@ -105,7 +111,7 @@ export const Put = ({ ecdsStore, localStore, shimId, tick }) => async ({
         const causality = newDep.clock.compare({
             clock: current.deps.get({ key }).clock,
         });
-        console.assert(
+        assert(
             !causality.happensBefore,
             "shim.put !newDep.clock.happensBefore(stored.clock)",
         );
@@ -146,7 +152,7 @@ export const Upsert = ({ get, put }) => async ({
     value,
     after = new Set(),
 }) => {
-    console.assert(typeof key === "string", "shim.put key");
+    assert(typeof key === "string", "shim.put typeof key === 'string'");
     try {
         const stored = await get({ key });
         if (!stored) {

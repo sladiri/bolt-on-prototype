@@ -1,5 +1,7 @@
+import assert from "assert";
+
 export const Accept = ({ service }) => {
-    console.assert(typeof service === "function", "Accept service");
+    assert(typeof service === "function", "Accept service");
     const ensureService = (() => {
         let ensured;
         return async () => {
@@ -7,7 +9,7 @@ export const Accept = ({ service }) => {
                 return;
             }
             const { ensureDb, ensureShim } = await service();
-            console.assert(ensureDb, "Accept ensureDb");
+            assert(ensureDb, "Accept ensureDb");
             db = await ensureDb();
             shim = await ensureShim();
             ensured = true;
@@ -45,19 +47,13 @@ export const Accept = ({ service }) => {
 export const nextAction = ({ state, actions }) => {};
 
 export const assertState = ({ state }) => {
-    console.assert(state, "Model state");
-    console.assert(typeof state.route === "string", "Model state.route");
-    console.assert(
+    assert(state, "Model state");
+    assert(typeof state.route === "string", "Model state.route");
+    assert(
         typeof state.query === "object" && state.query !== null,
         "Model state.query",
     );
-    console.assert(typeof state.title === "string", "Model state.title");
-    console.assert(
-        typeof state.description === "string",
-        "Model state.description",
-    );
-    console.assert(
-        state.busy === true || state.busy === false,
-        "Model state.busy",
-    );
+    assert(typeof state.title === "string", "Model state.title");
+    assert(typeof state.description === "string", "Model state.description");
+    assert(state.busy === true || state.busy === false, "Model state.busy");
 };

@@ -1,3 +1,4 @@
+import assert from "assert";
 import {
     assertWrapped,
     serialiseWrapped,
@@ -7,8 +8,8 @@ import { assertDependency, assertClock } from "./dependencies";
 
 // Asynchronously applies updates to local reads for optimistic local reads
 export const Resolver = ({ ecdsStore, localStore }) => {
-    console.assert(ecdsStore, "Resolver ecdsStore");
-    console.assert(localStore, "Resolver localStore");
+    assert(ecdsStore, "Resolver ecdsStore");
+    assert(localStore, "Resolver localStore");
     const optimisticKeysToCheck = new Set();
     const { startResolver, resolverOk } = ResolveLoop({
         ecdsStore,
@@ -18,8 +19,8 @@ export const Resolver = ({ ecdsStore, localStore }) => {
     // startResolver();
     return {
         watchKey({ key }) {
-            console.assert(typeof key === "string", "resolver.watchKey key");
-            console.assert(resolverOk(), "resolver.watchKey resolverOk");
+            assert(typeof key === "string", "resolver.watchKey key");
+            assert(resolverOk(), "resolver.watchKey resolverOk");
             optimisticKeysToCheck.add(key);
         },
     };
@@ -32,15 +33,15 @@ export const ResolveLoop = ({
     bufferedWrites = new Map(),
     interval = 5000,
 }) => {
-    console.assert(
+    assert(
         optimisticKeysToCheck instanceof Set,
         "Resolve optimisticKeysToCheck instanceof Set",
     );
-    console.assert(
+    assert(
         bufferedWrites instanceof Map,
         "Resolve bufferedWrites instanceof Map",
     );
-    console.assert(
+    assert(
         Number.isSafeInteger(interval),
         "Resolve Number.isSafeInteger(interval)",
     );
@@ -86,7 +87,7 @@ export const applyAllPossible = async ({
     localStore,
     bufferedWrites,
 }) => {
-    console.assert(
+    assert(
         bufferedWrites instanceof Map,
         "applyAllPossible bufferedWrites instanceof Map",
     );
@@ -134,21 +135,18 @@ export const attemptToCover = async ({
     writesToApply,
     writesToConsider = new Map(),
 }) => {
-    console.assert(
+    assert(
         bufferedWrites instanceof Map,
         "attemptToCover bufferedWrites instanceof Map",
     );
     assertWrapped({ wrapped: writeToCheck });
-    console.assert(
+    assert(
         writesToApply instanceof Set,
         "attemptToCover writesToApply instanceof Set",
     );
-    console.assert(
-        writesToConsider instanceof Map,
-        "isCovered writesToConsider",
-    );
+    assert(writesToConsider instanceof Map, "isCovered writesToConsider");
     for (const clocks of writesToConsider.values()) {
-        console.assert(
+        assert(
             clocks instanceof Set,
             "attemptToCover writesToConsider/clocks instanceof Set",
         );
@@ -266,9 +264,9 @@ export const attemptToCover = async ({
 };
 
 const addToConsider = ({ key, clock, writesToConsider }) => {
-    console.assert(typeof key === "string", "addToConsider key === 'string'");
+    assert(typeof key === "string", "addToConsider key === 'string'");
     assertClock({ clock });
-    console.assert(
+    assert(
         writesToConsider instanceof Map,
         "addToConsider writesToConsider instanceof Map",
     );
@@ -276,11 +274,11 @@ const addToConsider = ({ key, clock, writesToConsider }) => {
         keyToConsider,
         clocksToConsider,
     ] of writesToConsider.entries()) {
-        console.assert(
+        assert(
             typeof keyToConsider === "string",
             "addToConsider keyToConsider === 'string'",
         );
-        console.assert(
+        assert(
             clocksToConsider instanceof Set,
             "addToConsider clocksToConsider instanceof Set",
         );

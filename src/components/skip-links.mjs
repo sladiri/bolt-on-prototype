@@ -1,3 +1,5 @@
+import assert from "assert";
+
 export const skipLinks = props => {
     const { render, cn, skips } = props;
     return render`
@@ -27,6 +29,6 @@ export const skipLink = props => {
 
 export const focusSkipLinkTarget = ({ id }) => () => {
     const target = document.getElementById(id);
-    console.assert(!!target, "Skip Link target");
+    assert(!!target, "Skip Link target");
     target.focus();
 };

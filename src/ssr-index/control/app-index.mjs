@@ -1,10 +1,11 @@
+import assert from "assert";
 import { SsrApp } from "hypersam/src/server";
 import PouchDB from "pouchdb";
 import { appShell as app, pages } from "../../app-shell/app-shell";
 import { Accept } from "../../app-shell/model";
 import { Service } from "../../app-shell/service";
 
-console.assert(pages.home && pages.home.page, "Routing: Home page");
+assert(pages.home && pages.home.page, "Routing: Home page");
 
 export const state = Object.seal(
     Object.assign(Object.create(null), {

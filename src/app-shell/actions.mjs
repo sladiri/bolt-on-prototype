@@ -1,17 +1,16 @@
+import assert from "assert";
+
 export const Actions = ({ service }) => {
-    console.assert(typeof service === "function", "Actions service");
+    assert(typeof service === "function", "Actions service");
     const ensureService = (() => {
         let ensured;
         return async () => {
             if (ensured) {
                 return;
             }
-            console.assert(
-                service && typeof service === "function",
-                "Actions service",
-            );
+            assert(service && typeof service === "function", "Actions service");
             const { ensureDb, ensureShim } = await service();
-            console.assert(ensureDb, "Actions ensureDb");
+            assert(ensureDb, "Actions ensureDb");
             db = await ensureDb();
             shim = await ensureShim();
             ensured = true;

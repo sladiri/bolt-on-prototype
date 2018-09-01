@@ -1,3 +1,4 @@
+import assert from "assert";
 import {
     assertDeps,
     assertDependency,
@@ -7,9 +8,8 @@ import {
 } from "./dependencies";
 
 export const Wrapped = ({ key, value, deps }) => {
-    console.assert(typeof key === "string", "Wrapped key");
-    console.assert(value !== undefined, "Wrapped value");
-    assertDeps({ deps, referenceKey: key });
+    assert(typeof key === "string", "Wrapped key");
+    assert(value !== undefined, "Wrapped value");
     const valueJson = JSON.stringify(value); // Ensures serialisation in stores!
     const _deps = deserialiseDeps({
         stored: serialiseDeps({ deps }),
@@ -19,14 +19,14 @@ export const Wrapped = ({ key, value, deps }) => {
             key: {
                 get: () => key,
                 set: () => {
-                    console.assert(false, "wrapped set key");
+                    assert(false, "wrapped set key");
                 },
                 enumerable: true,
             },
             value: {
                 get: () => JSON.parse(valueJson),
                 set: () => {
-                    console.assert(false, "wrapped set value");
+                    assert(false, "wrapped set value");
                 },
                 enumerable: true,
             },
@@ -39,7 +39,7 @@ export const Wrapped = ({ key, value, deps }) => {
                     return clock;
                 },
                 set: () => {
-                    console.assert(false, "wrapped set clock");
+                    assert(false, "wrapped set clock");
                 },
                 enumerable: true,
             },
@@ -51,7 +51,7 @@ export const Wrapped = ({ key, value, deps }) => {
                     return deps;
                 },
                 set: () => {
-                    console.assert(false, "wrapped set deps");
+                    assert(false, "wrapped set deps");
                 },
                 enumerable: true,
             },
@@ -61,10 +61,12 @@ export const Wrapped = ({ key, value, deps }) => {
 };
 
 export const assertWrapped = ({ wrapped }) => {
-    console.assert(wrapped, "assertWrapped wrapped");
+    assert(
+        typeof wrapped === "object" && wrapped !== null,
+        "assertWrapped typeof wrapped === 'object' && wrapped !== null",
+    );
     const { key, deps } = wrapped;
-    console.assert(typeof key === "string", "assertWrapped wrapped.key");
-    assertDeps({ deps, wrapped });
+    assert(typeof key === "string", "assertWrapped wrapped.key");
 };
 
 export const serialiseWrapped = ({ wrapped }) => {
@@ -80,15 +82,15 @@ export const serialiseWrapped = ({ wrapped }) => {
 };
 
 export const deserialiseWrapped = ({ stored }) => {
-    console.assert(typeof stored === "string", "typeof stored === 'string'");
+    assert(typeof stored === "string", "typeof stored === 'string'");
     const storedObj = JSON.parse(stored);
-    console.assert(
+    assert(
         typeof storedObj === "object" && storedObj !== null,
         "deserialiseWrapped typeof storedObj === 'object' && storedObj !== null",
     );
     const { key, value, depsObj } = storedObj;
-    console.assert(typeof key === "string", "deserialise storedObj.key");
-    console.assert(
+    assert(typeof key === "string", "deserialise storedObj.key");
+    assert(
         typeof depsObj === "object" && depsObj !== null,
         "deserialiseWrapped typeof depsObj === 'object' && depsObj !== null",
     );

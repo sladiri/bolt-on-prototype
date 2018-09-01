@@ -1,7 +1,8 @@
+import assert from "assert";
 import { assertWrapped } from "./wrapped-value";
 
 export const Dependencies = ({ after }) => {
-    console.assert(after instanceof Set, "dependencies after");
+    assert(after instanceof Map, "dependencies after");
     const depsMap = new Map();
     for (const wrapped of after.values()) {
         if (wrapped === undefined) {
@@ -45,10 +46,7 @@ const Deps = ({ depsMap }) => {
             },
             get: {
                 value: ({ key }) => {
-                    console.assert(
-                        typeof key === "string",
-                        "dependencies get key",
-                    );
+                    assert(typeof key === "string", "dependencies get key");
                     const dep = deserialiseDependency({
                         stored: serialiseDependency({
                             dependency: depsMap.get(key),
@@ -76,7 +74,7 @@ const Deps = ({ depsMap }) => {
 };
 
 export const Dependency = ({ clock }) => {
-    console.assert(clock instanceof Map, "Dependency clock instanceof Map");
+    assert(clock instanceof Map, "Dependency clock instanceof Map");
     const _clock = new Map(clock);
     const dependency = Object.seal(
         Object.create(Object.create(null), {
@@ -99,13 +97,13 @@ export const Dependency = ({ clock }) => {
                     return clockWithCompare;
                 },
                 set: () => {
-                    console.assert(false, "dependency set clock");
+                    assert(false, "dependency set clock");
                 },
                 enumerable: true,
             },
             mergeClock: {
                 value: ({ clock }) => {
-                    console.assert(
+                    assert(
                         clock instanceof Map,
                         "dependency.mergeClock depClock",
                     );
@@ -122,11 +120,11 @@ export const Dependency = ({ clock }) => {
             },
             setClockTick: {
                 value: ({ shimId, tick }) => {
-                    console.assert(
+                    assert(
                         typeof shimId === "string",
                         "dependency.setClockTick typeof shimId === 'string'",
                     );
-                    console.assert(
+                    assert(
                         Number.isSafeInteger(tick),
                         "dependency.setClockTick tick",
                     );
@@ -154,8 +152,8 @@ export const compareClocks = ({ clock, reference }) => {
         if (!Number.isSafeInteger(theirTick)) {
             theirTick = Number.MIN_SAFE_INTEGER;
         }
-        console.assert(Number.isSafeInteger(ourTick));
-        console.assert(Number.isSafeInteger(theirTick));
+        assert(Number.isSafeInteger(ourTick));
+        assert(Number.isSafeInteger(theirTick));
         if (ourTick < theirTick) {
             earlier = true;
         }
@@ -180,14 +178,14 @@ export const compareClocks = ({ clock, reference }) => {
 };
 
 export const assertClock = ({ clock }) => {
-    console.assert(clock instanceof Map, "assertClock clock instanceof Map");
-    console.assert(clock.size > 0, "assertClock clock.size > 0");
+    assert(clock instanceof Map, "assertClock clock instanceof Map");
+    assert(clock.size > 0, "assertClock clock.size > 0");
     for (const [shimId, tick] of clock.entries()) {
-        console.assert(
+        assert(
             typeof shimId === "string",
             "assertClock typeof clock/shimId === 'string'",
         );
-        console.assert(
+        assert(
             Number.isSafeInteger(tick),
             "assertClock Number.isSafeInteger(clock/tick)",
         );
@@ -195,14 +193,14 @@ export const assertClock = ({ clock }) => {
 };
 
 export const assertCausality = ({ causality }) => {
-    console.assert(
+    assert(
         typeof causality === "object" && causality !== null,
         "assertCausality typeof causality === 'object' && causality !== null",
     );
     const flagsActive = Object.values(causality).reduce((acc, flag) => {
         return acc + flag;
     }, 0);
-    console.assert(flagsActive === 1, "assertCausality flagsActive === 1");
+    assert(flagsActive === 1, "assertCausality flagsActive === 1");
     return flagsActive;
 };
 
@@ -240,12 +238,12 @@ export const serialiseDependency = ({ dependency }) => {
 };
 
 export const deserialiseDependency = ({ stored }) => {
-    console.assert(
+    assert(
         typeof stored === "object" && stored !== null,
         "deserialiseDependency typeof stored === 'object' && stored !== null",
     );
     const { clockObj } = stored;
-    console.assert(
+    assert(
         typeof clockObj === "object" && clockObj !== null,
         "deserialiseDependency typeof clockObj === 'object' && clockObj !== null",
     );
@@ -260,24 +258,23 @@ export const deserialiseDependency = ({ stored }) => {
     return dependency;
 };
 
-export const assertDeps = ({ deps, referenceKey }) => {
-    console.assert(
+    assert(
         typeof deps === "object" && deps !== null,
         "assertDeps typeof deps === 'object' && deps !== null",
     );
-    console.assert(
+    assert(
         typeof deps.all === "function",
         "assertDeps typeof deps.all === 'function'",
     );
-    console.assert(
+    assert(
         typeof deps.get === "function",
         "assertDeps typeof deps.get === 'function'",
     );
-    console.assert(
+    assert(
         typeof deps.put === "function",
         "assertDeps typeof deps.put === 'function'",
     );
-    console.assert(
+    assert(
         // Optimise check and re-use iteration through deps here.
         referenceKey ? typeof referenceKey === "string" : !referenceKey,
         "assertDeps typeof referenceKey === 'string' : !referenceKey",
@@ -298,19 +295,19 @@ export const assertDeps = ({ deps, referenceKey }) => {
 };
 
 export const assertDependency = ({ dependency }) => {
-    console.assert(
+    assert(
         typeof dependency === "object" && dependency !== null,
         "assertDependency typeof dependency === 'object' && dependency !== null",
     );
-    console.assert(
+    assert(
         dependency.clock instanceof Map,
         "assertDependency dependency.clock instanceof Map",
     );
-    console.assert(
+    assert(
         typeof dependency.mergeClock === "function",
         "assertDependency typeof dependency.mergeClock === 'function'",
     );
-    console.assert(
+    assert(
         typeof dependency.setClockTick === "function",
         "assertDependency typeof dependency.setClockTick === 'function'",
     );
